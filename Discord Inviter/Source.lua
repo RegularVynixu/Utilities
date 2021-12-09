@@ -7,7 +7,7 @@
     |_____/|_|___/\___\___/|_|  \__,_| |_____|_| |_|\_/ |_|\__\___|_|   
     
     
-    Discord Inviter v1.0.2a
+    Discord Inviter v1.0.2b
     
     UI - Vynixu (Inspired by Discord)
     Scripting - Vynixu
