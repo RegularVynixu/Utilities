@@ -12,7 +12,7 @@
     UI - Vynixu (Inspired by Discord)
     Scripting - Vynixu
 
-    Documentation : 
+    Documentation : https://github.com/RegularVynixu/Utilities/blob/main/Discord%20Inviter/Documentation.lua
 
     [ What's new? ]
 
