@@ -7,7 +7,7 @@
     |_____/|_|___/\___\___/|_|  \__,_| |_____|_| |_|\_/ |_|\__\___|_|   
     
     
-    Discord Inviter v1.0.2b
+    Discord Inviter v1.0.2c
     
     UI - Vynixu (Inspired by Discord)
     Scripting - Vynixu
@@ -80,18 +80,8 @@ function Utility:GetCustomAsset(url)
             Method = "GET",
         }).Body
 
-        local fileName = "custom_asset[#".. math.random(1, 99999).. "].png"
+        local fileName = "custom_asset[#".. math.random(1, 999999999).. "].png"
         writefile(fileName, data)
-        for i = 1, 100 do -- 100 attempts to get the file
-            if isfile(fileName) then
-                break
-            end
-            task.wait()
-        end
-        if not isfile(fileName) then
-            return ""
-        end
-
         task.spawn(function()
             task.wait(5)
             if isfile(fileName) then
@@ -318,7 +308,7 @@ Inviter.Prompt = function(data)
 
     Inviter.Current.ServerName.Text = data.name or InviteData.guild.name
     Inviter.Current.ServerIcon.Image = guildAssets.Icon
-    Inviter.Current.Join.Text = "Join ".. data.name or InviteData.guild.name
+    Inviter.Current.Join.Text = "Join ".. (data.name or InviteData.guild.name)
 
     TogglePrompt(true)
     Inviter.Disconnect()    
@@ -385,6 +375,7 @@ Inviter.Destroy = function()
     assert(Inviter.Current.Prompt, "No invite is currently prompting.")
     Inviter.Disconnect()
     Inviter.Current.Prompt:Destroy()
+    Inviter.Current.Prompt = nil
 end
 
 -- Scripts
