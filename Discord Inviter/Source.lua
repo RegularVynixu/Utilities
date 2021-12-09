@@ -194,10 +194,12 @@ Inviter.Prompt = function(data)
     assert(data.invite, "Improper or no invite data assigned.")
     assert(Exploit.request, "Executor missing function : 'request'")
 
+    data.invite = Utility:GetCodeFromInvite(data.invite)
+
     -- UI Construction
 
     Inviter.Current.Prompt = Utility:Create("ScreenGui", {
-        Name = "Prompt - ".. Utility:GetCodeFromInvite(data.invite),
+        Name = "Prompt - ".. data.invite,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 
         Utility:Create("Frame", {
@@ -295,11 +297,11 @@ Inviter.Prompt = function(data)
     -- Scripts
 
     local InviteData = HS:JSONDecode(Exploit.request({
-        Url = "https://ptb.discord.com/api/invites/".. Utility:GetCodeFromInvite(data.invite),
+        Url = "https://ptb.discord.com/api/invites/".. data.invite,
         Method = "GET",
     }).Body)
     if not InviteData then
-        warn("[".. Utility:GetCodeFromInvite(data.invite).. "] Something went wrong while attempting to get the invite data.")
+        warn("[".. data.invite.. "] Something went wrong while attempting to get the invite data.")
         Inviter.Destroy()
         return
     end
@@ -314,35 +316,12 @@ Inviter.Prompt = function(data)
     Inviter.Current.Join.Parent = Inviter.Current.Background
     Inviter.Current.Ignore.Parent = Inviter.Current.Background
 
-    Inviter.Current.ServerName.Text = InviteData.guild.name
+    Inviter.Current.ServerName.Text = data.name or InviteData.guild.name
     Inviter.Current.ServerIcon.Image = guildAssets.Icon
-    Inviter.Current.Join.Text = "Join ".. InviteData.guild.name
+    Inviter.Current.Join.Text = "Join ".. data.name or InviteData.guild.name
 
     TogglePrompt(true)
-    Inviter.Connect()
-end
-
-Inviter.Join = function(invite)
-    assert(Exploit.request, "Executor missing function : 'request'")
-    Exploit.request({
-        Url = "http://127.0.0.1:6463/rpc?v=1",
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json",
-            ["Origin"] = "https://discord.com"
-        },
-        Body = HS:JSONEncode({
-            cmd = "INVITE_BROWSER",
-            args = {
-                code = invite,
-            },
-            nonce = HS:GenerateGUID(false)
-        }),
-    })
-end
-
-Inviter.Connect = function()
-    Inviter.Disconnect()
+    Inviter.Disconnect()    
     Inviter.Current.Connections.JoinEntered = Inviter.Current.Join.MouseEnter:Connect(function()
         TS:Create(Inviter.Current.Join, TweenInfo.new(.25), {
             BackgroundColor3 = Color3.fromRGB(75, 85, 200),
@@ -373,6 +352,25 @@ Inviter.Connect = function()
         Inviter.Disconnect()
         TogglePrompt(false)
     end)
+end
+
+Inviter.Join = function(invite)
+    assert(Exploit.request, "Executor missing function : 'request'")
+    Exploit.request({
+        Url = "http://127.0.0.1:6463/rpc?v=1",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json",
+            ["Origin"] = "https://discord.com"
+        },
+        Body = HS:JSONEncode({
+            cmd = "INVITE_BROWSER",
+            args = {
+                code = invite,
+            },
+            nonce = HS:GenerateGUID(false)
+        }),
+    })
 end
 
 Inviter.Disconnect = function()
