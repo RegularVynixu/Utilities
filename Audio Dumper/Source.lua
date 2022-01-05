@@ -22,6 +22,8 @@ function GetNumberId(soundId)
 end
 
 function DumpSounds()
+    print("collecting sounds...")
+    
     local soundIds = {}
     for i, v in next, game:GetDescendants() do
         if v:IsA("Sound") then
@@ -32,7 +34,11 @@ function DumpSounds()
         end
     end
 
+    print("collected sounds")
+    
     if #soundIds > 0 then
+        print("dumping sounds...")
+        
         local filePath = Files.Folder.. "/Dumped Sounds [".. game.PlaceId.. "].txt"
         local str = isfile(filePath) and readfile(filePath).. "\n" or ""
 
@@ -47,6 +53,7 @@ function DumpSounds()
 
         SetupFiles()
         writefile(filePath, str)
+        print("sounds successfully dumped to :", filePath)
     end
 end
 
