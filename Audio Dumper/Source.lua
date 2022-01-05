@@ -39,7 +39,7 @@ function DumpSounds()
     if #soundIds > 0 then
         print("dumping sounds...")
         
-        local filePath = Files.Folder.. "/Dumped Sounds [".. game.PlaceId.. "].txt"
+        local filePath = Files.Folder.. "/".. game.PlaceId.. ".txt"
         local str = isfile(filePath) and readfile(filePath).. "\n" or ""
 
         for i, v in next, soundIds do
