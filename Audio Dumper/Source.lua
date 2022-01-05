@@ -1,6 +1,5 @@
 -- Services
 
-local HS = game:GetService("HttpService")
 local MS = game:GetService("MarketplaceService")
 
 -- Files Setup
