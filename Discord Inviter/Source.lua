@@ -346,6 +346,7 @@ end
 
 Inviter.Join = function(invite)
     assert(Exploit.request, "Executor missing function : 'request'")
+    invite = Utility:GetCodeFromInvite(invite)
     Exploit.request({
         Url = "http://127.0.0.1:6463/rpc?v=1",
         Method = "POST",
