@@ -273,7 +273,7 @@ Inviter.Prompt = function(data)
     end
     
     local guildAssets = {
-        Icon = Modules.Utils.LoadCustomAsset("https://cdn.discordapp.com/icons/".. InviteData.guild.id.. "/".. InviteData.guild.icon.. ".png"),
+        Icon = Modules.Utils:LoadCustomAsset("https://cdn.discordapp.com/icons/".. InviteData.guild.id.. "/".. InviteData.guild.icon.. ".png"),
     }
 
     Inviter.Active.Prompt.Parent = game.CoreGui
