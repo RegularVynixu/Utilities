@@ -7,7 +7,7 @@
     |_____/|_|___/\___\___/|_|  \__,_| |_____|_| |_|\_/ |_|\__\___|_|   
     
     
-    Discord Inviter v1.0.2c
+    Discord Inviter v1.0.3a
     
     UI - Vynixu (Inspired by Discord)
     Scripting - Vynixu
@@ -16,9 +16,7 @@
 
     [ What's new? ]
 
-    [+] Rewritten (now open source)
-    [+] Slightly different UI
-    [+] Server icon- and name are now automatically applied
+    [*] Minor changes have been applied, custom asset loader is now modular
     
 ]]--
 
@@ -27,11 +25,19 @@
 local HS = game:GetService("HttpService")
 local TS = game:GetService("TweenService")
 
--- Exploit
+-- Variables
 
 local Exploit = {
     request = (syn and syn.request) or request or http_request,
-    getasset = getsynasset or getcustomasset,
+}
+local Modules = {
+    Utils = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Utils.lua"))(),
+}
+
+local Inviter = {
+    Active = {
+        Connections = {},
+    },
 }
 
 -- Utility
@@ -70,105 +76,74 @@ function Utility:GetCodeFromInvite(invite)
     return invite
 end
 
-function Utility:GetCustomAsset(url)
-    if url == "null" then
-        return ""
-    end
-    if Exploit.request and Exploit.getasset then
-        local data = Exploit.request({
-            Url = url,
-            Method = "GET",
-        }).Body
-
-        local fileName = "custom_asset[#".. math.random(1, 999999999).. "].png"
-        writefile(fileName, data)
-        task.spawn(function()
-            task.wait(5)
-            if isfile(fileName) then
-                delfile(fileName)
-            end
-        end)        
-        return Exploit.getasset(fileName)
-    end
-    return ""
-end
-
--- Inviter
-
-local Inviter = {
-    Current = {
-        Connections = {},
-    },
-}
-
 -- Misc Functions
 
 function TogglePrompt(bool)
-    assert(Inviter.Current.Prompt, "No invite is currently prompting.")
+    assert(Inviter.Active.Prompt, "No invite is currently prompting.")
 
     if bool then
-        Inviter.Current.Background.Visible = true
-        Inviter.Current.Background.Size = UDim2.new(0, 0, 0, 0)
-        Inviter.Current.Background.UICorner.CornerRadius = UDim.new(1, 0)
+        Inviter.Active.Background.Visible = true
+        Inviter.Active.Background.Size = UDim2.new(0, 0, 0, 0)
+        Inviter.Active.Background.UICorner.CornerRadius = UDim.new(1, 0)
 
-        TS:Create(Inviter.Current.Background, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Background, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             Size = UDim2.new(1, 0, 1, 0),
         }):Play()
-        TS:Create(Inviter.Current.Background.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Background.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             CornerRadius = UDim.new(0, 7),
         }):Play()
         task.wait(1)
 
-		TS:Create(Inviter.Current.ServerIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+		TS:Create(Inviter.Active.ServerIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             BackgroundTransparency = 0,
             ImageTransparency = 0,
         }):Play()
         task.wait(.1)
-		TS:Create(Inviter.Current.Background.Invited, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+		TS:Create(Inviter.Active.Background.Invited, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             TextTransparency = 0,
         }):Play()
         task.wait(.1)
-		TS:Create(Inviter.Current.ServerName, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+		TS:Create(Inviter.Active.ServerName, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             TextTransparency = 0,
         }):Play()
         task.wait(.1)
-		TS:Create(Inviter.Current.Join, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+		TS:Create(Inviter.Active.Join, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             BackgroundTransparency = 0,
             TextTransparency = 0,
         }):Play()
         task.wait(.1)
-		TS:Create(Inviter.Current.Ignore, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+		TS:Create(Inviter.Active.Ignore, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             TextTransparency = 0,
         }):Play()
 		wait(1)
     else
-        TS:Create(Inviter.Current.Ignore, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Ignore, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             TextTransparency = 1,
         }):Play()
 		wait(.1)
-        TS:Create(Inviter.Current.Join, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Join, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             BackgroundTransparency = 1,
             TextTransparency = 1,
         }):Play()
         task.wait(.1)
-        TS:Create(Inviter.Current.ServerName, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.ServerName, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             TextTransparency = 1,
         }):Play()
         task.wait(.1)
-        TS:Create(Inviter.Current.Background.Invited, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Background.Invited, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             TextTransparency = 1,
         }):Play()
         task.wait(.1)
-        TS:Create(Inviter.Current.ServerIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.ServerIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             BackgroundTransparency = 1,
             ImageTransparency = 1,
         }):Play()
         task.wait(1)
 
-        TS:Create(Inviter.Current.Background, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Background, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             Size = UDim2.new(0, 0, 0, 0),
         }):Play()
-        TS:Create(Inviter.Current.Background.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), {
+        TS:Create(Inviter.Active.Background.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), {
             CornerRadius = UDim.new(1, 0),
         }):Play()
         task.wait(1)
@@ -180,7 +155,7 @@ end
 -- Functions
 
 Inviter.Prompt = function(data)
-    assert(not Inviter.Current.Prompt, "Already prompting an invite.")
+    assert(not Inviter.Active.Prompt, "Already prompting an invite.")
     assert(data.invite, "Improper or no invite data assigned.")
     assert(Exploit.request, "Executor missing function : 'request'")
 
@@ -188,7 +163,7 @@ Inviter.Prompt = function(data)
 
     -- UI Construction
 
-    Inviter.Current.Prompt = Utility:Create("ScreenGui", {
+    Inviter.Active.Prompt = Utility:Create("ScreenGui", {
         Name = "Prompt - ".. data.invite,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 
@@ -202,7 +177,7 @@ Inviter.Prompt = function(data)
         }),
     })
 
-    Inviter.Current.Background = Utility:Create("Frame", {
+    Inviter.Active.Background = Utility:Create("Frame", {
         Name = "Background",
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Color3.fromRGB(55, 55, 65),
@@ -222,7 +197,7 @@ Inviter.Prompt = function(data)
         }),
     }, UDim.new(1, 0))
 
-    Inviter.Current.ServerName = Utility:Create("TextLabel", {
+    Inviter.Active.ServerName = Utility:Create("TextLabel", {
         Name = "Name",
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 10, 0, 129),
@@ -235,7 +210,7 @@ Inviter.Prompt = function(data)
         TextWrapped = true,
     })
 
-    Inviter.Current.ServerIcon = Utility:Create("ImageLabel", {
+    Inviter.Active.ServerIcon = Utility:Create("ImageLabel", {
         Name = "Icon",
         Parent = Background,
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -247,7 +222,7 @@ Inviter.Prompt = function(data)
         ZIndex = 2,
     }, UDim.new(0, 20))
 
-    Inviter.Current.Join = Utility:Create("TextButton", {
+    Inviter.Active.Join = Utility:Create("TextButton", {
         Name = "Join",
         AutoButtonColor = false,
         BackgroundColor3 = Color3.fromRGB(90, 100, 240),
@@ -263,7 +238,7 @@ Inviter.Prompt = function(data)
         TextWrapped = true,
     }, UDim.new(0, 5))
 
-    Inviter.Current.Ignore = Utility:Create("TextButton", {
+    Inviter.Active.Ignore = Utility:Create("TextButton", {
         Name = "Ignore",
         BackgroundTransparency = 1,
         Position = UDim2.new(0.5, -27, 1, -34),
@@ -290,55 +265,57 @@ Inviter.Prompt = function(data)
         Url = "https://ptb.discord.com/api/invites/".. data.invite,
         Method = "GET",
     }).Body)
+
     if not InviteData then
         warn("[".. data.invite.. "] Something went wrong while attempting to get the invite data.")
         Inviter.Destroy()
         return
     end
+    
     local guildAssets = {
-        Icon = Utility:GetCustomAsset("https://cdn.discordapp.com/icons/".. InviteData.guild.id.. "/".. InviteData.guild.icon.. ".png"),
+        Icon = Modules.Utils.LoadCustomAsset("https://cdn.discordapp.com/icons/".. InviteData.guild.id.. "/".. InviteData.guild.icon.. ".png"),
     }
 
-    Inviter.Current.Prompt.Parent = game.CoreGui
-    Inviter.Current.Background.Parent = Inviter.Current.Prompt.Holder
-    Inviter.Current.ServerName.Parent = Inviter.Current.Background
-    Inviter.Current.ServerIcon.Parent = Inviter.Current.Background
-    Inviter.Current.Join.Parent = Inviter.Current.Background
-    Inviter.Current.Ignore.Parent = Inviter.Current.Background
+    Inviter.Active.Prompt.Parent = game.CoreGui
+    Inviter.Active.Background.Parent = Inviter.Active.Prompt.Holder
+    Inviter.Active.ServerName.Parent = Inviter.Active.Background
+    Inviter.Active.ServerIcon.Parent = Inviter.Active.Background
+    Inviter.Active.Join.Parent = Inviter.Active.Background
+    Inviter.Active.Ignore.Parent = Inviter.Active.Background
 
-    Inviter.Current.ServerName.Text = data.name or InviteData.guild.name
-    Inviter.Current.ServerIcon.Image = guildAssets.Icon
-    Inviter.Current.Join.Text = "Join ".. (data.name or InviteData.guild.name)
+    Inviter.Active.ServerName.Text = data.name or InviteData.guild.name
+    Inviter.Active.ServerIcon.Image = guildAssets.Icon
+    Inviter.Active.Join.Text = "Join ".. (data.name or InviteData.guild.name)
 
     TogglePrompt(true)
     Inviter.Disconnect()    
-    Inviter.Current.Connections.JoinEntered = Inviter.Current.Join.MouseEnter:Connect(function()
-        TS:Create(Inviter.Current.Join, TweenInfo.new(.25), {
+    Inviter.Active.Connections.JoinEntered = Inviter.Active.Join.MouseEnter:Connect(function()
+        TS:Create(Inviter.Active.Join, TweenInfo.new(.25), {
             BackgroundColor3 = Color3.fromRGB(75, 85, 200),
         }):Play()
     end)
 
-    Inviter.Current.Connections.JoinLeft = Inviter.Current.Join.MouseLeave:Connect(function()
-        TS:Create(Inviter.Current.Join, TweenInfo.new(.25), {
+    Inviter.Active.Connections.JoinLeft = Inviter.Active.Join.MouseLeave:Connect(function()
+        TS:Create(Inviter.Active.Join, TweenInfo.new(.25), {
             BackgroundColor3 = Color3.fromRGB(90, 100, 240),
         }):Play()
     end)
 
-    Inviter.Current.Connections.IgnoreEntered = Inviter.Current.Ignore.MouseEnter:Connect(function()
-        Inviter.Current.Ignore.Line.Visible = true
+    Inviter.Active.Connections.IgnoreEntered = Inviter.Active.Ignore.MouseEnter:Connect(function()
+        Inviter.Active.Ignore.Line.Visible = true
     end)
 
-    Inviter.Current.Connections.IgnoreLeft = Inviter.Current.Ignore.MouseLeave:Connect(function()
-        Inviter.Current.Ignore.Line.Visible = false
+    Inviter.Active.Connections.IgnoreLeft = Inviter.Active.Ignore.MouseLeave:Connect(function()
+        Inviter.Active.Ignore.Line.Visible = false
     end)
 
-    Inviter.Current.Connections.JoinClick = Inviter.Current.Join.MouseButton1Click:Connect(function()
+    Inviter.Active.Connections.JoinClick = Inviter.Active.Join.MouseButton1Click:Connect(function()
         Inviter.Disconnect()
         Inviter.Join(data.invite)
         TogglePrompt(false)
     end)
 
-    Inviter.Current.Connections.IgnoreClick = Inviter.Current.Ignore.MouseButton1Click:Connect(function()
+    Inviter.Active.Connections.IgnoreClick = Inviter.Active.Ignore.MouseButton1Click:Connect(function()
         Inviter.Disconnect()
         TogglePrompt(false)
     end)
@@ -365,18 +342,18 @@ Inviter.Join = function(invite)
 end
 
 Inviter.Disconnect = function()
-    for i, v in next, Inviter.Current.Connections do
+    for i, v in next, Inviter.Active.Connections do
         v:Disconnect()
         v = nil
     end
-    Inviter.Current.Ignore.Line.Visible = false
+    Inviter.Active.Ignore.Line.Visible = false
 end
 
 Inviter.Destroy = function()
-    assert(Inviter.Current.Prompt, "No invite is currently prompting.")
+    assert(Inviter.Active.Prompt, "No invite is currently prompting.")
     Inviter.Disconnect()
-    Inviter.Current.Prompt:Destroy()
-    Inviter.Current.Prompt = nil
+    Inviter.Active.Prompt:Destroy()
+    Inviter.Active.Prompt = nil
 end
 
 -- Scripts
