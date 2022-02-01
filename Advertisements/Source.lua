@@ -7,11 +7,11 @@ local TS = game:GetService("TweenService")
 -- Variables
 
 local Advertisements = {
-	Active = {},
+    Active = {},
 }
 local Modules = {
     Utils = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Utils.lua"))(),
-	Inviter = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Discord%20Inviter/Source.lua"))(),
+    Inviter = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Discord%20Inviter/Source.lua"))(),
 }
 local PropertyIgnores = {"Parent", "Position", "Visible"}
 
@@ -20,9 +20,9 @@ local Camera = workspace.CurrentCamera
 -- Local Functions
 
 local function PositionAdvertisement(advertisement, udim2)
-	if not advertisement.Holder then
-		return
-	end
+    if not advertisement.Holder then
+        return
+    end
 	
     local maxX = Camera.ViewportSize.X - advertisement.Holder.AbsoluteSize.X
     local maxY = Camera.ViewportSize.Y - advertisement.Holder.AbsoluteSize.Y - GS:GetGuiInset().Y
@@ -32,33 +32,33 @@ end
 -- Functions
 
 function Advertisements:Add(info, properties)
-	assert(info.Image)
+    assert(info.Image)
 	
-	-- UI Construction
+    -- UI Construction
 	
-	if not Advertisements.Gui then
-		Advertisements.Gui = Modules.Utils:Create("ScreenGui", {
-			Name = "Advertisements",
-			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		})
-		Advertisements.Gui.Parent = CG
-	end
+    if not Advertisements.Gui then
+        Advertisements.Gui = Modules.Utils:Create("ScreenGui", {
+            Name = "Advertisements",
+            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        })
+        Advertisements.Gui.Parent = CG
+    end
 
-	local advertisement = {
+    local advertisement = {
         active = true,
-		connections = {},
-	}
+        connections = {},
+    }
 	
-	advertisement.Holder = Modules.Utils:Create("ImageButton", {
-		Name = "Holder",
-		AutoButtonColor = false,
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		Size = properties.Size,
+    advertisement.Holder = Modules.Utils:Create("ImageButton", {
+        Name = "Holder",
+        AutoButtonColor = false,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = properties.Size,
         Visible = false,
-	}, UDim.new(0, 5))
+    }, UDim.new(0, 5))
 	
-	advertisement.Close = Modules.Utils:Create("TextButton", {
+    advertisement.Close = Modules.Utils:Create("TextButton", {
         Name = "Close",
         BackgroundTransparency = 1,
         Position = UDim2.new(1, -20, 0, 0),
@@ -69,49 +69,49 @@ function Advertisements:Add(info, properties)
         TextSize = 20,
         TextStrokeTransparency = .75,
         TextWrapped = true,
-	})
+    })
 	
-	advertisement.Holder.Parent = Advertisements.Gui
-	advertisement.Close.Parent = advertisement.Holder
+    advertisement.Holder.Parent = Advertisements.Gui
+    advertisement.Close.Parent = advertisement.Holder
 	
-	-- Setup
+    -- Setup
 	
-	Advertisements.Active[#Advertisements.Active + 1] = advertisement
+    Advertisements.Active[#Advertisements.Active + 1] = advertisement
 
     PositionAdvertisement(advertisement, UDim2.new(0, math.random(Camera.ViewportSize.X), 0, math.random(Camera.ViewportSize.Y)))
     advertisement.Holder.Image = Modules.Utils:LoadCustomAsset(info.Image)
-	for i, v in next, properties do
-		if not table.find(PropertyIgnores, i) then
+    for i, v in next, properties do
+        if not table.find(PropertyIgnores, i) then
             advertisement.Holder[i] = v
         end
-	end
+    end
 		
-	if info.Invite then
-		advertisement.connections.Interact = advertisement.Holder.MouseButton1Down:Connect(function(input, processed)
-			Modules.Inviter.Join(info.Invite)
-		end)
-	end
+    if info.Invite then
+        advertisement.connections.Interact = advertisement.Holder.MouseButton1Down:Connect(function(input, processed)
+            Modules.Inviter.Join(info.Invite)
+        end)
+    end
 
-	advertisement.connections.Close = advertisement.Close.MouseButton1Click:Connect(function()
-		Advertisements:Remove(advertisement)
-	end)
+    advertisement.connections.Close = advertisement.Close.MouseButton1Click:Connect(function()
+        Advertisements:Remove(advertisement)
+    end)
 
     advertisement.Holder.Visible = true
 
-	-- Scripts
+    -- Scripts
 	
-	task.wait(info.Duration and math.min(info.Duration, 30) or 10)
-	Advertisements:Remove(advertisement)
+    task.wait(info.Duration and math.min(info.Duration, 30) or 10)
+    Advertisements:Remove(advertisement)
 end
 
 function Advertisements:Remove(advertisement)
-	if not advertisement.active then
-		return
-	end
+    if not advertisement.active then
+        return
+    end
     advertisement.active = false
-	
-	advertisement.Close:Destroy()
-	advertisement.Close = nil
+
+    advertisement.Close:Destroy()
+    advertisement.Close = nil
 
     TS:Create(advertisement.Holder, TweenInfo.new(3), {
         ImageTransparency = 1,
@@ -119,13 +119,13 @@ function Advertisements:Remove(advertisement)
     task.wait(5)
 
     for i, v in next, advertisement.connections do
-		v:Disconnect()
-		v = nil
-	end
+        v:Disconnect()
+        v = nil
+    end
 
-	advertisement.Holder:Destroy()
-	advertisement.Holder = nil
-	Advertisements.Active[table.find(Advertisements.Active, advertisement)] = nil
+    advertisement.Holder:Destroy()
+    advertisement.Holder = nil
+    Advertisements.Active[table.find(Advertisements.Active, advertisement)] = nil
 end
 
 -- Scripts
