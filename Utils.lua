@@ -45,7 +45,7 @@ function Utils:LoadCustomAsset(url)
         writefile(fileName, data)
         
         task.spawn(function()
-            task.wait(3)
+            task.wait(5)
             if isfile(fileName) then
                 delfile(fileName)
             end
