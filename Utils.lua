@@ -13,7 +13,28 @@ local Utils = {}
 
 -- Functions
 
-function Utils.LoadCustomAsset(url)
+function Utils:Create(class, properties, radius)
+	local instance = Instance.new(class)
+
+	for i, v in next, properties do
+		if i ~= "Parent" then
+			if typeof(v) == "Instance" then
+				v.Parent = instance
+			else
+				instance[i] = v
+			end
+		end
+	end
+
+	if radius then
+		local uicorner = Instance.new("UICorner", instance)
+		uicorner.CornerRadius = radius
+	end
+    
+	return instance
+end
+
+function Utils:LoadCustomAsset(url)
     if Exploit.request and Exploit.getasset then
         local data = Exploit.request({
             Url = url,
