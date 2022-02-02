@@ -87,7 +87,7 @@ function Advertisements:Add(info, properties)
     end
 		
     if info.Invite then
-        advertisement.connections.Interact = advertisement.Holder.MouseButton1Down:Connect(function(input, processed)
+        advertisement.connections.Interact = advertisement.Holder.MouseButton1Down:Connect(function()
             Modules.Inviter.Join(info.Invite)
         end)
     end
