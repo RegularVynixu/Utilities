@@ -156,7 +156,7 @@ function ESP:UpdateContainers()
             if v.object and objectIsPlayer(v.object) then
                 local humanoid = v.object.Character:WaitForChild("Humanoid")
                 if humanoid then
-                    local healthPercentage = 100 / humanoid.MaxHealth * humanoid.Health
+                    local healthPercentage = math.floor(100 / humanoid.MaxHealth * humanoid.Health * 10) / 10
                     v.draw.display.obj.Text = v.draw.display.obj.Text.. (ESP.settings.health and (#v.draw.display.obj.Text == 0 and "" or " ").. "[".. healthPercentage.. "%]" or "")
                 end
             end
