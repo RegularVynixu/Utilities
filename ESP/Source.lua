@@ -149,8 +149,9 @@ function ESP:UpdateContainers()
                 end
             end
 
-            -- Updating display
+            -- Update draws
 
+            v.draw.tracer.obj.Visible = ESP.settings.tracers
             v.draw.display.obj.Text = (ESP.settings.distance and "[".. math.floor(GetMag(Root.Position, v.root.Position)).. " studs away]" or "")
 
             if v.object and objectIsPlayer(v.object) then
