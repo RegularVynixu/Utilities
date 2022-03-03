@@ -86,15 +86,20 @@ function ESP:Add(obj, settings)
         obj = nameLabel,
         type = "Text",
         offset = Vector2.new(0, -ESP.settings.textSize),
+        canRGB = true,
+        originalColor = nameLabel.Color,
     }
     container.draw.display = {
         obj = displayLabel,
         type = "Text",
+        originalColor = displayLabel.Color,
     }
     container.draw.tracer = {
         obj = tracer,
         type = "Tracer",
         offset = Vector2.new(0, ESP.settings.textSize),
+        canRGB = true,
+        originalColor = tracer.Color,
     }
     ESP.containers[container.object] = container
 
@@ -162,6 +167,14 @@ function ESP:UpdateContainers()
                 if humanoid then
                     local healthPercentage = math.floor(100 / humanoid.MaxHealth * humanoid.Health * 10) / 10
                     v.draw.display.obj.Text = v.draw.display.obj.Text.. (ESP.settings.health and (#v.draw.display.obj.Text == 0 and "" or " ").. "[".. healthPercentage.. "%]" or "")
+                end
+            end
+
+            -- Rainbow
+
+            for i2, v2 in next, v.draw do
+                if v2.canRGB then
+                    v2.obj.Color = ESP.settings.rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or v2.originalColor
                 end
             end
         else
