@@ -143,15 +143,18 @@ function ESP:UpdateContainers()
                     v2.obj.Position = rootPos + (v2.offset or Vector2.new())
 
                 elseif v2.type == "Tracer" then
-                    v2.obj.From = ESP.settings.tracerFrom
-                    v2.obj.To = rootPos + (v2.offset or Vector2.new())
-                    v2.obj.Thickness = ESP.settings.tracerThickness
+                    if ESP.settings.tracers then
+                        v2.obj.From = ESP.settings.tracerFrom
+                        v2.obj.To = rootPos + (v2.offset or Vector2.new())
+                        v2.obj.Thickness = ESP.settings.tracerThickness
+                    else
+                        v2.obj.Visible = false
+                    end
                 end
             end
 
             -- Update draws
 
-            v.draw.tracer.obj.Visible = ESP.settings.tracers
             v.draw.display.obj.Text = (ESP.settings.distance and "[".. math.floor(GetMag(Root.Position, v.root.Position)).. " studs away]" or "")
 
             if v.object and objectIsPlayer(v.object) then
