@@ -35,6 +35,10 @@ local function GetMag(a, b)
     return (Vector3.new(b.X, b.Y, b.Z) - Vector3.new(a.X, a.Y, a.Z)).Magnitude
 end
 
+local function objectIsPlayer(obj)
+    return obj:IsDescendantOf(Players)
+end
+
 function ESP:Add(obj, settings)
     local container = ESP.containers[root] 
     if container then
@@ -55,12 +59,14 @@ function ESP:Add(obj, settings)
     local displayLabel = Drawing.new("Text")
     local tracer = Drawing.new("Line")
 
-    -- Positioning
+    -- Setup
+
+    local color = settings.color or (objectIsPlayer(obj) and obj.Team and obj.TeamColor.Color) or Color3.fromRGB(255, 255, 255)
 
     nameLabel.Center = true
     nameLabel.Outline = true
+    nameLabel.Color = color
     nameLabel.Text = settings.name or obj.Name
-    nameLabel.Color = settings.color or (obj.Team and obj.TeamColor.Color) or Color3.new(1, 1, 1)
     nameLabel.Position = getWTVP(container.root.Position)
     nameLabel.Size = ESP.settings.textSize
 
@@ -147,7 +153,7 @@ function ESP:UpdateContainers()
 
             v.draw.display.obj.Text = (ESP.settings.distance and "[".. math.floor(GetMag(Root.Position, v.root.Position)).. " studs away]" or "")
 
-            if v.object and v.object.Character then
+            if v.object and objectIsPlayer(v.object) then
                 local humanoid = v.object.Character:WaitForChild("Humanoid")
                 if humanoid then
                     local healthPercentage = 100 / humanoid.MaxHealth * humanoid.Health
