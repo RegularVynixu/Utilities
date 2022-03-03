@@ -40,9 +40,9 @@ local function objectIsPlayer(obj)
 end
 
 function ESP:Add(obj, settings)
-    local container = ESP.containers[root] 
+    local container = ESP.containers[obj] 
     if container then
-        ESP:Remove(container.root)
+        ESP:Remove(obj)
     end
 
     container = {
@@ -96,7 +96,7 @@ function ESP:Add(obj, settings)
         type = "Tracer",
         offset = Vector2.new(0, ESP.settings.textSize),
     }
-    ESP.containers[container.root] = container
+    ESP.containers[container.object] = container
 
     -- Scripts
 
@@ -109,8 +109,8 @@ function ESP:Add(obj, settings)
     return container
 end
 
-function ESP:Remove(root)
-    local container = ESP.containers[root] 
+function ESP:Remove(obj)
+    local container = ESP.containers[obj] 
     if container then
         container.active = false
 
@@ -123,7 +123,7 @@ function ESP:Remove(root)
             container.draw[i] = nil
         end
 
-        ESP.containers[root] = nil
+        ESP.containers[obj] = nil
     end
 end
 
