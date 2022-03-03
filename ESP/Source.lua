@@ -42,7 +42,7 @@ end
 function ESP:Add(obj, settings)
     local container = ESP.containers[root] 
     if container then
-        Remove(container.root)
+        ESP:Remove(container.root)
     end
 
     container = {
