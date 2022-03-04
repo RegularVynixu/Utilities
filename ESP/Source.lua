@@ -11,7 +11,7 @@ local Root = Char:WaitForChild("HumanoidRootPart")
 local Camera = workspace.CurrentCamera
 
 local ESP = {
-    enabled = true,
+    connections = {},
     containers = {},
     settings = {
         distance = true,
@@ -189,9 +189,18 @@ end
 
 -- Scripts
 
-RS.RenderStepped:Connect(ESP.UpdateContainers)
+ESP.connections.updateContainers = RS.RenderStepped:Connect(ESP.UpdateContainers)
 
-Plr.CharacterAdded:Connect(function(c)
+ESP.connections.playerRemoving = Players.PlayerRemoving:Connect(function(p)
+    for i, v in next, ESP.containers do
+        if v.object and v.object == p then
+            ESP:Remove(v.object)
+            break
+        end
+    end
+end)
+
+ESP.connections.characterAdded = Plr.CharacterAdded:Connect(function(c)
     Char, Root = c, c:WaitForChild("HumanoidRootPart")
 end)
 
