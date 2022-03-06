@@ -33,7 +33,7 @@ function DumpSounds()
         end
     end
 
-    print("collected sounds")
+    print("collected", #soundIds, "sounds")
     
     if #soundIds > 0 then
         print("dumping sounds...")
