@@ -211,10 +211,4 @@ ESP.connections.characterAdded = Plr.CharacterAdded:Connect(function(c)
     Char, Root = c, c:WaitForChild("HumanoidRootPart")
 end)
 
-for i, v in next, workspace:GetChildren() do
-    if v.Name == "Drop" and v:FindFirstChild("Briefcase") then
-        ESP:Add(v.Briefcase, {root = v.Briefcase, color = v.Briefcase.Color})
-    end
-end
-
 return ESP
