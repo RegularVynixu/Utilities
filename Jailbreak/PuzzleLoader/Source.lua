@@ -10,7 +10,7 @@
 
     Scripting - Vynixu
 
-    Documentation : N/A
+    Documentation : https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Jailbreak/PuzzleLoader/Documentation.lua
 
     [ What's new? ]
 
