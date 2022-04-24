@@ -7,7 +7,7 @@
     |_____/|_|___/\___\___/|_|  \__,_| |_____|_| |_|\_/ |_|\__\___|_|   
     
     
-    Discord Inviter v1.0.3a
+    Discord Inviter v1.0.4a
     
     UI - Vynixu (Inspired by Discord)
     Scripting - Vynixu
@@ -16,7 +16,7 @@
 
     [ What's new? ]
 
-    [*] Minor changes have been applied, custom asset loader is now modular
+    [*] Added .OnSelection signal
     
 ]]--
 
@@ -34,10 +34,13 @@ local Modules = {
     Utils = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Utils.lua"))(),
 }
 
+local BindableEvent = Instance.new("BindableEvent")
+
 local Inviter = {
     Active = {
         Connections = {},
     },
+    OnSelection = BindableEvent.Event,
 }
 
 -- Utility
@@ -310,12 +313,16 @@ Inviter.Prompt = function(data)
     end)
 
     Inviter.Active.Connections.JoinClick = Inviter.Active.Join.MouseButton1Click:Connect(function()
+        BindableEvent:Fire(true)
+
         Inviter.Disconnect()
         Inviter.Join(data.invite)
         TogglePrompt(false)
     end)
 
     Inviter.Active.Connections.IgnoreClick = Inviter.Active.Ignore.MouseButton1Click:Connect(function()
+        BindableEvent:Fire(false)
+
         Inviter.Disconnect()
         TogglePrompt(false)
     end)
