@@ -159,7 +159,7 @@ function ESP:UpdateContainers()
                 v.draw.display.object.Text = v.draw.display.object.Text.. " [".. math.floor(GetMag(Root.Position, v.root.Position)).. " distance]"
             end
 
-            if objectIsPlayer(v.object) then
+            if objectIsPlayer(v.object) and ESP.settings.health then
                 local humanoid = v.object.Character:WaitForChild("Humanoid")
                 if humanoid then
                     local healthPercentage = math.floor(100 / humanoid.MaxHealth * humanoid.Health * 10) / 10
