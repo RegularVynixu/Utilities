@@ -35,72 +35,56 @@ local function GetMag(a, b)
     return (Vector3.new(b.X, b.Y, b.Z) - Vector3.new(a.X, a.Y, a.Z)).Magnitude
 end
 
-local function objectIsPlayer(obj)
-    return obj:IsDescendantOf(Players)
+local function objectIsPlayer(object)
+    return object:IsDescendantOf(Players)
 end
 
-function ESP:Add(obj, settings)
-    local container = ESP.containers[obj] 
-    if container then
-        ESP:Remove(obj)
+function ESP:Add(object, settings)
+    if ESP.containers[object] then
+        ESP:Remove(object)
     end
 
-    container = {
+    local container = {
         connections = {},
         draw = {},
-        object = obj,
-        root = settings.root or obj,
+        object = object,
+        root = settings.root or object,
         active = true,
     }
 
     -- Construction
 
-    local nameLabel = Drawing.new("Text")
     local displayLabel = Drawing.new("Text")
     local tracer = Drawing.new("Line")
 
-    -- Setup
-
-    local color = settings.color or (objectIsPlayer(obj) and obj.Team and obj.TeamColor.Color) or Color3.fromRGB(255, 255, 255)
-
-    nameLabel.Center = true
-    nameLabel.Outline = true
-    nameLabel.Color = color
-    nameLabel.Text = settings.name or obj.Name
-    nameLabel.Position = getWTVP(container.root.Position)
-    nameLabel.Size = ESP.settings.textSize
+    local color = settings.color or (objectIsPlayer(object) and object.Team) and object.TeamColor.Color or Color3.fromRGB(255, 255, 255)
 
     displayLabel.Center = true
     displayLabel.Outline = true
-    displayLabel.Color = Color3.new(1, 1, 1)
+    displayLabel.Color = color
     displayLabel.Position = getWTVP(container.root.Position)
     displayLabel.Size = ESP.settings.textSize
 
-    tracer.Color = nameLabel.Color
+    tracer.Color = color
     tracer.From = ESP.settings.tracerFrom
     tracer.Thickness = ESP.settings.tracerThickness
 
     -- Indexing
 
-    container.draw.name = {
-        obj = nameLabel,
-        type = "Text",
-        offset = Vector2.new(0, -ESP.settings.textSize),
-        canRGB = true,
-        originalColor = nameLabel.Color,
-    }
     container.draw.display = {
-        obj = displayLabel,
+        object = displayLabel,
         type = "Text",
-        originalColor = displayLabel.Color,
+        canRGB = true,
+        originalColor = color,
     }
     container.draw.tracer = {
-        obj = tracer,
+        object = tracer,
         type = "Tracer",
         offset = Vector2.new(0, ESP.settings.textSize),
         canRGB = true,
-        originalColor = tracer.Color,
+        originalColor = color,
     }
+
     ESP.containers[container.object] = container
 
     -- Scripts
@@ -113,7 +97,7 @@ function ESP:Add(obj, settings)
 
     local player = Players:GetPlayerFromCharacter(container.root.Parent)
     if player then
-        container.connections.playerLeaving = Players.PlayerRemoving:Connect(function(p)
+        container.connections.playerRemoving = Players.PlayerRemoving:Connect(function(p)
             if p == player then
                 ESP:Remove(container.root)
             end
@@ -123,8 +107,8 @@ function ESP:Add(obj, settings)
     return container
 end
 
-function ESP:Remove(obj)
-    local container = ESP.containers[obj] 
+function ESP:Remove(object)
+    local container = ESP.containers[object] 
     if container then
         container.active = false
 
@@ -133,11 +117,11 @@ function ESP:Remove(obj)
             container.connections[i] = nil
         end
         for i, v in next, container.draw do
-            v.obj:Remove()
+            v.object:Remove()
             container.draw[i] = nil
         end
 
-        ESP.containers[obj] = nil
+        ESP.containers[object] = nil
     end
 end
 
@@ -148,34 +132,38 @@ function ESP:UpdateContainers()
 
         if v.active then
             for i2, v2 in next, v.draw do
-                if not v2.obj.Visible then
-                    v2.obj.Visible = true
+                if not v2.object.Visible then
+                    v2.object.Visible = true
                 end
                 
                 if v2.type == "Text" then
-                    v2.obj.Size = ESP.settings.textSize
-                    v2.obj.Position = rootPos + (v2.offset or Vector2.new())
+                    v2.object.Size = ESP.settings.textSize
+                    v2.object.Position = rootPos + (v2.offset or Vector2.new())
 
                 elseif v2.type == "Tracer" then
                     if ESP.settings.tracers then
-                        v2.obj.From = ESP.settings.tracerFrom
-                        v2.obj.To = rootPos + (v2.offset or Vector2.new())
-                        v2.obj.Thickness = ESP.settings.tracerThickness
+                        v2.object.From = ESP.settings.tracerFrom
+                        v2.object.To = rootPos + (v2.offset or Vector2.new())
+                        v2.object.Thickness = ESP.settings.tracerThickness
                     else
-                        v2.obj.Visible = false
+                        v2.object.Visible = false
                     end
                 end
             end
 
             -- Update draws
 
-            v.draw.display.obj.Text = (ESP.settings.distance and "[".. math.floor(GetMag(Root.Position, v.root.Position)).. " studs away]" or "")
+            v.draw.display.object.Text = v.object.Name
 
-            if v.object and objectIsPlayer(v.object) then
+            if ESP.settings.distance then
+                v.draw.display.object.Text = v.draw.display.object.Text.. " [".. math.floor(GetMag(Root.Position, v.root.Position)).. " distance]"
+            end
+
+            if objectIsPlayer(v.object) then
                 local humanoid = v.object.Character:WaitForChild("Humanoid")
                 if humanoid then
                     local healthPercentage = math.floor(100 / humanoid.MaxHealth * humanoid.Health * 10) / 10
-                    v.draw.display.obj.Text = v.draw.display.obj.Text.. (ESP.settings.health and (#v.draw.display.obj.Text == 0 and "" or " ").. "[".. healthPercentage.. "%]" or "")
+                    v.draw.display.object.Text = v.draw.display.object.Text.. " [".. healthPercentage.. "%]"
                 end
             end
 
@@ -183,13 +171,13 @@ function ESP:UpdateContainers()
 
             for i2, v2 in next, v.draw do
                 if v2.canRGB then
-                    v2.obj.Color = ESP.settings.rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or v2.originalColor
+                    v2.object.Color = ESP.settings.rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or v2.originalColor
                 end
             end
         else
             for i2, v2 in next, v.draw do
-                if v2.obj.Visible then
-                    v2.obj.Visible = false
+                if v2.object.Visible then
+                    v2.object.Visible = false
                 end
             end
         end
@@ -199,14 +187,6 @@ end
 -- Scripts
 
 ESP.connections.updateContainers = RS.RenderStepped:Connect(ESP.UpdateContainers)
-ESP.connections.playerRemoving = Players.PlayerRemoving:Connect(function(p)
-    for i, v in next, ESP.containers do
-        if v.object and v.object == p then
-            ESP:Remove(v.object)
-            break
-        end
-    end
-end)
 ESP.connections.characterAdded = Plr.CharacterAdded:Connect(function(c)
     Char, Root = c, c:WaitForChild("HumanoidRootPart")
 end)
