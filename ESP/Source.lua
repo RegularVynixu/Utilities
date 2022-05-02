@@ -95,15 +95,6 @@ function ESP:Add(object, settings)
         end
     end)
 
-    local player = Players:GetPlayerFromCharacter(container.root.Parent)
-    if player then
-        container.connections.playerRemoving = Players.PlayerRemoving:Connect(function(p)
-            if p == player then
-                ESP:Remove(container.root)
-            end
-        end)
-    end
-
     return container
 end
 
@@ -187,6 +178,13 @@ end
 -- Scripts
 
 ESP.connections.updateContainers = RS.RenderStepped:Connect(ESP.UpdateContainers)
+ESP.connections.playerRemoving = Players.PlayerRemoving:Connect(function(p)
+    for i, v in next, ESP.containers do
+        if v.object == p then
+            ESP:Remove(v.root)
+        end
+    end
+end)
 ESP.connections.characterAdded = Plr.CharacterAdded:Connect(function(c)
     Char, Root = c, c:WaitForChild("HumanoidRootPart")
 end)
