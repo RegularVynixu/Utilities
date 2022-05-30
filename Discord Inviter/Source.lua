@@ -1,25 +1,3 @@
---[[
-     _____  _                       _   _____            _ _            
-    |  __ \(_)                     | | |_   _|          (_) |           
-    | |  | |_ ___  ___ ___  _ __ __| |   | |  _ ____   ___| |_ ___ _ __ 
-    | |  | | / __|/ __/ _ \| '__/ _` |   | | | '_ \ \ / / | __/ _ \ '__|
-    | |__| | \__ \ (_| (_) | | | (_| |  _| |_| | | \ V /| | ||  __/ |   
-    |_____/|_|___/\___\___/|_|  \__,_| |_____|_| |_|\_/ |_|\__\___|_|   
-    
-    
-    Discord Inviter v1.0.4a
-    
-    UI - Vynixu (Inspired by Discord)
-    Scripting - Vynixu
-
-    Documentation : https://github.com/RegularVynixu/Utilities/blob/main/Discord%20Inviter/Documentation.lua
-
-    [ What's new? ]
-
-    [*] Added .OnSelection signal
-    
-]]--
-
 -- Services
 
 local HS = game:GetService("HttpService")
@@ -276,7 +254,7 @@ Inviter.Prompt = function(data)
     end
     
     local guildAssets = {
-        Icon = Modules.Utils:LoadCustomAsset("https://cdn.discordapp.com/icons/".. InviteData.guild.id.. "/".. InviteData.guild.icon.. ".png"),
+        Icon = Modules.Utils.LoadCustomAsset("https://cdn.discordapp.com/icons/".. InviteData.guild.id.. "/".. InviteData.guild.icon.. ".png"),
     }
 
     Inviter.Active.Prompt.Parent = game.CoreGui
