@@ -26,20 +26,22 @@ local Utils = {
             local r, g, b = c1.R + c2.R, c1.G + c2.G, c1.B + c2.B
             return Color3.fromRGB(math.min(r * 255, 255), math.min(g * 255, 255), math.min(b * 255, 255))
         end,
-
         Sub = function(c1, c2)
             local r, g, b = c1.R - c2.R, c1.G - c2.G, c1.B - c2.B
             return Color3.fromRGB(math.max(r * 255, 0), math.max(g * 255, 0), math.max(b * 255, 0))
+        end,
+        ToFormat = function(color3)
+            return "rgb(".. math.floor(math.min(color3.R * 255, 255)).. ", ".. math.floor(math.min(color3.G * 255, 255)).. ", ".. math.floor(math.min(color3.B * 255, 255)).. ")"
         end
     },
-    Assets = {
-        Delay = 3
+    Consts = {
+        AssetRemoveDelay = 3
     }
 }
 
 -- Misc Functions
 
-local function setUpAssetFiles()
+local function setupAssetFiles()
     if not isfolder(Files.Assets.Tree) then
         makefolder(Files.Assets.Tree)
     end
@@ -74,12 +76,12 @@ function Utils.LoadCustomAsset(imageUrl)
             for i, v in next, listfiles(Files.Assets.Tree) do
                 local fileTime = tonumber(string.split(name, ".txt")[1])
 
-                if tick() - fileTime > Utils.Assets.Delay then
+                if tick() - fileTime > Utils.Consts.AssetRemoveDelay then
                     delfile(v)
                 end
             end
         else
-            setUpAssetFiles()
+            setupAssetFiles()
         end
 
         --
@@ -93,7 +95,7 @@ function Utils.LoadCustomAsset(imageUrl)
         writefile(fileName, data)
         
         task.spawn(function()
-            task.wait(Utils.Assets.Delay)
+            task.wait(Utils.Consts.AssetRemoveDelay)
 
             if isfile(fileName) then
                 delfile(fileName)
