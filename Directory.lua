@@ -10,14 +10,16 @@ local function createFolder(directory)
     end
 end
 
-local function createBranch(branch, directory)
+local function createBranch(tree, branch, directory)
     for i, v in next, branch do
-        local branchDirectory = (directory or "").. "/".. (typeof(v) == "table" and i or v)
+        local branchName = typeof(v) == "table" and i or v
+        local branchDirectory = (directory or "").. "/".. branchName
         
         createFolder(branchDirectory)
+        tree[branchName] = branchDirectory
         
         if typeof(v) == "table" then
-            createBranch(v, branchDirectory)
+            createBranch(tree, v, branchDirectory)
         end
     end
 end
@@ -25,15 +27,20 @@ end
 -- Functions
 
 Directory.Create = function(tree, directory)
+    local newTree = {}
+
     for i, v in next, tree do
         local treeDirectory = (directory or "").. "/".. (typeof(v) == "table" and i or v)
         
         createFolder(treeDirectory)
+        newTree.Root = treeDirectory
         
         if typeof(v) == "table" then
-            createBranch(v, treeDirectory)
+            createBranch(newTree, v, treeDirectory)
         end
     end
+
+    return newTree
 end
 
 Directory.DecodeConfig = function(directory)
