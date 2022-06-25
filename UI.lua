@@ -12,6 +12,7 @@ local Exploit = {
     Request = (syn and syn.request) or request or http_request,
     GetAsset = getsynasset or getcustomasset
 }
+local Directory = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Directory.lua"))()
 
 local UI = {
     Color = {
@@ -30,14 +31,6 @@ local UI = {
         end
     }
 }
-
--- Misc Functions
-
-local function setupAssetFiles()
-    if not isfolder(Files.Assets.Tree) then
-        makefolder(Files.Assets.Tree)
-    end
-end
 
 -- Functions
 
@@ -87,26 +80,20 @@ end
 
 UI.LoadCustomAsset = function(imageUrl)
     if Exploit.Request and Exploit.GetAsset then
-        if isfolder(Files.Assets.Tree) then
-            for i, v in next, listfiles(Files.Assets.Tree) do
-                local fileTime = tonumber(string.split(name, ".txt")[1])
+        local directory = Directory.Create({ "Loaded Assets" })
 
-                if tick() - fileTime > 3 then
-                    delfile(v)
-                end
+        for i, v in next, listfiles(directory.Root) do
+            local fileTime = tonumber(string.split(name, ".txt")[1])
+
+            if tick() - fileTime > 3 then
+                delfile(v)
             end
-        else
-            setupAssetFiles()
         end
 
         --
 
-        local data = Exploit.Request({
-            Url = imageUrl,
-            Method = "GET"
-        }).Body
-    
-        local fileName = Files.Assets.Tree.. "/".. tick().. ".txt"
+        local data = Exploit.Request({ Url = imageUrl, Method = "GET" }).Body
+        local fileName = directory.Root.. "/".. tick().. ".txt"
         writefile(fileName, data)
         
         task.spawn(function()
