@@ -51,4 +51,14 @@ Directory.DecodeConfig = function(directory)
     return success, success and dConfig or {}
 end
 
+Directory.GetNameFromDirectory = function(directory)
+    for i = #directory, 1, -1 do
+        if table.find({"/", [[\]]}, string.sub(directory, i, i)) then
+            return string.sub(directory, i + 1, #directory)
+        end
+    end
+    
+    return directory
+end
+
 return Directory
