@@ -1,3 +1,7 @@
+-- Services
+
+local HS = game:GetService("HttpService")
+
 -- Variables
 
 local Directory = {}
