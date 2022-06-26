@@ -1,21 +1,15 @@
 -- Services
 
-local CG = game:GetService("CoreGui")
 local TS = game:GetService("TweenService")
 local HS = game:GetService("HttpService")
+local CG = game:GetService("CoreGui")
 
 -- Variables
 
 local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))()
-local Exploit = { Request = http_request or request or syn and syn.request }
+local Exploit = { Request = http_request or request or (syn and syn.request) }
 
-local ScreenGui = UI.Create("ScreenGui", {
-	Name = "Vynixu's Discord Inviter",
-	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-})
-ScreenGui.Parent = CG
-
-local Inviter = { Gui = ScreenGui, Connections = {} }
+local Inviter = { Connections = {} }
 
 -- Misc Functions
 
@@ -248,5 +242,14 @@ Inviter.Prompt = function(invite)
 
 	Inviter.Connections[Prompt] = connections
 end
+
+-- Scripts
+
+Inviter.Gui = UI.Create("ScreenGui", {
+	Name = "Vynixu's Discord Inviter",
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+})
+
+Inviter.Gui.Parent = CG
 
 return Inviter
