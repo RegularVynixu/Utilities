@@ -47,6 +47,14 @@ Directory.Create = function(tree, directory)
     return newTree
 end
 
+Directory.WriteConfig = function(directory, data)
+    local success = pcall(function()
+        writefile(directory, HS:JSONEncode(data))
+    end)
+
+    return success
+end
+
 Directory.DecodeConfig = function(directory)
     local success, dConfig = pcall(function()
         return HS:JSONDecode(readfile(directory))
