@@ -83,11 +83,7 @@ UI.LoadCustomAsset = function(imageUrl)
         local directory = Directory.Create({ "Loaded Assets" })
 
         for i, v in next, listfiles(directory.Root) do
-            local fileTime = tonumber(({string.gsub(v, ".txt", "")})[1])
-
-            if tick() - fileTime > 3 then
-                delfile(v)
-            end
+            delfile(v)
         end
 
         --
