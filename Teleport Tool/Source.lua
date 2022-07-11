@@ -41,25 +41,25 @@ end
 -- Functions
 
 TeleportTool.Add = function(self, vec3)
-    if #self.Points > 0 then
-        local point, nearest = nil, 2
+	if #self.Points > 0 then
+		local point, nearest = nil, 2
 
-        for i, v in next, self.Points do
-            local dist = (v.Position - vec3).Magnitude
+		for i, v in next, self.Points do
+			local dist = (v.Position - vec3).Magnitude
 
-            if dist < nearest then
-                point, nearest = v, dist
-            end
-        end
+			if dist < nearest then
+				point, nearest = v, dist
+			end
+		end
 
-        if point ~= nil then
-            point.Position = vec3; return
-        end
-    end
+		if point ~= nil then
+			point.Position = vec3; return
+		end
+	end
 
 	-- Point
-    
-    local point = Instance.new("Part")
+	
+	local point = Instance.new("Part")
 	point.Anchored = true
 	point.CanCollide = false
 	point.Color = Color3.new(1, 1, 1)
@@ -69,9 +69,9 @@ TeleportTool.Add = function(self, vec3)
 	point.Size = Vector3.new(0.4, 0.4, 0.4)
 	
 	local attachment = Instance.new("Attachment")
-    attachment.Parent = point
+	attachment.Parent = point
 	
-    -- ClickDetector
+	-- ClickDetector
 
 	local clickDetector = Instance.new("ClickDetector")
 	clickDetector.MaxActivationDistance = math.huge
@@ -88,7 +88,7 @@ TeleportTool.Add = function(self, vec3)
 		TeleportTool:Remove(point)
 	end)
 
-    clickDetector.Parent = point
+	clickDetector.Parent = point
 	
 	-- Indexing
 
@@ -108,18 +108,18 @@ TeleportTool.Add = function(self, vec3)
 		beam.Parent = prevPoint
 	end
 
-    point.Parent = workspace
+	point.Parent = workspace
 end
 
 TeleportTool.Remove = function(self, point)
-    table.remove(self.Points, table.find(self.Points, point)); point:Destroy()
-    updateVisual()
+	table.remove(self.Points, table.find(self.Points, point)); point:Destroy()
+	updateVisual()
 end
 
 TeleportTool.Clear = function(self)
 	for i = #self.Points, 1, -1 do
-        self:Remove(self.Points[i])
-    end
+		self:Remove(self.Points[i])
+	end
 end
 
 TeleportTool.Save = function(self)
