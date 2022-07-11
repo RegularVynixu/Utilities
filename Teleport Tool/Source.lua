@@ -84,7 +84,7 @@ TeleportTool.Add = function(self, vec3)
 		point.Color = Color3.new(1, 1, 1)
 	end)
 	
-	clickDetector.RightMouseClick:Connect(function()
+	clickDetector.MouseClick:Connect(function()
 		TeleportTool:Remove(point)
 	end)
 
