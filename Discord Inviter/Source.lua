@@ -116,7 +116,7 @@ Inviter.Prompt = function(options)
 		error("Something went wrong while attempting to obtain invite data. Check if invite is valid."); return
 	end
 	
-	local Prompt = { Invite = inviteData.code }
+	local Prompt = {}
 
 	Prompt.Frame = UI.Create("Frame", {
 		Name = "Background",
@@ -201,7 +201,7 @@ Inviter.Prompt = function(options)
 
 	-- Scripts
 
-	Prompt.Frame.ServerIcon.Image = UI.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png")
+	Prompt.Frame.ServerIcon.Image = inviteData.guild.icon ~= nil and UI.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png") or ""
 	Prompt.Frame.ServerName.Text = options.name or inviteData.guild.name
 	Prompt.Frame.Join.Text = "Join ".. (options.name or inviteData.guild.name)
 	Prompt.Frame.Parent = Inviter.Gui
