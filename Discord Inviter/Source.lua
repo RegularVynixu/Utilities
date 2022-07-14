@@ -7,16 +7,17 @@ local CG = game:GetService("CoreGui")
 -- Variables
 
 local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))()
-local Exploit = { Request = http_request or request or (syn and syn.request) }
+local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 
 local Inviter = { Connections = {} }
 
 -- Misc Functions
 
-local function getCode(invite)
+local function getInviteCode(invite)
 	if string.find(invite, "/") then
 		for i = #invite, 1, -1 do
 			local char = string.sub(invite, i, i)
+			
 			if char == "/" then
 				return string.sub(invite, i + 1, #invite)
 			end
@@ -67,8 +68,7 @@ local function disconnect(prompt)
 
 	if connections then
 		for i, v in next, connections do
-			v:Disconnect()
-			connections[i] = nil
+			v:Disconnect(); connections[i] = nil
 		end
 
 		prompt.Frame.Ignore.Line.Visible = false
@@ -78,19 +78,18 @@ end
 local function remove(prompt)
 	disconnect(prompt)
 	
-	prompt.Frame:Destroy()
-	prompt = nil
+	prompt.Frame:Destroy(); prompt = nil
 end
 
 -- Functions
 
 Inviter.Join = function(invite)
 	local success, inviteData = pcall(function()
-		return HS:JSONDecode(Exploit.Request({ Url = "https://ptb.discord.com/api/invites/".. getCode(invite), Method = "GET" }).Body)
+		return HS:JSONDecode(Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(invite), Method = "GET" }).Body)
 	end)
 	
-	if success then
-		Exploit.Request({
+	if success == true then
+		Functions.Request({
 			Url = "http://127.0.0.1:6463/rpc?v=1",
 			Method = "POST",
 			Headers = {
@@ -108,14 +107,13 @@ Inviter.Join = function(invite)
 	end
 end
 
-Inviter.Prompt = function(invite)
+Inviter.Prompt = function(options)
 	local success, inviteData = pcall(function()
-		return HS:JSONDecode(Exploit.Request({ Url = "https://ptb.discord.com/api/invites/".. getCode(invite), Method = "GET" }).Body)
+		return HS:JSONDecode(Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(options.invite), Method = "GET" }).Body)
 	end)
 
-	if not success then
-		error("Something went wrong while attempting to obtain invite data. Check if invite is valid.")
-		return
+	if success == false then
+		error("Something went wrong while attempting to obtain invite data. Check if invite is valid."); return
 	end
 	
 	local Prompt = { Invite = inviteData.code }
@@ -204,8 +202,8 @@ Inviter.Prompt = function(invite)
 	-- Scripts
 
 	Prompt.Frame.ServerIcon.Image = UI.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png")
-	Prompt.Frame.ServerName.Text = inviteData.guild.name
-	Prompt.Frame.Join.Text = "Join ".. inviteData.guild.name
+	Prompt.Frame.ServerName.Text = options.name or inviteData.guild.name
+	Prompt.Frame.Join.Text = "Join ".. (options.name or inviteData.guild.name)
 	Prompt.Frame.Parent = Inviter.Gui
 
 	toggle(Prompt, true)
@@ -221,7 +219,7 @@ Inviter.Prompt = function(invite)
 	end)
 
 	connections.joinClick = Prompt.Frame.Join.Activated:Connect(function()
-		task.spawn(Inviter.Join, getCode(invite))
+		task.spawn(Inviter.Join, getInviteCode(options.invite))
 
 		disconnect(Prompt)
 		toggle(Prompt, false)
