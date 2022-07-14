@@ -27,6 +27,18 @@ local function getInviteCode(invite)
 	return invite
 end
 
+local function getInitialsFromString(str)
+    local initials = string.upper(string.sub(str, 1, 1))
+    
+    for i = 1, #str do
+        if string.sub(str, i, i) == " " then
+            initials = initials.. string.upper(string.sub(str, i + 1, i + 1))
+        end
+    end
+    
+    return string.sub(initials, 1, 3)
+end
+
 local function toggle(prompt, bool)
 	if bool then
 		prompt.Frame.Visible = true
@@ -35,6 +47,7 @@ local function toggle(prompt, bool)
 		TS:Create(prompt.Frame.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), { CornerRadius = UDim.new(0, 7) }):Play()
 		task.wait(1)
 		TS:Create(prompt.Frame.ServerIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), { BackgroundTransparency = 0, ImageTransparency = 0 }):Play()
+		TS:Create(prompt.Frame.ServerIcon.ServerInitials, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 0 }):Play()
 		task.wait(0.1)
 		TS:Create(prompt.Frame.Label, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 0 }):Play()
 		task.wait(0.1)
@@ -54,6 +67,7 @@ local function toggle(prompt, bool)
 		TS:Create(prompt.Frame.Label, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 1 }):Play()
 		task.wait(0.1)
 		TS:Create(prompt.Frame.ServerIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), { BackgroundTransparency = 1, ImageTransparency = 1 }):Play()
+		TS:Create(prompt.Frame.ServerIcon.ServerInitials, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 1 }):Play()
 		task.wait(1)
 		TS:Create(prompt.Frame, TweenInfo.new(1, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 0, 0, 0) }):Play()
 		TS:Create(prompt.Frame.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), { CornerRadius = UDim.new(1, 0) }):Play()
@@ -112,7 +126,7 @@ Inviter.Prompt = function(options)
 		return HS:JSONDecode(Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(options.invite), Method = "GET" }).Body)
 	end)
 
-	if success == false then
+	if success == false or inviteData == nil then
 		error("Something went wrong while attempting to obtain invite data. Check if invite is valid."); return
 	end
 	
@@ -147,6 +161,20 @@ Inviter.Prompt = function(options)
 			Position = UDim2.new(0.5, 0, 0, 60),
 			Size = UDim2.new(0, 80, 0, 80),
 			ZIndex = 2,
+
+			UI.Create("TextLabel", {
+				Name = "ServerInitials",
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 5, 0.5, 0),
+				Size = UDim2.new(1, -10, 0, 30),
+				Font = Enum.Font.Gotham,
+				Text = "",
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextScaled = true,
+				TextTransparency = 1,
+				TextWrapped = true,
+			})
 		}, UDim.new(0, 20)),
 
 		UI.Create("TextLabel", {
@@ -200,12 +228,19 @@ Inviter.Prompt = function(options)
 	}, UDim.new(1, 0))
 
 	-- Scripts
+	
+	local serverName = (options.name ~= nil and options.name ~= "") and options.name or inviteData.guild.name
 
-	Prompt.Frame.ServerIcon.Image = inviteData.guild.icon ~= nil and UI.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png") or ""
-	Prompt.Frame.ServerName.Text = options.name or inviteData.guild.name
-	Prompt.Frame.Join.Text = "Join ".. (options.name or inviteData.guild.name)
+	Prompt.Frame.ServerName.Text = serverName
+	Prompt.Frame.Join.Text = "Join ".. serverName
+
+	if inviteData.guild.icon ~= nil then
+		Prompt.Frame.ServerIcon.Image = UI.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png")
+	else
+		Prompt.Frame.ServerIcon.ServerInitials.Text = getInitialsFromString(serverName)
+	end
+
 	Prompt.Frame.Parent = Inviter.Gui
-
 	toggle(Prompt, true)
 
 	local connections = {}
