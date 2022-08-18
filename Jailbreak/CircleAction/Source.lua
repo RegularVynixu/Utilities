@@ -109,7 +109,7 @@ function CircleAction.Add(spec)
 
 	return function()
 		return CircleAction.Remove(spec)
-	end
+	end, spec
 end
 
 function CircleAction.Remove(spec)
