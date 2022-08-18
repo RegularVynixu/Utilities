@@ -1,124 +1,10 @@
--- UI Construction
-
-local MainGui = Instance.new("ScreenGui")
-local CircleA = Instance.new("Frame")
-local Circle = Instance.new("ImageLabel")
-local Outer = Instance.new("ImageLabel")
-local TextLabel = Instance.new("TextLabel")
-local Outer2 = Instance.new("ImageLabel")
-local OuterFull = Instance.new("ImageLabel")
-local Help = Instance.new("TextLabel")
-local Hold = Instance.new("TextLabel")
-
-MainGui.Name = "MainGui"
-MainGui.Parent = game:GetService("CoreGui")
-MainGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-CircleA.Name = "CircleAction"
-CircleA.Parent = MainGui
-CircleA.AnchorPoint = Vector2.new(0.5, 0.5)
-CircleA.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-CircleA.BackgroundTransparency = 1
-CircleA.Position = UDim2.new(0.5, -32, 0.5, -32)
-CircleA.Size = UDim2.new(0, 64, 0, 64)
-
-Circle.Name = "Circle"
-Circle.Parent = CircleA
-Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Circle.BackgroundTransparency = 1
-Circle.BorderSizePixel = 0
-Circle.Size = UDim2.new(1, 0, 1, 0)
-Circle.ZIndex = 3
-Circle.Image = "rbxassetid://819379657"
-
-Outer.Name = "Outer"
-Outer.Parent = CircleA
-Outer.AnchorPoint = Vector2.new(0.5, 0.5)
-Outer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Outer.BackgroundTransparency = 1
-Outer.BorderSizePixel = 0
-Outer.Position = UDim2.new(0.5, 0, 0.5, 0)
-Outer.Size = UDim2.new(1, 16, 1, 16)
-Outer.Visible = false
-Outer.Image = "rbxassetid://819520293"
-Outer.ImageColor3 = Color3.fromRGB(214, 214, 214)
-
-TextLabel.Parent = CircleA
-TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel.BackgroundTransparency = 1
-TextLabel.BorderSizePixel = 0
-TextLabel.Size = UDim2.new(1, 0, 1, 0)
-TextLabel.ZIndex = 4
-TextLabel.Font = Enum.Font.SourceSansBold
-TextLabel.Text = "E"
-TextLabel.TextColor3 = Color3.fromRGB(93, 93, 93)
-TextLabel.TextScaled = true
-TextLabel.TextSize = 48
-TextLabel.TextStrokeColor3 = Color3.fromRGB(202, 202, 202)
-TextLabel.TextStrokeTransparency = 0.800
-TextLabel.TextTransparency = 0.400
-TextLabel.TextWrapped = true
-
-Outer2.Name = "Outer2"
-Outer2.Parent = CircleA
-Outer2.AnchorPoint = Vector2.new(0.5, 0.5)
-Outer2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Outer2.BackgroundTransparency = 1
-Outer2.BorderSizePixel = 0
-Outer2.Position = UDim2.new(0.5, 0, 0.5, 0)
-Outer2.Rotation = 90
-Outer2.Size = UDim2.new(1, 16, 1, 16)
-Outer2.Visible = false
-Outer2.ZIndex = 2
-Outer2.Image = "rbxassetid://819520293"
-Outer2.ImageColor3 = Color3.fromRGB(214, 214, 214)
-
-OuterFull.Name = "OuterFull"
-OuterFull.Parent = CircleA
-OuterFull.AnchorPoint = Vector2.new(0.5, 0.5)
-OuterFull.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-OuterFull.BackgroundTransparency = 1
-OuterFull.BorderSizePixel = 0
-OuterFull.Position = UDim2.new(0.5, 0, 0.5, 0)
-OuterFull.Size = UDim2.new(1, 16, 1, 16)
-OuterFull.Image = "rbxassetid://819379657"
-OuterFull.ImageColor3 = Color3.fromRGB(214, 214, 214)
-
-Help.Name = "Help"
-Help.Parent = CircleA
-Help.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Help.BackgroundTransparency = 1
-Help.BorderSizePixel = 0
-Help.Position = UDim2.new(0.5, -50, 1, 10)
-Help.Size = UDim2.new(0, 100, 0, 20)
-Help.Font = Enum.Font.SourceSans
-Help.Text = "Placeholder"
-Help.TextColor3 = Color3.fromRGB(255, 255, 255)
-Help.TextSize = 30
-Help.TextStrokeTransparency = 0.800
-
-Hold.Name = "Hold"
-Hold.Parent = CircleA
-Hold.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Hold.BackgroundTransparency = 1
-Hold.BorderSizePixel = 0
-Hold.Position = UDim2.new(0, 0, 0.100000001, 0)
-Hold.Size = UDim2.new(1, 0, 0.100000001, 0)
-Hold.ZIndex = 4
-Hold.Font = Enum.Font.SourceSansBold
-Hold.Text = "hold"
-Hold.TextColor3 = Color3.fromRGB(93, 93, 93)
-Hold.TextSize = 12
-Hold.TextStrokeColor3 = Color3.fromRGB(202, 202, 202)
-Hold.TextTransparency = 0.400
-
 -- Services
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TS = game:GetService("TweenService")
 local RS = game:GetService("RunService")
-
+local CG = game:GetService("CoreGui")
 
 -- Variables
 
@@ -127,11 +13,15 @@ local Char = Plr.Character or Plr.CharacterAdded:Wait()
 local Root = Char:WaitForChild("HumanoidRootPart")
 local Camera = workspace.CurrentCamera
 
-local CircleAction = { Frame = CircleA, Spec = nil, Specs = {} }
+local SelfModules = {
+	UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))(),
+}
+
+local CircleAction = { Spec = nil, Specs = {} }
 
 -- Misc Functions
 
-local function toggleSpec(bool, finished)
+local function toggle(bool, finished)
 	local posOffset = bool and -4 or -8
 	local sizeOffset = bool and 8 or 16
 
@@ -163,9 +53,9 @@ local function toggleSpec(bool, finished)
 	end
 end
 
-local function interactSpec()
+local function interact()
 	if CircleAction.Spec then
-		toggleSpec(true)
+		toggle(true)
 
 		local startTick = tick()
 		local angle = 0
@@ -188,7 +78,7 @@ local function interactSpec()
 			until (not UIS:IsKeyDown(Enum.KeyCode.E) and not UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)) or angle == 1 or not CircleAction.Spec
 		end
 
-		toggleSpec(false, angle == 1 or (CircleAction.Spec and not CircleAction.Spec.Timed))
+		toggle(false, angle == 1 or (CircleAction.Spec and not CircleAction.Spec.Timed))
 	end
 end
 
@@ -197,16 +87,18 @@ end
 function CircleAction.Add(spec)
 	assert(spec.Name, "No name assigned")
 	assert(spec.Part, "No part assigned")
-	
-	if typeof(spec.Dist) == "number" then
-		spec.Dist = math.min(spec.Dist, 100)
-	end
+	assert(typeof(spec.Callback) == "function", "No callback assigned")
 
+    if spec.Enabled == nil then
+        spec.Enabled = true
+    end
+	if not spec.Dist then
+		spec.Dist = math.clamp(spec.Dist, 0, 100)
+	end
 	if not spec.Priority then
 		spec.Priority = 1
 	end
-	
-	if spec.Timed and typeof(spec.Duration) ~= "number" then
+	if spec.Timed and not spec.Duration then
 		spec.Duration = 1
 	end
 
@@ -226,6 +118,114 @@ function CircleAction.Remove(spec)
 
 	return false
 end
+
+-- UI Construction
+
+local ScreenGui = SelfModules.UI.Create("ScreenGui", {
+    Name = "MainGui",
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+})
+
+CircleAction.Frame = SelfModules.UI.Create("Frame", {
+    Name = "CircleAction",
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0.5, -32, 0.5, -32),
+    Size = UDim2.new(0, 64, 0, 64),
+
+    SelfModules.UI.Create("ImageLabel", {
+        Name = "Circle",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 3,
+        Image = "rbxassetid://819379657",
+    }),
+
+    SelfModules.UI.Create("ImageLabel", {
+        Name = "Outer",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(1, 16, 1, 16),
+        Visible = false,
+        Image = "rbxassetid://819520293",
+        ImageColor3 = Color3.fromRGB(214, 214, 214),
+    }),
+
+    SelfModules.UI.Create("ImageLabel", {
+        Name = "Outer2",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Rotation = 90,
+        Size = UDim2.new(1, 16, 1, 16),
+        Visible = false,
+        ZIndex = 2,
+        Image = "rbxassetid://819520293",
+        ImageColor3 = Color3.fromRGB(214, 214, 214),
+    }),
+
+    SelfModules.UI.Create("ImageLabel", {
+        Name = "OuterFull",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(1, 16, 1, 16),
+        Image = "rbxassetid://819379657",
+        ImageColor3 = Color3.fromRGB(214, 214, 214),
+    }),
+
+    SelfModules.UI.Create("TextLabel", {
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 4,
+        Font = Enum.Font.SourceSansBold,
+        Text = "E",
+        TextColor3 = Color3.fromRGB(93, 93, 93),
+        TextScaled = true,
+        TextSize = 48,
+        TextStrokeColor3 = Color3.fromRGB(202, 202, 202),
+        TextStrokeTransparency = 0.8,
+        TextTransparency = 0.4,
+        TextWrapped = true,
+    }),
+
+    SelfModules.UI.Create("TextLabel", {
+        Name = "Hold",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0, 0, 0.1, 0),
+        Size = UDim2.new(1, 0, 0.1, 0),
+        ZIndex = 4,
+        Font = Enum.Font.SourceSansBold,
+        Text = "hold",
+        TextColor3 = Color3.fromRGB(93, 93, 93),
+        TextSize = 12,
+        TextStrokeColor3 = Color3.fromRGB(202, 202, 202),
+        TextTransparency = 0.4,
+    }),
+
+    SelfModules.UI.Create("TextLabel", {
+        Name = "Help",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0.5, -50, 1, 10),
+        Size = UDim2.new(0, 100, 0, 20),
+        Font = Enum.Font.SourceSans,
+        Text = "",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 30,
+        TextStrokeTransparency = 0.8,
+    }),
+})
+
+CircleAction.Frame.Parent = ScreenGui
+ScreenGui.Parent = CG
 
 -- Scripts
 
@@ -259,13 +259,13 @@ end)
 
 UIS.InputBegan:Connect(function(input, gameProcessed)
 	if not gameProcessed and input.KeyCode == Enum.KeyCode.E then
-		interactSpec()
+		interact()
 	end
 end)
 
 CircleAction.Frame.InputBegan:Connect(function(input, gameProcessed)
 	if not gameProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 then
-		interactSpec()
+		interact()
 	end
 end)
 
