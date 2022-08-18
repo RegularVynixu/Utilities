@@ -6,7 +6,7 @@
     <int> Duration,
     <int> Dist,
     <int> Priority,
-    <function> Callback,
+    <function> Callback, -- required
 }) --[[ Returns a function which will destroy the created spec ]]--
 
 -- Destroy A Spec
