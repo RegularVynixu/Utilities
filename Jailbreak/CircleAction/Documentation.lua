@@ -1,7 +1,7 @@
 -- Create A Spec
 <function> CircleAction.Create(<table> data{
-    <string> Name,
-    <instance> Part,
+    <string> Name, -- required
+    <instance> Part, -- required
     <boolean> Timed,
     <int> Duration,
     <int> Dist,
