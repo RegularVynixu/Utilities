@@ -12,6 +12,7 @@ local Plr = Players.LocalPlayer
 local Char = Plr.Character or Plr.CharacterAdded:Wait()
 local Root = Char:WaitForChild("HumanoidRootPart")
 local Camera = workspace.CurrentCamera
+local WorldToViewportPoint = Camera.WorldToViewportPoint
 
 local SelfModules = {
 	UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))(),
@@ -246,7 +247,7 @@ RS.Stepped:Connect(function()
 		end)
 		spec = specs[1]
 		
-		local screenPoint = Camera:WorldToViewportPoint(spec.Part.Position)
+		local screenPoint = WorldToViewportPoint(Camera, spec.Part.Position)
 		
 		CircleAction.Frame.Help.Text = spec.Name
 		CircleAction.Frame.Hold.Visible = spec.Timed
