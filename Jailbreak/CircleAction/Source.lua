@@ -12,7 +12,9 @@ local Plr = Players.LocalPlayer
 local Char = Plr.Character or Plr.CharacterAdded:Wait()
 local Root = Char:WaitForChild("HumanoidRootPart")
 local Camera = workspace.CurrentCamera
-local WorldToScreenPoint = Camera.WorldToScreenPoint
+
+local worldToScreenPoint = Camera.WorldToScreenPoint
+local findPartOnRayWithIgnoreList = workspace.FindPartOnRayWithIgnoreList
 
 local SelfModules = {
 	UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))(),
@@ -231,12 +233,16 @@ ScreenGui.Parent = CG
 -- Scripts
 
 RS.Stepped:Connect(function()
-	local specs, spec = {}, nil
+	local specs, spec, screenPoint = {}, nil, nil
 		
 	for _, v in next, CircleAction.Specs do
 		if v.Enabled and v.Part and v.Dist then
 			if (v.Part.Position - Root.Position).Magnitude <= v.Dist then
-				specs[#specs + 1] = v
+                local point, onScreen = worldToScreenPoint(Camera, v.Part.Position)
+                
+                if onScreen and (v.NoRay or not v.NoRay and not findPartOnRayWithIgnoreList(workspace, Ray.new(Root.Position, v.Part.Position - Root.Position), {Char, v.Part})) then
+                    screenPoint = point; specs[#specs + 1] = v
+                end
 			end
 		end
 	end
@@ -246,8 +252,6 @@ RS.Stepped:Connect(function()
 			return a.Priority > b.Priority
 		end)
 		spec = specs[1]
-		
-		local screenPoint = WorldToScreenPoint(Camera, spec.Part.Position)
 		
 		CircleAction.Frame.Help.Text = spec.Name
 		CircleAction.Frame.Hold.Visible = spec.Timed
