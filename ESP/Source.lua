@@ -48,6 +48,7 @@ function ESP:Add(object, settings)
         connections = {},
         draw = {},
         object = object,
+        name = settings.name or object.Name,
         root = settings.root or object,
         active = true,
     }
@@ -150,7 +151,7 @@ function ESP:UpdateContainers()
 
             -- Update draws
 
-            v.draw.display.object.Text = v.object.Name
+            v.draw.display.object.Text = v.name
 
             if ESP.settings.distance then
                 v.draw.display.object.Text = v.draw.display.object.Text.. " [".. math.floor(GetMag(Root.Position, v.root.Position)).. " distance]"
