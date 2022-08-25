@@ -40,9 +40,7 @@ local function objectIsPlayer(object)
 end
 
 function ESP:Add(object, settings)
-    if ESP.containers[object] then
-        ESP:Remove(object)
-    end
+    ESP:Remove(object)
 
     local container = {
         connections = {},
@@ -106,17 +104,17 @@ function ESP:Add(object, settings)
 end
 
 function ESP:Remove(object)
-    local container = ESP.containers[object] 
+    local container = ESP.containers[object]
+
     if container then
         container.active = false
 
         for i, v in next, container.connections do
-            v:Disconnect()
-            container.connections[i] = nil
+            v:Disconnect(); container.connections[i] = nil
         end
+
         for i, v in next, container.draw do
-            v.object:Remove()
-            container.draw[i] = nil
+            v.object:Remove(); container.draw[i] = nil
         end
 
         ESP.containers[object] = nil
