@@ -176,6 +176,7 @@ RS.Stepped:Connect(function()
                         v2.Obj.Thickness = ESP.Settings.TracerThickness
                     end
                     
+                    v2.Obj.Color = color
                     v2.Obj.Visible = v2.Type ~= "Line" or v2.Type == "Line" and ESP.Settings.Tracer
                 else
                     if ESP.Settings.Outline then
