@@ -88,14 +88,14 @@ function ESP:Add(object, settings)
 
     -- Scripts
 
-    container.connections.ancestryChanged = container.root.AncestryChanged:Connect(function()
-        if container.root:IsDescendantOf(nil) then
+    container.connections.ancestryChanged = container.root.AncestryChanged:Connect(function(_, p)
+        if not p then
             ESP:Remove(container.root)
         end
     end)
 
     if objectIsPlayer(container.object) then
-        container.connections.Died = container.object.Character.Humanoid.Died:Connect(function(_, p)
+        container.connections.Died = container.object.Character.Humanoid.Died:Connect(function()
             ESP:Remove(container.root)
         end)
     end
