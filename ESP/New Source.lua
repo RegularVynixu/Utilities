@@ -22,7 +22,7 @@ local ESP = {
         TracerThickness = 1,
         Outline = true,
         OutlineOpacity = 0.75,
-        OutlineOnTop = false,
+        OutlineOnTop = true,
         Rainbow = false,
         TextSize = 16,
     },
