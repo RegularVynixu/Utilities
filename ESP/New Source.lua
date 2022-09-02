@@ -22,6 +22,7 @@ local ESP = {
         TracerThickness = 1,
         Outline = true,
         OutlineOpacity = 0.75,
+        OutlineOnTop = false,
         Rainbow = false,
         TextSize = 16,
     },
@@ -90,7 +91,6 @@ function ESP:Add(root, options)
     tracer.Thickness = ESP.Settings.TracerThickness
 
     outline.Enabled = false
-    outline.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     outline.FillColor = container.Color
     outline.FillTransparency = 0.75
     outline.OutlineColor = container.Color
@@ -183,6 +183,7 @@ RS.Stepped:Connect(function()
                         v2.Obj.FillColor = color
                         v2.Obj.FillTransparency = ESP.Settings.OutlineOpacity
                         v2.Obj.OutlineColor = color
+                        v2.Obj.DepthMode = Enum.HighlightDepthMode[ESP.Settings.OutlineOnTop and "AlwaysOnTop" or "Occluded"]
                     end
                     
                     v2.Obj.Enabled = ESP.Settings.Outline
