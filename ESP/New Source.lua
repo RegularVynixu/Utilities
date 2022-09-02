@@ -95,7 +95,7 @@ function ESP:Add(root, options)
     outline.FillTransparency = 0.75
     outline.OutlineColor = container.Color
     outline.OutlineTransparency = 0
-    outline.Parent = container.Player and container.Player.Character or container.Root
+    outline.Parent = options.OutlineFocus or (container.Player and container.Player.Character) or (container.Root.Parent and container.Root.Parent.ClassName == "Model" and container.Root.Parent) or container.Root
 
     -- Connections
 
