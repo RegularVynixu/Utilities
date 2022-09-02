@@ -172,7 +172,7 @@ RS.Stepped:Connect(function()
 
                     elseif v2.Type == "Line" and ESP.Settings.Tracer then
                         v2.Obj.From = ESP.Settings.TracerFrom
-                        v2.Obj.To = screenPos + Vector2.new(0, texts * ESP.Settings.TextSize / 2)
+                        v2.Obj.To = screenPos + Vector2.new(0, math.max(texts * ESP.Settings.TextSize / 2, ESP.Settings.TextSize))
                         v2.Obj.Thickness = ESP.Settings.TracerThickness
                     end
                     
