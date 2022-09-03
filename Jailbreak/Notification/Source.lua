@@ -1,19 +1,35 @@
 -- Services
 
 local Players = game:GetService("Players")
-local CG = game:GetService("CoreGui")
 
 -- Variables
 
 local Plr = Players.LocalPlayer
 
-local SelfModules = {
-	UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))(),
-}
-
 local Notification = { Queue = {}, Color = Color3.fromRGB(42, 204, 255) }
 
 -- Misc Functions
+
+local function create(class, properties, radius)
+	local instance = Instance.new(class)
+
+	for i, v in next, properties do
+		if i ~= "Parent" then
+			if typeof(v) == "Instance" then
+				v.Parent = instance
+			else
+				instance[i] = v
+			end
+		end
+	end
+
+	if radius then
+		local uicorner = Instance.new("UICorner", instance)
+		uicorner.CornerRadius = radius
+	end
+
+	return instance
+end
 
 local function playSound(id, source, properties)
 	properties = properties or {}
@@ -77,13 +93,13 @@ end
 
 -- UI Construction
 
-Notification.Gui = SelfModules.UI.Create("ScreenGui", {
+Notification.Gui = create("ScreenGui", {
 	Name = "NotificationGui",
 	Enabled = false,
 	IgnoreGuiInset = true,
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	
-	SelfModules.UI.Create("ImageLabel", {
+	create("ImageLabel", {
 		Name = "ContainerNotification",
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
@@ -92,7 +108,7 @@ Notification.Gui = SelfModules.UI.Create("ScreenGui", {
 		Image = "rbxassetid://4915091158",
 		ImageColor3 = Notification.Color,
 		
-		SelfModules.UI.Create("TextLabel", {
+		create("TextLabel", {
 			Name = "Message",
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0, 35, 0, 11),
@@ -103,25 +119,25 @@ Notification.Gui = SelfModules.UI.Create("ScreenGui", {
 			TextSize = 30,
 			TextWrapped = true,
 			
-			SelfModules.UI.Create("UITextSizeConstraint", {
+			create("UITextSizeConstraint", {
 				MaxTextSize = 30,
 				MinTextSize = 5,
 			}),
 		}),
 		
-		SelfModules.UI.Create("UIAspectRatioConstraint", {
+		create("UIAspectRatioConstraint", {
 			AspectRatio = 5,
 			AspectType = Enum.AspectType.ScaleWithParentSize,
 			DominantAxis = Enum.DominantAxis.Height,
 		}),
 	}),
 	
-	SelfModules.UI.Create("UIPadding", {
+	create("UIPadding", {
 		PaddingTop = UDim.new(0.1, 0),
 	}),
 })
 
-Notification.Gui.Parent = CG
+Notification.Gui.Parent = Plr.PlayerGui
 
 -- Scripts
 
