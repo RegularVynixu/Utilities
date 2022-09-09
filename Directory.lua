@@ -34,7 +34,7 @@ Directory.Create = function(tree, directory)
     local newTree = {}
 
     for i, v in next, tree do
-        local treeDirectory = (directory or "").. "/".. (typeof(v) == "table" and i or v)
+        local treeDirectory = (directory and directory.. "/" or "").. (typeof(v) == "table" and i or v)
         
         createFolder(treeDirectory)
         newTree.Root = treeDirectory
