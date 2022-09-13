@@ -15,6 +15,7 @@ local WorldToViewportPoint = Camera.WorldToViewportPoint
 local ESP = {
     Containers = {},
     Settings = {
+        DisplayNames = true,
         Distance = true,
         Health = true,
         Tracer = true,
@@ -44,7 +45,19 @@ end
 
 local function getWTVP(vec3)
     local screenPos, onScreen = WorldToViewportPoint(Camera, vec3)
+    
     return Vector2.new(screenPos.X, screenPos.Y), onScreen
+end
+
+local function isAlive(container)
+    if container.Player and container.Player.Character and container.Player.Character:FindFirstChild("Humanoid") then
+        return container.Player.Character.Humanoid.Health > 0
+    
+    elseif container.Root then
+        return container.Root.Parent ~= nil
+    end
+
+    return false
 end
 
 -- Functions
@@ -62,7 +75,7 @@ function ESP:Add(root, options)
         Active = true,
         Root = root,
         Player = player,
-        Name = options.Name or player and player.DisplayName or root.Name,
+        Name = options.Name or (player and player[self.Settings.DisplayNames and "DisplayName" or "Name"]) or root.Name,
         Color = options.Color or (player and player.Team and player.TeamColor.Color) or Color3.new(1, 1, 1),
         Connections = {},
         Draw = {},
@@ -97,26 +110,12 @@ function ESP:Add(root, options)
     outline.OutlineTransparency = 0
     outline.Parent = options.OutlineFocus or (container.Player and container.Player.Character) or (container.Root.Parent and container.Root.Parent.ClassName == "Model" and container.Root.Parent) or container.Root
 
-    -- Connections
-
-    container.Connections.AncestryChanged = container.Root.AncestryChanged:Connect(function(_, p)
-        if not p then
-            self:Remove(container.Root)
-        end
-    end)
-
-    if container.Player and container.Player.Character and container.Player.Character:FindFirstChild("Humanoid") then
-        container.Connections.HumanoidDied = container.Player.Character.Humanoid.Died:Connect(function()
-            self:Remove(container.Root)
-        end)
-    end
-
     -- Indexing
 
-    container.Draw[#container.Draw + 1] = { Type = "Text", Name = "Name", Obj = nameLabel}
-    container.Draw[#container.Draw + 1] = { Type = "Text", Name = "Stats", Obj = statsLabel}
-    container.Draw[#container.Draw + 1] = { Type = "Line", Name = "Tracer", Obj = tracer}
-    container.Draw[#container.Draw + 1] = { Type = "Outline", Name = "Outline", Obj = outline}
+    container.Draw[#container.Draw + 1] = { Type = "Text", Name = "Name", Obj = nameLabel }
+    container.Draw[#container.Draw + 1] = { Type = "Text", Name = "Stats", Obj = statsLabel }
+    container.Draw[#container.Draw + 1] = { Type = "Line", Name = "Tracer", Obj = tracer }
+    container.Draw[#container.Draw + 1] = { Type = "Outline", Name = "Outline", Obj = outline }
     self.Containers[#self.Containers + 1] = container
     
     return container
@@ -125,15 +124,17 @@ end
 function ESP:Remove(root)
     for i, v in next, self.Containers do
         if v.Root == root then
+            v.Active = false
+
             for i2, v2 in next, v.Connections do
-                v2:Disconnect(); v.Connections[i2] = nil
+                v2:Disconnect()
             end
             
             for i2, v2 in next, v.Draw do
-                v2.Obj[v2.Type == "Outline" and "Destroy" or "Remove"](v2.Obj); v.Draw[i2] = nil
+                v2.Obj[v2.Type == "Outline" and "Destroy" or "Remove"](v2.Obj)
             end
 
-            table.remove(self.Containers, i); v = nil
+            table.remove(self.Containers, i)
         end
     end
 end
@@ -145,56 +146,60 @@ Plr.CharacterAdded:Connect(onCharacterAdded, char)
 
 RS.Stepped:Connect(function()
     for _, v in next, ESP.Containers do
-        local screenPos, onScreen = getWTVP(v.Root.Position)
+        if isAlive(v) then
+            local screenPos, onScreen = getWTVP(v.Root.Position)
 
-        if onScreen and v.Active then
-            local texts = 0
-            for _, v3 in next, v.Draw do
-                if v3.Type == "Text" and v3.Obj.Text ~= "" then
-                    texts = texts + 1
+            if onScreen and v.Active then
+                local texts = 0
+                for _, v3 in next, v.Draw do
+                    if v3.Type == "Text" and v3.Obj.Text ~= "" then
+                        texts = texts + 1
+                    end
                 end
-            end
-
-            for i2, v2 in next, v.Draw do
-                local color = ESP.Settings.Rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or v.Color
-
-                if v2.Type ~= "Outline" then
-                    if v2.Type == "Text" then
-                        v2.Obj.Size = ESP.Settings.TextSize
-                        v2.Obj.Position = screenPos - Vector2.new(0, (texts - i2) * ESP.Settings.TextSize)
-
-                        if v2.Name == "Name" then
-                            v2.Obj.Text = v.Name
-
-                        elseif v2.Name == "Stats" then
-                            v2.Obj.Text = (ESP.Settings.Distance and "[ ".. (math.floor((v.Root.Position - Root.Position).Magnitude)).. " ]" or "").. (ESP.Settings.Health and v.Player and v.Player.Character and v.Player.Character:FindFirstChild("Humanoid") and " [ ".. (math.floor(100 / v.Player.Character.Humanoid.MaxHealth * v.Player.Character.Humanoid.Health * 10) / 10).. "% ]" or "")
+    
+                for i2, v2 in next, v.Draw do
+                    local color = ESP.Settings.Rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or v.Color
+    
+                    if v2.Type ~= "Outline" then
+                        if v2.Type == "Text" then
+                            v2.Obj.Size = ESP.Settings.TextSize
+                            v2.Obj.Position = screenPos - Vector2.new(0, (texts - i2) * ESP.Settings.TextSize)
+    
+                            if v2.Name == "Name" then
+                                v2.Obj.Text = v.Name
+    
+                            elseif v2.Name == "Stats" then
+                                v2.Obj.Text = (ESP.Settings.Distance and "[ ".. (math.floor((v.Root.Position - Root.Position).Magnitude)).. " ]" or "").. (ESP.Settings.Health and v.Player and v.Player.Character and v.Player.Character:FindFirstChild("Humanoid") and " [ ".. (math.floor(100 / v.Player.Character.Humanoid.MaxHealth * v.Player.Character.Humanoid.Health * 10) / 10).. "% ]" or "")
+                            end
+    
+                        elseif v2.Type == "Line" and ESP.Settings.Tracer then
+                            v2.Obj.From = ESP.Settings.TracerFrom
+                            v2.Obj.To = screenPos + Vector2.new(0, math.max(texts * ESP.Settings.TextSize / 2, ESP.Settings.TextSize))
+                            v2.Obj.Thickness = ESP.Settings.TracerThickness
                         end
-
-                    elseif v2.Type == "Line" and ESP.Settings.Tracer then
-                        v2.Obj.From = ESP.Settings.TracerFrom
-                        v2.Obj.To = screenPos + Vector2.new(0, math.max(texts * ESP.Settings.TextSize / 2, ESP.Settings.TextSize))
-                        v2.Obj.Thickness = ESP.Settings.TracerThickness
+                        
+                        v2.Obj.Color = color
+                        v2.Obj.Visible = v2.Type ~= "Line" or v2.Type == "Line" and ESP.Settings.Tracer
+                    else
+                        if ESP.Settings.Outline then
+                            v2.Obj.FillColor = color
+                            v2.Obj.FillTransparency = ESP.Settings.OutlineOpacity
+                            v2.Obj.OutlineColor = color
+                            v2.Obj.DepthMode = Enum.HighlightDepthMode[ESP.Settings.OutlineOnTop and "AlwaysOnTop" or "Occluded"]
+                        end
+                        
+                        v2.Obj.Enabled = ESP.Settings.Outline
                     end
-                    
-                    v2.Obj.Color = color
-                    v2.Obj.Visible = v2.Type ~= "Line" or v2.Type == "Line" and ESP.Settings.Tracer
-                else
-                    if ESP.Settings.Outline then
-                        v2.Obj.FillColor = color
-                        v2.Obj.FillTransparency = ESP.Settings.OutlineOpacity
-                        v2.Obj.OutlineColor = color
-                        v2.Obj.DepthMode = Enum.HighlightDepthMode[ESP.Settings.OutlineOnTop and "AlwaysOnTop" or "Occluded"]
+                end
+            else
+                for _, v2 in next, v.Draw do
+                    if v2.Type ~= "Outline" then
+                        v2.Obj.Visible = false
                     end
-                    
-                    v2.Obj.Enabled = ESP.Settings.Outline
                 end
             end
         else
-            for _, v2 in next, v.Draw do
-                if v2.Type ~= "Outline" then
-                    v2.Obj.Visible = false
-                end
-            end
+            ESP:Remove(v.Root)
         end
     end
 end)
