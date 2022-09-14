@@ -49,12 +49,13 @@ local function getWTVP(vec3)
     return Vector2.new(screenPos.X, screenPos.Y), onScreen
 end
 
-local function isAlive(container)
-    if container.Player and container.Player.Character and container.Player.Character:FindFirstChild("Humanoid") then
-        return container.Player.Character.Humanoid.Health > 0
-    
-    elseif container.Root then
-        return container.Root.Parent ~= nil
+local function isAlive(obj)
+    if obj.Parent then
+        if obj.Parent:FindFirstChild("Humanoid") and obj.Parent.Humanoid.Health == 0 then
+            return false
+        end
+
+        return true
     end
 
     return false
@@ -146,7 +147,7 @@ Plr.CharacterAdded:Connect(onCharacterAdded, char)
 
 RS.Stepped:Connect(function()
     for _, v in next, ESP.Containers do
-        if isAlive(v) then
+        if isAlive(v.Root) then
             local screenPos, onScreen = getWTVP(v.Root.Position)
 
             if onScreen and v.Active then
