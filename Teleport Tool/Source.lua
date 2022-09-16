@@ -1,50 +1,63 @@
+-- UI Library
+
+local Library = {
+    Source = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/UI-Libraries/main/Vynixius/Source.lua"))(),
+    Items = {},
+}
+
+local WindowColor = Color3.fromRGB(155, 155, 155)
+local Window = Library.Source:AddWindow({
+    title = {"Vynixius", "Teleport Tool"},
+    theme = {
+        Accent = WindowColor,
+    },
+    default = false,
+})
+
+local Tab = Window:AddTab("Teleport Tool", {default = true})
+local SettingsTab = Window:AddTab("Settings")
+
 -- Services
 
-local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
-local MS = game:GetService("MarketplaceService")
+local RS = game:GetService("RunService")
+local HS = game:GetService("HttpService")
 
 -- Variables
 
 local Plr = Players.LocalPlayer
-local Char = Plr.Character
+local Char = Plr.Character or Plr.CharacterAdded:Wait()
 local Root = Char:WaitForChild("HumanoidRootPart")
 
-local TeleportTool = { Points = {} }
+local Points = {}
 
 -- Modules
 
 local SelfModules = {
 	Directory = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Directory.lua"))(),
+    Discord = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Discord.lua"))(),
+    Inviter = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Discord%20Inviter/Source.lua"))(),
 }
 
--- Directory Setup
+-- Directory
 
-local Directory = SelfModules.Directory.Create({ "Vynixu's Teleport Tool" })
+local Directory = SelfModules.Directory.Create({
+	["Vynixu's Teleport Tool"] = {
+		"Configs",
+	},
+})
 
 -- Misc Functions
 
-local function onCharacterAdded(char)
-	Char, Root = char, char:WaitForChild("HumanoidRootPart")
+function onCharacterAdded(char)
+    Char, Root = char, char:WaitForChild("HumanoidRootPart")
 end
 
-local function updateVisual()
-	for i, v in next, TeleportTool.Points do
-		local prevPoint = TeleportTool.Points[i - 1]
+function create(vec3)
+	if #Points > 0 then
+		local point, nearest = nil, 1
 
-		if prevPoint and prevPoint:FindFirstChild("Beam") then
-			prevPoint.Beam.Attachment1 = v.Attachment
-		end
-	end
-end
-
--- Functions
-
-TeleportTool.Add = function(self, vec3)
-	if #self.Points > 0 then
-		local point, nearest = nil, 2
-
-		for i, v in next, self.Points do
+		for _, v in next, Points do
 			local dist = (v.Position - vec3).Magnitude
 
 			if dist < nearest then
@@ -52,13 +65,13 @@ TeleportTool.Add = function(self, vec3)
 			end
 		end
 
-		if point ~= nil then
+		if point then
 			point.Position = vec3; return
 		end
 	end
-
-	-- Point
 	
+	-- Point
+
 	local point = Instance.new("Part")
 	point.Anchored = true
 	point.CanCollide = false
@@ -67,14 +80,23 @@ TeleportTool.Add = function(self, vec3)
 	point.Position = vec3
 	point.Shape = Enum.PartType.Ball
 	point.Size = Vector3.new(0.4, 0.4, 0.4)
-	
-	local attachment = Instance.new("Attachment")
-	attachment.Parent = point
-	
+
+	local attachment = Instance.new("Attachment", point)
+
+	-- Beam
+
+	local beam = Instance.new("Beam")
+	beam.Brightness = 5
+	beam.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)), ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1)) })
+	beam.FaceCamera = true
+	beam.Width0, beam.Width1 = 0.1, 0.1
+	beam.Attachment0 = attachment
+	beam.Parent = point
+
 	-- ClickDetector
 
 	local clickDetector = Instance.new("ClickDetector")
-	clickDetector.MaxActivationDistance = math.huge
+	clickDetector.MaxActivationDistance = 9e9
 
 	clickDetector.MouseHoverEnter:Connect(function()
 		point.Color = Color3.new(1, 0, 0)
@@ -83,74 +105,186 @@ TeleportTool.Add = function(self, vec3)
 	clickDetector.MouseHoverLeave:Connect(function()
 		point.Color = Color3.new(1, 1, 1)
 	end)
-	
+
 	clickDetector.MouseClick:Connect(function()
-		TeleportTool:Remove(point)
+		remove(point)
 	end)
 
 	clickDetector.Parent = point
-	
-	-- Indexing
-
-	table.insert(self.Points, point)
-
-	local prevPoint = self.Points[#self.Points - 1]
-	if prevPoint ~= nil then
-		-- Beam
-		
-		local beam = Instance.new("Beam")
-		beam.Brightness = 5
-		beam.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)), ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1)) })
-		beam.FaceCamera = true
-		beam.Width0, beam.Width1 = 0.1, 0.1
-		beam.Attachment0, beam.Attachment1 = prevPoint.Attachment, attachment
-
-		beam.Parent = prevPoint
-	end
-
 	point.Parent = workspace
+	
+	return point
 end
 
-TeleportTool.Remove = function(self, point)
-	table.remove(self.Points, table.find(self.Points, point)); point:Destroy()
-	updateVisual()
-end
-
-TeleportTool.Clear = function(self)
-	for i = #self.Points, 1, -1 do
-		self:Remove(self.Points[i])
-	end
-end
-
-TeleportTool.Save = function(self)
-	if #self.Points > 0 then
-		local output = "local Points = { "
+function update()
+	for i, v in next, Points do
+		local nextPoint = Points[i + 1]
 		
-		for i, v in next, self.Points do
-			output = output.. "Vector3.new(".. (math.round(v.Position.X * 100) / 100).. ", ".. (math.round(v.Position.Y * 100) / 100).. ", ".. (math.round(v.Position.Z * 100) / 100).. ")".. (i ~= #self.Points and ", " or " ")
+		if nextPoint then
+			v.Beam.Attachment1 = nextPoint.Attachment
 		end
-
-		writefile(Directory.Root.. "/".. MS:GetProductInfo(game.PlaceId).Name.. ".lua", output.. "}\n\n".. game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Teleport%20Tool/Output.lua"))
 	end
 end
 
-UIS.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed == false then
-		if input.KeyCode == Enum.KeyCode.KeypadMinus then
-			TeleportTool:Add(Root.Position)
-			
-		elseif input.KeyCode == Enum.KeyCode.KeypadPlus then
-			TeleportTool:Save()
+function add(vec3)
+	Points[#Points + 1] = create(vec3)
+	
+	update()
+end
 
-		elseif input.KeyCode == Enum.KeyCode.KeypadMultiply then
-			TeleportTool:Clear()
-		end
+function remove(point)
+	local pointIdx = table.find(Points, point)
+	
+	if pointIdx then
+		table.remove(Points, pointIdx)
+		point:Destroy()
+		
+		update()
 	end
+end
+
+local function clear()
+	for i = #Points, 1, -1 do
+		remove(Points[i])
+	end
+end
+
+function teleportToPoint(vec3)
+	local bV = Instance.new("BodyVelocity")
+	bV.Velocity, bV.MaxForce = Vector3.new(), Vector3.new(9e9, 9e9, 9e9); bV.Parent = Root
+
+	local reached = false
+	local connection = RS.Stepped:Connect(function(_, step)
+		local diff = vec3 - Root.Position
+
+		Root.CFrame = CFrame.new(Root.Position + diff.Unit * math.min(Library.Items.TeleportSpeed.Value * step, diff.Magnitude))
+		
+		if (Vector3.new(vec3.X, 0, vec3.Z) - Vector3.new(Root.Position.X, 0, Root.Position.Z)).Magnitude < 0.1 then
+			Root.CFrame = CFrame.new(vec3)
+            
+            reached = true
+		end
+	end)
+
+	repeat task.wait() until reached
+
+	connection:Disconnect()
+    bV:Destroy()
+end
+
+-- Scripts
+
+local Section = Tab:AddSection("Tool", {default = true})
+
+Library.Items.PlacePoint = Section:AddBind("Place Point", Enum.KeyCode.KeypadPlus, {}, function()
+    add(Root.Position)
+end)
+
+Section:AddButton("Clear All", clear)
+
+Library.Items.TestMode = Section:AddDropdown("Test Mode", {"Normal", "Reverse"}, {default = "Normal"}, function() end)
+
+Section:AddButton("Test Sequence", function()
+    for i, v in next, Points do
+        local point = Points[Library.Items.TestMode.Selected == "Normal" and i or #Points - (i - 1)]
+
+        teleportToPoint(point.Position)
+    end
+end)
+
+Library.Items.TeleportSpeed = Section:AddSlider("Teleport Speed", 20, 100, 50, {rounded = true}, function() end)
+
+-- Save
+
+Section = Tab:AddSection("Save")
+
+Library.Items.SaveName = Section:AddBox("Config Name", {}, function() end)
+
+Library.Items.Save = Section:AddButton("Save", function()
+    if Library.Items.SaveName.Box.Text ~= "" and #Points > 0 then
+        local output = "local Points = { "
+        local config = {}
+        
+        for i, v in next, Points do
+            local pos = v.Position
+            config[#config + 1] = { pos.X, pos.Y, pos.Z }
+            
+            output = output.. string.format("Vector3.new(%d, %d, %d)".. (i ~= #Points and ", " or " "), math.round(pos.X * 100) / 100, math.round(pos.Y * 100) / 100, math.round(pos.Z * 100) / 100)
+        end
+        
+        writefile(Directory.Root.. "/".. Library.Items.SaveName.Box.Text.. ".lua", output.. "}\n\n".. game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Teleport%20Tool/Output.lua"))
+        writefile(Directory.Configs.. "/".. Library.Items.SaveName.Box.Text.. ".json", HS:JSONEncode(config))
+    end
+end)
+
+-- Load
+
+Section = Tab:AddSection("Load")
+
+Library.Items.LoadPoints = Section:AddDropdown("Select Config", {}, {}, function() end)
+task.spawn(function()
+    while true do
+        Library.Items.LoadPoints:ClearList()
+    
+        for _, v in next, listfiles(Directory.Configs) do
+            if string.find(v, ".json") then
+                Library.Items.LoadPoints:Add(SelfModules.Directory.GetNameFromDirectory(v))
+            end
+        end
+        
+        task.wait(0.25)
+    end
+end)
+
+Section:AddButton("Load", function()
+    local s, config = pcall(function()
+        return HS:JSONDecode(readfile(Directory.Configs.. "/".. Library.Items.LoadPoints.Selected))
+    end)
+
+    if s then
+        clear()
+
+        for _, v in next, config do
+            add(Vector3.new(v[1], v[2], v[3]))
+        end
+    end
+end)
+
+-- Settings
+
+Section = SettingsTab:AddSection("Credits", {default = true})
+
+Section:AddDualLabel({"Custom UI", SelfModules.Discord.Name})
+
+Section:AddDualLabel({"Scripting", SelfModules.Discord.Name})
+
+Section:AddButton("Join Discord Server", function()
+    SelfModules.Inviter.Join(SelfModules.Discord.Invite)
+end)
+
+Section = SettingsTab:AddSection("Features")
+
+Section:AddToggle("Double Jump Fly Hotkey", {flag = "PlayerFlyHotkey"}, function() end)
+
+SettingsTab:AddConfigs("Configs")
+
+Section = SettingsTab:AddSection("Extra")
+
+Section:AddBind("Toggle UI Key", Enum.KeyCode.RightControl, {}, function(bind)
+    Window:SetKey(bind)
+end)
+
+Section:AddToggle("Rainbow UI", {}, function(bool)
+    Window:SetAccent(bool and "rainbow" or WindowColor)
+end)
+
+Section:AddButton("Copy UI Repository", function()
+    setclipboard("https://raw.githubusercontent.com/RegularVynixu/UI-Libraries/main/Vynixius")
 end)
 
 onCharacterAdded(Char)
 Plr.CharacterAdded:Connect(onCharacterAdded, char)
 
--- Scripts
+-- Finished Loading
 
-return TeleportTool
+Window:Toggle(true)
