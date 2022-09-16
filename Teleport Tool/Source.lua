@@ -137,8 +137,12 @@ function update()
 		
 		if nextPoint then
 			v.Beam.Attachment1 = nextPoint.Attachment
+            v.Color = Color3.new(1, 1, 1)
 		end
 	end
+
+    Points[#Points].Color = Color3.fromRGB(0, 255, 128)
+    Points[1].Color = Color3.fromRGB(85, 255, 0)
 end
 
 function add(vec3)
