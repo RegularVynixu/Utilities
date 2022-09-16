@@ -1,3 +1,18 @@
+--[[
+    __      __          _            _       _______   _                       _     _______          _ 
+    \ \    / /         (_)          ( )     |__   __| | |                     | |   |__   __|        | |
+     \ \  / /   _ _ __  ___  ___   _|/ ___     | | ___| | ___ _ __   ___  _ __| |_     | | ___   ___ | |
+      \ \/ / | | | '_ \| \ \/ / | | | / __|    | |/ _ \ |/ _ \ '_ \ / _ \| '__| __|    | |/ _ \ / _ \| |
+       \  /| |_| | | | | |>  <| |_| | \__ \    | |  __/ |  __/ |_) | (_) | |  | |_     | | (_) | (_) | |
+        \/  \__, |_| |_|_/_/\_\\__,_| |___/    |_|\___|_|\___| .__/ \___/|_|   \__|    |_|\___/ \___/|_|
+	     __/ |                                           | |                                        
+	    |___/                                            |_|
+    
+    UI - Vynixu
+    Scripting - Vynixu
+
+]]--
+
 -- UI Library
 
 local Library = {
@@ -172,7 +187,12 @@ function teleportToPoint(vec3)
     bV:Destroy()
 end
 
--- Scripts
+-- Setup
+
+onCharacterAdded(Char)
+Plr.CharacterAdded:Connect(onCharacterAdded, char)
+
+-- Tool
 
 local Section = Tab:AddSection("Tool", {default = true})
 
@@ -281,9 +301,6 @@ end)
 Section:AddButton("Copy UI Repository", function()
     setclipboard("https://raw.githubusercontent.com/RegularVynixu/UI-Libraries/main/Vynixius")
 end)
-
-onCharacterAdded(Char)
-Plr.CharacterAdded:Connect(onCharacterAdded, char)
 
 -- Finished Loading
 
