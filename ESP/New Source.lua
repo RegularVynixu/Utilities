@@ -49,16 +49,14 @@ local function getWTVP(vec3)
     return Vector2.new(screenPos.X, screenPos.Y), onScreen
 end
 
-local function isAlive(obj)
-    if obj.Parent then
-        if obj.Parent:FindFirstChild("Humanoid") and obj.Parent.Humanoid.Health == 0 then
-            return false
-        end
-
-        return true
+local function isAlive(root)
+    if not root.Parent then
+        return false
+    elseif root.Parent:FindFirstChild("Humanoid") and root.Parent.Humanoid.Health <= 0 then
+        return false
     end
 
-    return false
+    return true
 end
 
 -- Functions
@@ -92,17 +90,17 @@ function ESP:Add(root, options)
     nameLabel.Center = true
     nameLabel.Color = container.Color
     nameLabel.Outline = true
-    nameLabel.Size = ESP.Settings.TextSize
+    nameLabel.Size = self.Settings.TextSize
     nameLabel.Text = container.Name
 
     statsLabel.Center = true
     statsLabel.Outline = true
     statsLabel.Color = Color3.new(1, 1, 1)
-    statsLabel.Size = ESP.Settings.TextSize
+    statsLabel.Size = self.Settings.TextSize
 
     tracer.Color = container.Color
-    tracer.From = ESP.Settings.TracerFrom
-    tracer.Thickness = ESP.Settings.TracerThickness
+    tracer.From = self.Settings.TracerFrom
+    tracer.Thickness = self.Settings.TracerThickness
 
     outline.Enabled = false
     outline.FillColor = container.Color
@@ -117,26 +115,26 @@ function ESP:Add(root, options)
     container.Draw[#container.Draw + 1] = { Type = "Text", Name = "Stats", Obj = statsLabel }
     container.Draw[#container.Draw + 1] = { Type = "Line", Name = "Tracer", Obj = tracer }
     container.Draw[#container.Draw + 1] = { Type = "Outline", Name = "Outline", Obj = outline }
-    self.Containers[#self.Containers + 1] = container
+    self.Containers[root] = container
     
     return container
 end
 
 function ESP:Remove(root)
-    for i, v in next, self.Containers do
-        if v.Root == root then
-            v.Active = false
+    local container = self.Containers[root]
 
-            for i2, v2 in next, v.Connections do
-                v2:Disconnect()
-            end
-            
-            for i2, v2 in next, v.Draw do
-                v2.Obj[v2.Type == "Outline" and "Destroy" or "Remove"](v2.Obj)
-            end
-
-            table.remove(self.Containers, i)
+    if container then
+        container.Active = false
+        
+        for _, v in next, container.Connections do
+            v:Disconnect(); v = nil
         end
+        
+        for _, v in next, container.Draw do
+            v.Obj[v.Type == "Outline" and "Destroy" or "Remove"](v.Obj); v = nil
+        end
+
+        self.Containers[root] = nil
     end
 end
 
@@ -146,61 +144,61 @@ onCharacterAdded(Char)
 Plr.CharacterAdded:Connect(onCharacterAdded, char)
 
 RS.Stepped:Connect(function()
-    for _, v in next, ESP.Containers do
-        if isAlive(v.Root) then
-            local screenPos, onScreen = getWTVP(v.Root.Position)
+    for root, container in next, ESP.Containers do
+        if isAlive(root) then
+            local screenPos, onScreen = getWTVP(root.Position)
 
-            if onScreen and v.Active then
+            if onScreen and container.Active then
                 local texts = 0
-                for _, v3 in next, v.Draw do
-                    if v3.Type == "Text" and v3.Obj.Text ~= "" then
-                        texts = texts + 1
+                for _, v in next, container.Draw do
+                    if v.Type == "Text" and v.Obj.Text ~= "" then
+                        texts += 1
                     end
                 end
     
-                for i2, v2 in next, v.Draw do
-                    local color = ESP.Settings.Rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or v.Color
+                for i, v in next, container.Draw do
+                    local color = ESP.Settings.Rainbow and Color3.fromHSV(tick() % 5 / 5, 1, 1) or container.Color
+
+                    if v.Type ~= "Outline" then
+                        if v.Type == "Text" then
+                            v.Obj.Size = ESP.Settings.TextSize
+                            v.Obj.Position = screenPos - Vector2.new(0, (texts - i) * ESP.Settings.TextSize)
     
-                    if v2.Type ~= "Outline" then
-                        if v2.Type == "Text" then
-                            v2.Obj.Size = ESP.Settings.TextSize
-                            v2.Obj.Position = screenPos - Vector2.new(0, (texts - i2) * ESP.Settings.TextSize)
+                            if v.Name == "Name" then
+                                v.Obj.Text = container.Name
     
-                            if v2.Name == "Name" then
-                                v2.Obj.Text = v.Name
-    
-                            elseif v2.Name == "Stats" then
-                                v2.Obj.Text = (ESP.Settings.Distance and "[ ".. (math.floor((v.Root.Position - Root.Position).Magnitude)).. " ]" or "").. (ESP.Settings.Health and v.Player and v.Player.Character and v.Player.Character:FindFirstChild("Humanoid") and " [ ".. (math.floor(100 / v.Player.Character.Humanoid.MaxHealth * v.Player.Character.Humanoid.Health * 10) / 10).. "% ]" or "")
+                            elseif v.Name == "Stats" then
+                                v.Obj.Text = (ESP.Settings.Distance and "[ ".. (math.floor((root.Position - Root.Position).Magnitude)).. " ]" or "").. (ESP.Settings.Health and container.Player and container.Player.Character and container.Player.Character:FindFirstChild("Humanoid") and " [ ".. (math.floor(100 / container.Player.Character.Humanoid.MaxHealth * container.Player.Character.Humanoid.Health * 10) / 10).. "% ]" or "")
                             end
     
-                        elseif v2.Type == "Line" and ESP.Settings.Tracer then
-                            v2.Obj.From = ESP.Settings.TracerFrom
-                            v2.Obj.To = screenPos + Vector2.new(0, math.max(texts * ESP.Settings.TextSize / 2, ESP.Settings.TextSize))
-                            v2.Obj.Thickness = ESP.Settings.TracerThickness
+                        elseif v.Type == "Line" and ESP.Settings.Tracer then
+                            v.Obj.From = ESP.Settings.TracerFrom
+                            v.Obj.To = screenPos + Vector2.new(0, math.max(texts * ESP.Settings.TextSize / 2, ESP.Settings.TextSize))
+                            v.Obj.Thickness = ESP.Settings.TracerThickness
                         end
                         
-                        v2.Obj.Color = color
-                        v2.Obj.Visible = v2.Type ~= "Line" or v2.Type == "Line" and ESP.Settings.Tracer
+                        v.Obj.Color = color
+                        v.Obj.Visible = v.Type ~= "Line" or v.Type == "Line" and ESP.Settings.Tracer
                     else
                         if ESP.Settings.Outline then
-                            v2.Obj.FillColor = color
-                            v2.Obj.FillTransparency = ESP.Settings.OutlineOpacity
-                            v2.Obj.OutlineColor = color
-                            v2.Obj.DepthMode = Enum.HighlightDepthMode[ESP.Settings.OutlineOnTop and "AlwaysOnTop" or "Occluded"]
+                            v.Obj.FillColor = color
+                            v.Obj.FillTransparency = ESP.Settings.OutlineOpacity
+                            v.Obj.OutlineColor = color
+                            v.Obj.DepthMode = Enum.HighlightDepthMode[ESP.Settings.OutlineOnTop and "AlwaysOnTop" or "Occluded"]
                         end
                         
-                        v2.Obj.Enabled = ESP.Settings.Outline
+                        v.Obj.Enabled = ESP.Settings.Outline
                     end
                 end
             else
-                for _, v2 in next, v.Draw do
-                    if v2.Type ~= "Outline" then
-                        v2.Obj.Visible = false
+                for _, v in next, container.Draw do
+                    if v.Type ~= "Outline" then
+                        v.Obj.Visible = false
                     end
                 end
             end
         else
-            ESP:Remove(v.Root)
+            ESP:Remove(root)
         end
     end
 end)
