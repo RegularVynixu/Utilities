@@ -76,6 +76,7 @@ function ESP:Add(root, options)
         Player = player,
         Name = options.Name or (player and player[self.Settings.DisplayNames and "DisplayName" or "Name"]) or root.Name,
         Color = options.Color or (player and player.Team and player.TeamColor.Color) or Color3.new(1, 1, 1),
+        OutlineFocus = options.OutlineFocus or (player and player.Character) or (root.Parent and root.Parent.ClassName == "Model" and root.Parent) or root,
         Connections = {},
         Draw = {},
     }
@@ -107,7 +108,15 @@ function ESP:Add(root, options)
     outline.FillTransparency = 0.75
     outline.OutlineColor = container.Color
     outline.OutlineTransparency = 0
-    outline.Parent = options.OutlineFocus or (container.Player and container.Player.Character) or (container.Root.Parent and container.Root.Parent.ClassName == "Model" and container.Root.Parent) or container.Root
+    outline.Parent = container.OutlineFocus
+
+    -- Connections
+
+    if player then
+        container.Connections.changeTeam = player:GetPropertyChangedSignal("Team"):Connect(function()
+            self:Remove(container.Root)
+        end)
+    end
 
     -- Indexing
 
@@ -168,7 +177,10 @@ RS.Stepped:Connect(function()
                                 v.Obj.Text = container.Name
     
                             elseif v.Name == "Stats" then
-                                v.Obj.Text = (ESP.Settings.Distance and "[ ".. (math.floor((root.Position - Root.Position).Magnitude)).. " ]" or "").. (ESP.Settings.Health and container.Player and container.Player.Character and container.Player.Character:FindFirstChild("Humanoid") and " [ ".. (math.floor(100 / container.Player.Character.Humanoid.MaxHealth * container.Player.Character.Humanoid.Health * 10) / 10).. "% ]" or "")
+                                local dist = ESP.Settings.Distance and "[ ".. (math.floor((root.Position - Root.Position).Magnitude)).. " ]" or ""
+                                local health = ESP.Settings.Health and root.Parent:FindFirstChild("Humanoid") and " [ ".. (math.floor(100 / root.Parent.Humanoid.MaxHealth * root.Parent.Humanoid.Health * 10) / 10).. "% ]" or ""
+
+                                v.Obj.Text = dist.. health
                             end
     
                         elseif v.Type == "Line" and ESP.Settings.Tracer then
@@ -188,6 +200,11 @@ RS.Stepped:Connect(function()
                         end
                         
                         v.Obj.Enabled = ESP.Settings.Outline
+
+                        -- Refresh outline visibility
+
+                        v.Obj.Parent = game
+                        v.Obj.Parent = container.OutlineFocus
                     end
                 end
             else
