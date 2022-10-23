@@ -20,7 +20,7 @@ local DefaultConfig = {
     Model = nil,
     Speed = 100,
     DelayTime = 2,
-    HeightOffset = Vector3.new(0, 3.5, 0),
+    HeightOffset = 3.5,
     CamShake = {
         true,
         {7.5, 15, 0.1, 1},
@@ -104,7 +104,7 @@ end
 
 Creator.runEntity = function(entity)
     assert(typeof(entity) == "table")
-    
+
     if entity.Model and entity.Model.PrimaryPart then
         -- Obtain nodes
 
@@ -150,7 +150,7 @@ Creator.runEntity = function(entity)
 
         -- Pre-cycle setup
         
-        entity.Model.PrimaryPart.CFrame = nodes[1].CFrame + entity.Config.HeightOffset
+        entity.Model.PrimaryPart.CFrame = nodes[1].CFrame + Vector3.new(0, entity.Config.HeightOffset, 0)
         entity.Model.Parent = workspace
 
         if entity.Config.FlickerLights[1] then
