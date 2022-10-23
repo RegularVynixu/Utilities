@@ -5,7 +5,7 @@ local entity = Creator.createEntity({
     Model = "https://github.com/RegularVynixu/Miscellaneous/raw/main/Rush%20Model.rbxm",
     Speed = 100,
     DelayTime = 2,
-    HeightOffset = Vector3.new(0, 3.5, 0),
+    HeightOffset = 3.5,
     CamShake = {
         true,
         {7.5, 15, 0.1, 1},
