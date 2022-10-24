@@ -2,15 +2,10 @@ local Creator = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 -- Create entity
 local entity = Creator.createEntity({
-    Model = "https://github.com/RegularVynixu/Miscellaneous/raw/main/Rush.rbxm",
+    Model = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true",
     Speed = 100,
     DelayTime = 2,
-    HeightOffset = 3.5,
-    CamShake = {
-        true,
-        {7.5, 15, 0.1, 1},
-        100,
-    },
+    HeightOffset = 0,
     CanKill = true,
     BreakLights = true,
     FlickerLights = {
@@ -21,6 +16,11 @@ local entity = Creator.createEntity({
         Min = 1,
         Max = 4,
         WaitTime = 2,
+    },
+    CamShake = {
+        true,
+        {5, 15, 0.1, 1},
+        100,
     },
     CustomDialog = {"Your custom", "death message", "goes here."},
 })
