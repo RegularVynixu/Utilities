@@ -97,7 +97,7 @@ Creator.createEntity = function(config)
     end
 
     if entityModel then
-        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChildOfClass("Part")
+        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChild("HumanoidRootPart") or entityModel:FindFirstChildOfClass("Part")
 
         if pPart then
             entityModel.PrimaryPart = pPart
