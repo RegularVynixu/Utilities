@@ -11,21 +11,18 @@ local Char = Plr.Character or Plr.CharacterAdded:Wait()
 local Root = Char:WaitForChild("HumanoidRootPart")
 local Hum = Char:WaitForChild("Humanoid")
 
+local FindPartOnRayWithIgnoreList = workspace.FindPartOnRayWithIgnoreList
+local StaticRushSpeed = 50
+
 local ModuleScripts = {
     MainGame = require(Plr.PlayerGui.MainUI.Initiator.Main_Game),
     ModuleEvents = require(ReSt.ClientModules.Module_Events),
 }
-
 local DefaultConfig = {
     Model = nil,
     Speed = 100,
     DelayTime = 2,
-    HeightOffset = 3.5,
-    CamShake = {
-        true,
-        {7.5, 15, 0.1, 1},
-        100,
-    },
+    HeightOffset = 0,
     CanKill = true,
     BreakLights = true,
     FlickerLights = {
@@ -34,12 +31,16 @@ local DefaultConfig = {
     },
     Cycles = {
         Min = 1,
-        Max = 4,
+        Max = 1,
         WaitTime = 2,
+    },
+    CamShake = {
+        true,
+        {5, 15, 0.1, 1},
+        100,
     },
     CustomDialog = {},
 }
-
 local Creator = {}
 
 -- Misc Functions
@@ -76,29 +77,44 @@ Creator.createEntity = function(config)
             config[i] = DefaultConfig[i]
         end
     end
+    
+    config.Speed = StaticRushSpeed / 100 * config.Speed
 
-    config.Cycles.Max = math.max(config.Cycles.Max, 1)
-    config.Cycles.Min = math.clamp(config.Cycles.Min, 1, config.Cycles.Max)
-    config.Speed = 50 / 100 * config.Speed
+    -- Obtain custom model
 
-    -- Obtain model
+    local entityModel = nil
 
-    writefile("customEntity.txt", game:HttpGet(config.Model))
-    local model = game:GetObjects((loadcustomasset or getsynasset)("customEntity.txt"))[1]
-    delfile("customEntity.txt")
+    if tonumber(config.Model) or string.find(config.Model, "rbxassetid") then
+        local assetId = string.gsub(config.Model, "%D", "")
 
-    if model then
-        if not model.PrimaryPart then
-            model.PrimaryPart = model:FindFirstChildOfClass("Part")
-        end
+        entityModel = game:GetObjects("rbxassetid://".. assetId)[1]
+    else
+        writefile("customEntity.txt", game:HttpGet(config.Model))
 
-        if model.PrimaryPart then
-            return { Model = model, Config = config }
+        entityModel = game:GetObjects((getcustomasset or getsynasset)("customEntity.txt"))[1]
+
+        delfile("customEntity.txt")
+    end
+
+    if entityModel then
+        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChildOfClass("Part")
+
+        if pPart then
+            entityModel.PrimaryPart = pPart
+            pPart.Anchored = true
+
+            for _, v in next, entityModel:GetDescendants() do
+                if v:IsA("BasePart") then
+                    v.CanCollide = false
+                end
+            end
+            
+            return { Model = entityModel, Config = config }
         else
-            warn("Failed to find model's PrimaryPart")
+            warn("Failure - Could not obtain model's PrimaryPart")
         end
     else
-        warn("Failed to obtain model")
+        warn("Failure - Could not obtain entity model")
     end
 end
 
@@ -126,13 +142,14 @@ Creator.runEntity = function(entity)
             if entity.Config.CanKill and not Char:GetAttribute("Hiding") then
                 local posA = entity.Model.PrimaryPart.Position
                 local posB = Root.Position
-                local found = workspace:FindPartOnRayWithIgnoreList(Ray.new(posA, (posB - posA).Unit * 100), { entity.Model })
+                local found = FindPartOnRayWithIgnoreList(workspace, Ray.new(posA, (posB - posA).Unit * 100), { entity.Model })
 
-                if found and found:IsDescendantOf(Char) then
+                if found and found.IsDescendantOf(found, Char) then
                     movementCon:Disconnect()
                     Hum.Health = 0
 
                     if #entity.Config.CustomDialog > 0 then
+                        ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entity.Model.Name
                         debug.setupvalue(getconnections(ReSt.Bricks.DeathHint.OnClientEvent)[1].Function, 1, entity.Config.CustomDialog)
                     end
                 end
@@ -142,15 +159,21 @@ Creator.runEntity = function(entity)
             local mag = (Root.Position - entity.Model.PrimaryPart.Position).Magnitude
 
             if camShake[1] and mag <= camShake[3] then
-                camShake[2][1] = DefaultConfig.CamShake[2][1] / camShake[3] * (camShake[3] - math.min(mag, camShake[3]))
+                local shakeRep = {}
+
+                for i, v in next, camShake[2] do
+                    shakeRep[i] = v
+                end
+                shakeRep[1] = camShake[2][1] / camShake[3] * (camShake[3] - mag)
                 
-                ModuleScripts.MainGame.camShaker:ShakeOnce(table.unpack(camShake[2]))
+                ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
+                shakeRep = nil
             end
         end)
 
         -- Pre-cycle setup
         
-        entity.Model.PrimaryPart.CFrame = nodes[1].CFrame + Vector3.new(0, entity.Config.HeightOffset, 0)
+        entity.Model.PrimaryPart.CFrame = workspace.CurrentRooms:GetChildren()[1].RoomStart.CFrame + Vector3.new(0, entity.Config.HeightOffset, 0)
         entity.Model.Parent = workspace
 
         if entity.Config.FlickerLights[1] then
