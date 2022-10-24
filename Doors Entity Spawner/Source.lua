@@ -44,16 +44,16 @@ local Creator = {}
 
 -- Misc Functions
 
-local function drag(objA, objB, speed)
+local function drag(model, objB, speed)
     local reached = false
 
     local con; con = RS.Stepped:Connect(function(_, step)
-        local posA = objA.Position
+        local posA = model.PrimaryPart.Position
         local posB = objB.Position
         local diff = Vector3.new(posB.X, 0, posB.Z) - Vector3.new(posA.X, 0, posA.Z)
 
         if diff.Magnitude > 0.1 then
-            objA.CFrame = CFrame.new(posA + diff.Unit * math.min(step * speed, diff.Magnitude - 0.05))
+            model:SetPrimaryPartCFrame(CFrame.new(posA + diff.Unit * math.min(step * speed, diff.Magnitude - 0.05))
         else
             reached = true
         end
@@ -172,8 +172,10 @@ Creator.runEntity = function(entity)
     end)
 
     -- Pre-cycle setup
-    
-    entity.Model.PrimaryPart.CFrame = workspace.CurrentRooms:GetChildren()[1].RoomStart.CFrame + Vector3.new(0, entity.Config.HeightOffset, 0)
+
+    local firstRoom = workspace.CurrentRooms:GetChildren()[1]
+
+    entity.Model.PrimaryPart.CFrame = (firstRoom:FindFirstChild("RoomStart") and firstRoom.RoomStart.CFrame or nodes[1].CFrame + Vector3.new(0, 3.5, 0)) + Vector3.new(0, entity.Config.HeightOffset, 0)
     entity.Model.Parent = workspace
 
     if entity.Config.FlickerLights[1] then
@@ -192,12 +194,12 @@ Creator.runEntity = function(entity)
                 ModuleScripts.ModuleEvents.breakLights(nodes[i].Parent.Parent)
             end
 
-            drag(entity.Model.PrimaryPart, nodes[i], entity.Config.Speed)
+            drag(entity.Model, nodes[i], entity.Config.Speed)
         end
 
         if cycles.Max > 1 then
             for i = #nodes, 1, -1 do
-                drag(entity.Model.PrimaryPart, nodes[i], entity.Config.Speed)
+                drag(entity.Model., nodes[i], entity.Config.Speed)
             end
         end
 
