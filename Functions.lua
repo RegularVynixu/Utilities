@@ -42,7 +42,7 @@ local functions; functions = {
             end
         end
     end,
-    LoadCustomAsset = (url, rDelay)
+    LoadCustomAsset = function(url, rDelay)
         local fileName = "customAsset_".. tick().. ".txt"
         writefile(fileName, functions.Request({Url = url, Method = "GET"}).Body)
         local asset = functions.GetAsset(fileName)
