@@ -2,7 +2,7 @@ local Creator = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 -- Create entity
 local entity = Creator.createEntity({
-    Model = "https://github.com/RegularVynixu/Miscellaneous/raw/main/Rush%20Model.rbxm",
+    Model = "https://github.com/RegularVynixu/Miscellaneous/raw/main/Rush.rbxm",
     Speed = 100,
     DelayTime = 2,
     HeightOffset = 3.5,
