@@ -53,7 +53,7 @@ local function drag(model, objB, speed)
         local diff = Vector3.new(posB.X, 0, posB.Z) - Vector3.new(posA.X, 0, posA.Z)
 
         if diff.Magnitude > 0.1 then
-            model:SetPrimaryPartCFrame(CFrame.new(posA + diff.Unit * math.min(step * speed, diff.Magnitude - 0.05))
+            model:SetPrimaryPartCFrame(CFrame.new(posA + diff.Unit * math.min(step * speed, diff.Magnitude - 0.05)))
         else
             reached = true
         end
@@ -175,7 +175,7 @@ Creator.runEntity = function(entity)
 
     local firstRoom = workspace.CurrentRooms:GetChildren()[1]
 
-    entity.Model.PrimaryPart.CFrame = (firstRoom:FindFirstChild("RoomStart") and firstRoom.RoomStart.CFrame or nodes[1].CFrame + Vector3.new(0, 3.5, 0)) + Vector3.new(0, entity.Config.HeightOffset, 0)
+    entity.Model:SetPrimaryPartCFrame( (firstRoom:FindFirstChild("RoomStart") and firstRoom.RoomStart.CFrame or nodes[1].CFrame + Vector3.new(0, 3.5, 0)) + Vector3.new(0, entity.Config.HeightOffset, 0) )
     entity.Model.Parent = workspace
 
     if entity.Config.FlickerLights[1] then
@@ -199,7 +199,7 @@ Creator.runEntity = function(entity)
 
         if cycles.Max > 1 then
             for i = #nodes, 1, -1 do
-                drag(entity.Model., nodes[i], entity.Config.Speed)
+                drag(entity.Model, nodes[i], entity.Config.Speed)
             end
         end
 
