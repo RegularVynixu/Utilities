@@ -1,11 +1,12 @@
 getgenv().StoredModules = { Names = {}, Objects = {} }
 
-local functions = {
+local functions; functions = {
     IsClosure = is_synapse_function or iskrnlclosure or isexecutorclosure,
     SetIdentity = (syn and syn.set_thread_identity) or set_thread_identity or setthreadidentity or setthreadcontext,
     GetIdentity = (syn and syn.get_thread_identity) or get_thread_identity or getthreadidentity or getthreadcontext,
     Request = (syn and syn.request) or http_request or request,
     QueueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport,
+    GetAsset = getsynasset or getcustomasset,
 
     -----
     
@@ -40,6 +41,21 @@ local functions = {
                 return v
             end
         end
+    end,
+    LoadCustomAsset = (url, rDelay)
+        local fileName = "customAsset_".. tick().. ".txt"
+        writefile(fileName, functions.Request({Url = url, Method = "GET"}).Body)
+        local asset = functions.GetAsset(fileName)
+
+        task.spawn(function()
+            task.wait(rDelay or 60)
+            
+            if isfile(fileName) then
+                delfile(fileName)
+            end
+        end)
+
+        return asset
     end,
 }
 
