@@ -19,7 +19,6 @@ local ModuleScripts = {
     ModuleEvents = require(ReSt.ClientModules.Module_Events),
 }
 local DefaultConfig = {
-    Model = nil,
     Speed = 100,
     DelayTime = 2,
     HeightOffset = 0,
@@ -71,6 +70,7 @@ Creator.createEntity = function(config)
     -- Prepare configs
 
     assert(typeof(config) == "table")
+    assert(config.Model)
 
     for i, v in next, DefaultConfig do
         if config[i] == nil then
@@ -120,100 +120,97 @@ end
 
 Creator.runEntity = function(entity)
     assert(typeof(entity) == "table")
+    assert(entity.Model and entity.Model.PrimaryPart and entity.Config)
 
-    if entity.Model and entity.Model.PrimaryPart then
-        -- Obtain nodes
+    -- Obtain nodes
 
-        local nodes = {}
+    local nodes = {}
 
-        for _, room in next, workspace.CurrentRooms:GetChildren() do
-            if room:FindFirstChild("Nodes") then
-                for _, node in next, room.Nodes:GetChildren() do
-                    nodes[#nodes + 1] = node
+    for _, room in next, workspace.CurrentRooms:GetChildren() do
+        if room:FindFirstChild("Nodes") then
+            for _, node in next, room.Nodes:GetChildren() do
+                nodes[#nodes + 1] = node
+            end
+        end
+    end
+
+    -- Death & Camera shaking
+
+    local movementCon = nil
+
+    movementCon = RS.Stepped:Connect(function()
+        if entity.Config.CanKill and not Char:GetAttribute("Hiding") then
+            local posA = entity.Model.PrimaryPart.Position
+            local posB = Root.Position
+            local found = FindPartOnRayWithIgnoreList(workspace, Ray.new(posA, (posB - posA).Unit * 100), { entity.Model })
+
+            if found and found.IsDescendantOf(found, Char) then
+                movementCon:Disconnect()
+                Hum.Health = 0
+
+                if #entity.Config.CustomDialog > 0 then
+                    ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entity.Model.Name
+                    debug.setupvalue(getconnections(ReSt.Bricks.DeathHint.OnClientEvent)[1].Function, 1, entity.Config.CustomDialog)
                 end
             end
         end
-
-        -- Set up kill connection
-
-        local movementCon = nil
-
-        movementCon = RS.Stepped:Connect(function()
-            if entity.Config.CanKill and not Char:GetAttribute("Hiding") then
-                local posA = entity.Model.PrimaryPart.Position
-                local posB = Root.Position
-                local found = FindPartOnRayWithIgnoreList(workspace, Ray.new(posA, (posB - posA).Unit * 100), { entity.Model })
-
-                if found and found.IsDescendantOf(found, Char) then
-                    movementCon:Disconnect()
-                    Hum.Health = 0
-
-                    if #entity.Config.CustomDialog > 0 then
-                        ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entity.Model.Name
-                        debug.setupvalue(getconnections(ReSt.Bricks.DeathHint.OnClientEvent)[1].Function, 1, entity.Config.CustomDialog)
-                    end
-                end
-            end
-            
-            local camShake = entity.Config.CamShake
-            local mag = (Root.Position - entity.Model.PrimaryPart.Position).Magnitude
-
-            if camShake[1] and mag <= camShake[3] then
-                local shakeRep = {}
-
-                for i, v in next, camShake[2] do
-                    shakeRep[i] = v
-                end
-                shakeRep[1] = camShake[2][1] / camShake[3] * (camShake[3] - mag)
-                
-                ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
-                shakeRep = nil
-            end
-        end)
-
-        -- Pre-cycle setup
         
-        entity.Model.PrimaryPart.CFrame = workspace.CurrentRooms:GetChildren()[1].RoomStart.CFrame + Vector3.new(0, entity.Config.HeightOffset, 0)
-        entity.Model.Parent = workspace
+        local camShake = entity.Config.CamShake
+        local mag = (Root.Position - entity.Model.PrimaryPart.Position).Magnitude
 
-        if entity.Config.FlickerLights[1] then
-            task.spawn(ModuleScripts.ModuleEvents.flickerLights, workspace.CurrentRooms[Plr:GetAttribute("CurrentRoom")], entity.Config.FlickerLights[2])
+        if camShake[1] and mag <= camShake[3] then
+            local shakeRep = {}
+
+            for i, v in next, camShake[2] do
+                shakeRep[i] = v
+            end
+            shakeRep[1] = camShake[2][1] / camShake[3] * (camShake[3] - mag)
+            
+            ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
+            shakeRep = nil
+        end
+    end)
+
+    -- Pre-cycle setup
+    
+    entity.Model.PrimaryPart.CFrame = workspace.CurrentRooms:GetChildren()[1].RoomStart.CFrame + Vector3.new(0, entity.Config.HeightOffset, 0)
+    entity.Model.Parent = workspace
+
+    if entity.Config.FlickerLights[1] then
+        task.spawn(ModuleScripts.ModuleEvents.flickerLights, workspace.CurrentRooms[Plr:GetAttribute("CurrentRoom")], entity.Config.FlickerLights[2])
+    end
+
+    task.wait(entity.Config.DelayTime or 0)
+
+    -- Go through cycles
+
+    local cycles = entity.Config.Cycles
+
+    for _ = 1, math.random(cycles.Min, cycles.Max) do
+        for i = 1, #nodes, 1 do
+            if entity.Config.BreakLights then
+                ModuleScripts.ModuleEvents.breakLights(nodes[i].Parent.Parent)
+            end
+
+            drag(entity.Model.PrimaryPart, nodes[i], entity.Config.Speed)
         end
 
-        task.wait(entity.Config.DelayTime or 0)
-
-        -- Go through cycles
-
-        local cycles = entity.Config.Cycles
-
-        for _ = 1, math.random(cycles.Min, cycles.Max) do
-            for i = 1, #nodes, 1 do
-                if entity.Config.BreakLights then
-                    ModuleScripts.ModuleEvents.breakLights(nodes[i].Parent.Parent)
-                end
-
+        if cycles.Max > 1 then
+            for i = #nodes, 1, -1 do
                 drag(entity.Model.PrimaryPart, nodes[i], entity.Config.Speed)
             end
-
-            if cycles.Max > 1 then
-                for i = #nodes, 1, -1 do
-                    drag(entity.Model.PrimaryPart, nodes[i], entity.Config.Speed)
-                end
-            end
-
-            task.wait(cycles.WaitTime or 0)
         end
 
-        -- Remove entity after cycles
-
-        if movementCon then
-            movementCon:Disconnect()
-        end
-
-        entity.Model:Destroy()
-    else
-        warn("Failure - Model does not have a PrimaryPart")
+        task.wait(cycles.WaitTime or 0)
     end
+
+    -- Remove entity after cycles
+
+    if movementCon then
+        movementCon:Disconnect()
+    end
+
+    entity.Model:Destroy()
 end
 
 -- Scripts
