@@ -45,7 +45,18 @@ local DefaultConfig = {
         {5, 15, 0.1, 1},
         100,
     },
+    Jumpscare = {
+        false,
+        {},
+    },
     CustomDialog = {},
+}
+local DebugConfig = {
+    OnEntitySpawned = function() end,
+    OnEntityDespawned = function() end,
+    OnEntityStartMoving = function() end,
+    OnEntityFinishedRebound = function() end,
+    OnDeath = function() end,
 }
 local StoredSounds = {}
 
@@ -128,7 +139,7 @@ Creator.createEntity = function(config)
     end
 
     if entityModel then
-        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChildOfClass("Part")
+        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChildWhichIsA("BasePart")
 
         if pPart then
             entityModel.PrimaryPart = pPart
@@ -144,7 +155,7 @@ Creator.createEntity = function(config)
                 end
             end
             
-            return { Model = entityModel, Config = config }
+            return { Model = entityModel, Config = config, Debug = DebugConfig }
         else
             warn("Failure - Could not obtain model's PrimaryPart")
         end
@@ -169,48 +180,6 @@ Creator.runEntity = function(entity)
         end
     end
 
-    -- Death & Camera shaking
-
-    local movementCon = nil
-
-    movementCon = RS.Stepped:Connect(function()
-        if entity.Config.CanKill and not Char:GetAttribute("Hiding") then
-            local posA = entity.Model.PrimaryPart.Position
-            local posB = Root.Position
-            local found = FindPartOnRayWithIgnoreList(workspace, Ray.new(posA, (posB - posA).Unit * 100), { entity.Model })
-
-            if found and found.IsDescendantOf(found, Char) then
-                movementCon:Disconnect()
-
-                if typeof(entity.Config.Jumpscare) == "table" then
-                    Creator.runJumpscare(entity.Config.Jumpscare)
-                end
-                
-                Hum.Health = 0
-
-                if #entity.Config.CustomDialog > 0 then
-                    ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entity.Model.Name
-                    debug.setupvalue(getconnections(ReSt.Bricks.DeathHint.OnClientEvent)[1].Function, 1, entity.Config.CustomDialog)
-                end
-            end
-        end
-        
-        local camShake = entity.Config.CamShake
-        local mag = (Root.Position - entity.Model.PrimaryPart.Position).Magnitude
-
-        if camShake[1] and mag <= camShake[3] then
-            local shakeRep = {}
-
-            for i, v in next, camShake[2] do
-                shakeRep[i] = v
-            end
-            shakeRep[1] = camShake[2][1] / camShake[3] * (camShake[3] - mag)
-            
-            ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
-            shakeRep = nil
-        end
-    end)
-
     -- Pre-cycle setup
 
     local firstRoom = workspace.CurrentRooms:GetChildren()[1]
@@ -222,13 +191,61 @@ Creator.runEntity = function(entity)
         task.spawn(ModuleScripts.ModuleEvents.flickerLights, workspace.CurrentRooms[Plr:GetAttribute("CurrentRoom")], entity.Config.FlickerLights[2])
     end
 
+    entity.Debug.OnEntitySpawned(entity.Model)
+
     task.wait(entity.Config.DelayTime or 0)
+
+    -- Movement
+
+    local movementCon; movementCon = RS.Stepped:Connect(function()
+        if entity.Config.CanKill and not Char:GetAttribute("Hiding") then
+            local posA = entity.Model.PrimaryPart.Position
+            local posB = Root.Position
+            local found = FindPartOnRayWithIgnoreList(workspace, Ray.new(posA, (posB - posA).Unit * 100), { entity.Model })
+
+            if found and found.IsDescendantOf(found, Char) then
+                movementCon:Disconnect()
+
+                if entity.Config.Jumpscare[1] then
+                    Creator.runJumpscare(entity.Config.Jumpscare[2])
+                end
+                
+                Hum.Health = 0
+                entity.Debug.OnDeath()
+
+                if #entity.Config.CustomDialog > 0 then
+                    ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entity.Model.Name
+
+                    debug.setupvalue(getconnections(ReSt.Bricks.DeathHint.OnClientEvent)[1].Function, 1, entity.Config.CustomDialog)
+                end
+            end
+        end
+        
+        if Root and entity.Model.PrimaryPart then
+            local camShake = entity.Config.CamShake
+            local mag = (Root.Position - entity.Model.PrimaryPart.Position).Magnitude
+
+            if camShake[1] and mag <= camShake[3] then
+                local shakeRep = {}
+
+                for i, v in next, camShake[2] do
+                    shakeRep[i] = v
+                end
+                shakeRep[1] = camShake[2][1] / camShake[3] * (camShake[3] - mag)
+                
+                ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
+                shakeRep = nil
+            end
+        end
+    end)
+
+    entity.Debug.OnEntityStartMoving(entity.Model)
 
     -- Go through cycles
 
     local cycles = entity.Config.Cycles
 
-    for _ = 1, math.random(cycles.Min, cycles.Max) do
+    for cycle = 1, math.random(cycles.Min, cycles.Max) do
         for i = 1, #nodes, 1 do
             if entity.Config.BreakLights then
                 ModuleScripts.ModuleEvents.breakLights(nodes[i].Parent.Parent)
@@ -242,6 +259,8 @@ Creator.runEntity = function(entity)
                 drag(entity.Model, nodes[i], entity.Config.Speed)
             end
         end
+        
+        entity.Debug.OnEntityFinishedRebound(entity.Model)
 
         task.wait(cycles.WaitTime or 0)
     end
@@ -253,6 +272,7 @@ Creator.runEntity = function(entity)
     end
 
     entity.Model:Destroy()
+    entity.Debug.OnEntityDespawned(entity.Model)
 end
 
 Creator.runJumpscare = function(config)
@@ -298,9 +318,9 @@ Creator.runJumpscare = function(config)
             sound1 = playSound(config.Sound1[1], config.Sound1[2])
         end
 
-        local rdmTease = math.random(config.Tease[2].Min, config.Tease[2].Max)
+        local rdmTease = math.random(config.Tease.Min, config.Tease.Max)
 
-        for _ = config.Tease[2].Min, rdmTease do
+        for _ = config.Tease.Min, rdmTease do
             task.wait(math.random(100, 200) / 100)
 
             local growFactor = (MaxTeaseSize - MinTeaseSize) / rdmTease
