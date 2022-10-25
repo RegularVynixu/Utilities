@@ -43,19 +43,23 @@ local functions; functions = {
         end
     end,
     LoadCustomAsset = function(url, rDelay)
-        local fileName = "customAsset_".. tick().. ".txt"
-        writefile(fileName, functions.Request({Url = url, Method = "GET"}).Body)
-        local asset = functions.GetAsset(fileName)
-
-        task.spawn(function()
-            task.wait(rDelay or 60)
-            
-            if isfile(fileName) then
-                delfile(fileName)
-            end
-        end)
-
-        return asset
+        if string.find(url, "rbxassetid://") or tonumber(url) then
+            return "rbxassetid://".. ({string.gsub(url, "%D", "")})[1]
+        else
+            local fileName = "customAsset_".. tick().. ".txt"
+            writefile(fileName, functions.Request({Url = url, Method = "GET"}).Body)
+            local asset = functions.GetAsset(fileName)
+    
+            task.spawn(function()
+                task.wait(rDelay or 60)
+                
+                if isfile(fileName) then
+                    delfile(fileName)
+                end
+            end)
+    
+            return asset
+        end
     end,
 }
 
