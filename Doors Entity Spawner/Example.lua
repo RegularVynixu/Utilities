@@ -2,7 +2,7 @@ local Creator = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 -- Create entity
 local entity = Creator.createEntity({
-    CustomName = "PresetEntity", -- Custom name of your entity
+    CustomName = "Template Entity", -- Custom name of your entity
     Model = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true", -- Can be GitHub file or rbxassetid
     Speed = 100, -- Percentage, 100 = default Rush speed
     DelayTime = 2, -- Time before starting cycles (seconds)
@@ -24,28 +24,54 @@ local entity = Creator.createEntity({
         100, -- Shake start distance (from Entity to you)
     },
     Jumpscare = {
-        Image1 = "", -- Image1 url
-        Image2 = "", -- Image2 url
-        Shake = true,
-        Sound1 = {
-            10483790459, -- SoundId
-            { Volume = 1 }, -- Sound properties
-        },
-        Sound2 = {
-            10483837590, -- SoundId
-            { Volume = 1 }, -- Sound properties
-        },
-        Flashing = {
-            true, -- Enabled
-            Color3.fromRGB(255, 255, 255), -- Color
-        },
-        Tease = {
-            true, -- Enabled
-            {Min = 1, Max = 3}, -- Amount
+        true, -- Enabled ('false' if you don't want jumpscare)
+        {
+            Image1 = "rbxassetid://10483855823", -- Image1 url
+            Image2 = "rbxassetid://10483999903", -- Image2 url
+            Shake = true,
+            Sound1 = {
+                10483790459, -- SoundId
+                { Volume = 0.5 }, -- Sound properties
+            },
+            Sound2 = {
+                10483837590, -- SoundId
+                { Volume = 0.5 }, -- Sound properties
+            },
+            Flashing = {
+                true, -- Enabled
+                Color3.fromRGB(255, 255, 255), -- Color
+            },
+            Tease = {
+                true, -- Enabled ('false' if you don't want tease)
+                Min = 1,
+                Max = 3,
+            },
         },
     },
-    CustomDialog = {"Your custom", "death message", "goes", "here."}, -- Custom death message (can be as long as you want)
+    CustomDialog = {"You can", "put your", "custom death", "message here."}, -- Custom death message (can be as long as you want)
 })
+
+-----[[ Advanced ]]-----
+entity.Debug.OnEntitySpawned = function(entityModel)
+    print("Entity has spawned:", entityModel)
+end
+
+entity.Debug.OnEntityDespawned = function(entityModel)
+    print("Entity has despawned:", mentityModelodel)
+end
+
+entity.Debug.OnEntityStartMoving = function(entityModel)
+    print("Entity has started moving:", entityModel)
+end
+
+entity.Debug.OnEntityFinishedRebound = function(entityModel)
+    print("Entity finished rebound:", entityModel)
+end
+
+entity.Debug.OnDeath = function()
+    warn("You died.")
+end
+------------------------
 
 -- Run the created entity
 Creator.runEntity(entity)
