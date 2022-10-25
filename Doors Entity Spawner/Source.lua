@@ -64,6 +64,13 @@ local function drag(model, objB, speed)
     con:Disconnect()
 end
 
+local function matchRotate(part, obj, time)
+    time=time or 1
+    game:GetService("TweenService"):Create(part, TweenInfo.new(time, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        Orientation=obj.Orientation
+    })
+end
+
 -- Functions
 
 Creator.createEntity = function(config)
@@ -97,7 +104,7 @@ Creator.createEntity = function(config)
     end
 
     if entityModel then
-        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChild("HumanoidRootPart") or entityModel:FindFirstChildOfClass("Part")
+        local pPart = entityModel.PrimaryPart or entityModel:FindFirstChildOfClass("Part")
 
         if pPart then
             entityModel.PrimaryPart = pPart
@@ -195,11 +202,13 @@ Creator.runEntity = function(entity)
             end
 
             drag(entity.Model, nodes[i], entity.Config.Speed)
+            matchRotate(entity.Model.PrimaryPart, nodes[i])
         end
 
         if cycles.Max > 1 then
             for i = #nodes, 1, -1 do
                 drag(entity.Model, nodes[i], entity.Config.Speed)
+                matchRotate(entity.Model.PrimaryPart, nodes[i])
             end
         end
 
