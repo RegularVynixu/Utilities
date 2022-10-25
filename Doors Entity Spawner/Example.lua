@@ -2,27 +2,49 @@ local Creator = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 -- Create entity
 local entity = Creator.createEntity({
-    Model = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true",
-    Speed = 100,
-    DelayTime = 2,
+    CustomName = "PresetEntity", -- Custom name of your entity
+    Model = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true", -- Can be GitHub file or rbxassetid
+    Speed = 100, -- Percentage, 100 = default Rush speed
+    DelayTime = 2, -- Time before starting cycles (seconds)
     HeightOffset = 0,
     CanKill = true,
     BreakLights = true,
     FlickerLights = {
-        true,
-        1,
+        true, -- Enabled
+        1, -- Time (seconds)
     },
     Cycles = {
         Min = 1,
-        Max = 1,
+        Max = 4,
         WaitTime = 2,
     },
     CamShake = {
-        true,
-        {5, 15, 0.1, 1},
-        100,
+        true, -- Enabled
+        {5, 15, 0.1, 1}, -- Shake values (don't change if you don't know)
+        100, -- Shake start distance (from Entity to you)
     },
-    CustomDialog = {"Your custom", "death message", "goes here."},
+    Jumpscare = {
+        Image1 = "", -- Image1 url
+        Image2 = "", -- Image2 url
+        Shake = true,
+        Sound1 = {
+            10483790459, -- SoundId
+            { Volume = 1 }, -- Sound properties
+        },
+        Sound2 = {
+            10483837590, -- SoundId
+            { Volume = 1 }, -- Sound properties
+        },
+        Flashing = {
+            true, -- Enabled
+            Color3.fromRGB(255, 255, 255), -- Color
+        },
+        Tease = {
+            true, -- Enabled
+            {Min = 1, Max = 3}, -- Amount
+        },
+    },
+    CustomDialog = {"Your custom", "death message", "goes", "here."}, -- Custom death message (can be as long as you want)
 })
 
 -- Run the created entity
