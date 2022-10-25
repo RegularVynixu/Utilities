@@ -3,6 +3,8 @@
 local Players = game:GetService("Players")
 local RS = game:GetService("RunService")
 local ReSt = game:GetService("ReplicatedStorage")
+local CG = game:GetService("CoreGui")
+local TS = game:GetService("TweenService")
 
 -- Variables
 
@@ -13,7 +15,12 @@ local Hum = Char:WaitForChild("Humanoid")
 
 local FindPartOnRayWithIgnoreList = workspace.FindPartOnRayWithIgnoreList
 local StaticRushSpeed = 50
+local MinTeaseSize = 150
+local MaxTeaseSize = 300
 
+local SelfModules = {
+    Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))(),
+}
 local ModuleScripts = {
     MainGame = require(Plr.PlayerGui.MainUI.Initiator.Main_Game),
     ModuleEvents = require(ReSt.ClientModules.Module_Events),
@@ -40,6 +47,8 @@ local DefaultConfig = {
     },
     CustomDialog = {},
 }
+local StoredSounds = {}
+
 local Creator = {}
 
 -- Misc Functions
@@ -62,6 +71,28 @@ local function drag(model, objB, speed)
     repeat task.wait() until reached
     
     con:Disconnect()
+end
+
+local function playSound(soundId, properties)
+    for i, v in next, StoredSounds do
+        v:Destroy()
+        StoredSounds[i] = nil
+    end
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://".. ({string.gsub(soundId, "%D", "")})[1]
+    sound.Playing = true
+    sound.Parent = workspace
+
+    for i, v in next, properties do
+        if i ~= "SoundId" and i ~= "Playing" and i ~= "Parent" then
+            sound[i] = v
+        end
+    end
+
+    StoredSounds[#StoredSounds + 1] = sound
+
+    return sound
 end
 
 -- Functions
@@ -102,6 +133,10 @@ Creator.createEntity = function(config)
         if pPart then
             entityModel.PrimaryPart = pPart
             pPart.Anchored = true
+
+            if config.CustomName then
+                entityModel.Name = config.CustomName
+            end
 
             for _, v in next, entityModel:GetDescendants() do
                 if v:IsA("BasePart") then
@@ -146,6 +181,11 @@ Creator.runEntity = function(entity)
 
             if found and found.IsDescendantOf(found, Char) then
                 movementCon:Disconnect()
+
+                if typeof(entity.Config.Jumpscare) == "table" then
+                    Creator.runJumpscare(entity.Config.Jumpscare)
+                end
+                
                 Hum.Health = 0
 
                 if #entity.Config.CustomDialog > 0 then
@@ -213,6 +253,106 @@ Creator.runEntity = function(entity)
     end
 
     entity.Model:Destroy()
+end
+
+Creator.runJumpscare = function(config)
+    -- Pre-setup
+
+    local image1 = LoadCustomAsset(config.Image1)
+    local image2 = LoadCustomAsset(config.Image2)
+    local sound1, sound2 = nil, nil
+
+    Char:SetPrimaryPartCFrame(CFrame.new(0, 9e9, 0))
+
+    -- UI Construction
+
+    local JumpscareGui = Instance.new("ScreenGui")
+    local Background = Instance.new("Frame")
+    local Face = Instance.new("ImageLabel")
+
+    JumpscareGui.Name = "JumpscareGui"
+    JumpscareGui.IgnoreGuiInset = true
+    JumpscareGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    Background.Name = "Background"
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BorderSizePixel = 0
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.ZIndex = 999
+
+    Face.Name = "Face"
+    Face.AnchorPoint = Vector2.new(0.5, 0.5)
+    Face.BackgroundTransparency = 1
+    Face.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Face.Size = UDim2.new(0, 150, 0, 150)
+    Face.Image = image1
+
+    Face.Parent = Background
+    Background.Parent = JumpscareGui
+    JumpscareGui.Parent = CG
+
+    -- Tease
+
+    if config.Tease[1] then
+        if typeof(config.Sound1) == "table" then
+            sound1 = playSound(config.Sound1[1], config.Sound1[2])
+        end
+
+        local rdmTease = math.random(config.Tease[2].Min, config.Tease[2].Max)
+
+        for _ = config.Tease[2].Min, rdmTease do
+            task.wait(math.random(100, 200) / 100)
+
+            local growFactor = (MaxTeaseSize - MinTeaseSize) / rdmTease
+            Face.Size = UDim2.new(0, Face.AbsoluteSize.X + growFactor, 0, Face.AbsoluteSize.Y + growFactor)
+        end
+        
+        task.wait(math.random(100, 200) / 100)
+    end
+
+    -- Scare
+
+    if config.Flashing[1] then
+        task.spawn(function()
+            while JumpscareGui.Parent do
+                Background.BackgroundColor3 = config.Flashing[2]
+                task.wait(math.random(25, 100) / 1000)
+                Background.BackgroundColor3 = Color3.new(0, 0, 0)
+                task.wait(math.random(25, 100) / 1000)
+            end
+        end)
+    end
+
+    if config.Shake then
+        task.spawn(function()
+            local origin = Face.Position
+
+            while JumpscareGui.Parent do
+                Face.Position = origin + UDim2.new(0, math.random(-10, 10), 0, math.random(-10, 10))
+                Face.Rotation = math.random(-5, 5)
+
+                task.wait()
+            end
+        end)
+    end
+
+    if typeof(config.Sound2) == "table" then
+        sound2 = playSound(config.Sound2[1], config.Sound2[2])
+    end
+
+    Face.Image = image2
+    Face.Size = UDim2.new(0, 750, 0, 750)
+    TS:Create(Face, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Size = UDim2.new(0, 1500, 0, 1500), ImageTransparency = 0.5 }):Play()
+    task.wait(1)
+    JumpscareGui:Destroy()
+
+    if sound1 then
+        sound1:Stop()
+    end
+
+    if sound2 then
+        sound2:Stop()
+    end
 end
 
 -- Scripts
