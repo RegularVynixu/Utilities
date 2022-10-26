@@ -51,37 +51,27 @@ local DefaultConfig = {
     },
     CustomDialog = {},
 }
-local DebugConfig = {
-    OnEntitySpawned = function() end,
-    OnEntityDespawned = function() end,
-    OnEntityStartMoving = function() end,
-    OnEntityFinishedRebound = function() end,
-    OnDeath = function() end,
-}
 local StoredSounds = {}
 
 local Creator = {}
 
 -- Misc Functions
 
-local function drag(model, objB, speed)
+local function drag(model, dest, speed)
     local reached = false
-
-    local con; con = RS.Stepped:Connect(function(_, step)
-        local posA = model.PrimaryPart.Position
-        local posB = objB.Position
-        local diff = Vector3.new(posB.X, 0, posB.Z) - Vector3.new(posA.X, 0, posA.Z)
+    local connection; connection = RS.Stepped:Connect(function(_, step)
+        local rootPos = model.PrimaryPart.Position
+        local diff = Vector3.new(dest.X, dest.Y, dest.Z) - rootPos
 
         if diff.Magnitude > 0.1 then
-            model:SetPrimaryPartCFrame(CFrame.new(posA + diff.Unit * math.min(step * speed, diff.Magnitude - 0.05)))
+            model:SetPrimaryPartCFrame(CFrame.new(rootPos + diff.Unit * math.min(step * speed, diff.Magnitude)))
         else
+            connection:Disconnect()
             reached = true
         end
     end)
 
     repeat task.wait() until reached
-    
-    con:Disconnect()
 end
 
 local function playSound(soundId, properties)
@@ -124,21 +114,9 @@ Creator.createEntity = function(config)
 
     -- Obtain custom model
 
-    local entityModel = nil
+    local entityModel = LoadCustomInstance(config.Model)
 
-    if tonumber(config.Model) or string.find(config.Model, "rbxassetid") then
-        local assetId = string.gsub(config.Model, "%D", "")
-
-        entityModel = game:GetObjects("rbxassetid://".. assetId)[1]
-    else
-        writefile("customEntity.txt", game:HttpGet(config.Model))
-
-        entityModel = game:GetObjects((getcustomasset or getsynasset)("customEntity.txt"))[1]
-
-        delfile("customEntity.txt")
-    end
-
-    if entityModel then
+    if typeof(entityModel) == "Instance" and entityModel.ClassName == "Model" then
         local pPart = entityModel.PrimaryPart or entityModel:FindFirstChildWhichIsA("BasePart")
 
         if pPart then
@@ -155,19 +133,26 @@ Creator.createEntity = function(config)
                 end
             end
             
-            return { Model = entityModel, Config = config, Debug = DebugConfig }
+            return {
+                Model = entityModel,
+                Config = config,
+                Debug = {
+                    OnEntitySpawned = function() end,
+                    OnEntityDespawned = function() end,
+                    OnEntityStartMoving = function() end,
+                    OnEntityFinishedRebound = function() end,
+                    OnDeath = function() end,
+                },
+            }
         else
-            warn("Failure - Could not obtain model's PrimaryPart")
+            warn("Failure - Could not find model's PrimaryPart")
         end
     else
-        warn("Failure - Could not obtain entity model")
+        warn("Failure - Could not obtain model")
     end
 end
 
 Creator.runEntity = function(entity)
-    assert(typeof(entity) == "table")
-    assert(entity.Model and entity.Model.PrimaryPart and entity.Config)
-
     -- Obtain nodes
 
     local nodes = {}
@@ -184,7 +169,7 @@ Creator.runEntity = function(entity)
 
     local firstRoom = workspace.CurrentRooms:GetChildren()[1]
 
-    entity.Model:SetPrimaryPartCFrame( (firstRoom:FindFirstChild("RoomStart") and firstRoom.RoomStart.CFrame or nodes[1].CFrame + Vector3.new(0, 3.5, 0)) + Vector3.new(0, entity.Config.HeightOffset, 0) )
+    entity.Model:SetPrimaryPartCFrame( (firstRoom:FindFirstChild("RoomStart") and firstRoom.RoomStart.CFrame or nodes[1].CFrame + Vector3.new(0, 3.5 + entity.Config.HeightOffset, 0)) )
     entity.Model.Parent = workspace
 
     if entity.Config.FlickerLights[1] then
@@ -192,7 +177,7 @@ Creator.runEntity = function(entity)
     end
 
     entity.Debug.OnEntitySpawned(entity.Model)
-
+    
     task.wait(entity.Config.DelayTime or 0)
 
     -- Movement
@@ -244,6 +229,7 @@ Creator.runEntity = function(entity)
     -- Go through cycles
 
     local cycles = entity.Config.Cycles
+    local nodeHeightOffset = 3.5 + entity.Config.HeightOffset
 
     for cycle = 1, math.random(cycles.Min, cycles.Max) do
         for i = 1, #nodes, 1 do
@@ -251,12 +237,12 @@ Creator.runEntity = function(entity)
                 ModuleScripts.ModuleEvents.breakLights(nodes[i].Parent.Parent)
             end
 
-            drag(entity.Model, nodes[i], entity.Config.Speed)
+            drag(entity.Model, nodes[i].Position + Vector3.new(0, nodeHeightOffset, 0), entity.Config.Speed)
         end
 
         if cycles.Max > 1 then
             for i = #nodes, 1, -1 do
-                drag(entity.Model, nodes[i], entity.Config.Speed)
+                drag(entity.Model, nodes[i].Position + Vector3.new(0, nodeHeightOffset, 0), entity.Config.Speed)
             end
         end
         
