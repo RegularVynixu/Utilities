@@ -6,9 +6,9 @@ local Players = game:GetService("Players")
 
 local Plr = Players.LocalPlayer
 
--- Functions
+local StoredModules = {}
 
-getgenv().StoredModules = { Names = {}, Objects = {} }
+-- Functions
 
 local functions; functions = {
     IsClosure = is_synapse_function or iskrnlclosure or isexecutorclosure,
