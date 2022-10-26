@@ -46,7 +46,7 @@ local functions; functions = {
         end
     end,
     LoadCustomInstance = function(url)
-        if string.find(url, "rbxassetid://") or tonumber(url) then
+        if string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
             local assetId = string.gsub(url, "%D", "")
 
             return game:GetObjects("rbxassetid://".. assetId)[1]
