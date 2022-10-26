@@ -33,7 +33,7 @@ local functions; functions = {
         end
     end,
     LoadCustomAsset = function(url, rDelay)
-        if string.find(url, "rbxassetid://") or tonumber(url) then
+        if string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
             local assetId = string.gsub(url, "%D", "")
 
             return "rbxassetid://".. assetId
