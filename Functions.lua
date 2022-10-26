@@ -1,3 +1,13 @@
+-- Services
+
+local Players = game:GetService("Players")
+
+-- Variables
+
+local Plr = Players.LocalPlayer
+
+-- Functions
+
 getgenv().StoredModules = { Names = {}, Objects = {} }
 
 local functions; functions = {
@@ -7,32 +17,12 @@ local functions; functions = {
     Request = (syn and syn.request) or http_request or request,
     QueueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport,
     GetAsset = getsynasset or getcustomasset,
-
     -----
-    
     LoadModule = function(name)
-        if #StoredModules == 0 then
-            for _, v in next, game:GetDescendants() do
-                if v.ClassName == "ModuleScript" then
-                    StoredModules.Names[#StoredModules.Names + 1] = v.Name
-                    StoredModules.Objects[#StoredModules.Objects + 1] = v
-                end
+        for _, v in next, StoredModules do
+            if v.Name == name then
+                return require(v)
             end
-        end
-
-        local nameIdx = table.find(StoredModules.Names, name)
-
-        if not nameIdx then
-            for _, v in next, game:GetDescendants() do
-                if v.ClassName == "ModuleScript" and v.Name == name then
-                    StoredModules.Names[#StoredModules.Names + 1] = v.Name
-                    StoredModules.Objects[#StoredModules.Objects + 1] = v
-
-                    return require(v)
-                end
-            end
-        else
-            return require(StoredModules.Objects[nameIdx])
         end
     end,
     GetPlayerByName = function(name)
@@ -44,24 +34,52 @@ local functions; functions = {
     end,
     LoadCustomAsset = function(url, rDelay)
         if string.find(url, "rbxassetid://") or tonumber(url) then
-            return "rbxassetid://".. ({string.gsub(url, "%D", "")})[1]
+            local assetId = string.gsub(url, "%D", "")
+
+            return "rbxassetid://".. assetId
         else
             local fileName = "customAsset_".. tick().. ".txt"
+
             writefile(fileName, functions.Request({Url = url, Method = "GET"}).Body)
-            local asset = functions.GetAsset(fileName)
-    
-            task.spawn(function()
-                task.wait(rDelay or 60)
-                
-                if isfile(fileName) then
-                    delfile(fileName)
-                end
-            end)
-    
-            return asset
+
+            return functions.GetAsset(fileName)
+        end
+    end,
+    LoadCustomInstance = function(url)
+        if string.find(url, "rbxassetid://") or tonumber(url) then
+            local assetId = string.gsub(url, "%D", "")
+
+            return game:GetObjects("rbxassetid://".. assetId)[1]
+        else
+            local fileName = "customInstance_".. tick().. ".txt"
+            local instance = nil
+
+            writefile(fileName, game:HttpGet(url))
+            instance = game:GetObjects(functions.GetAsset(fileName))[1]
+            delfile(fileName)
+
+            return instance
         end
     end,
 }
+
+-- Scripts
+
+Players.PlayerRemoving:Connect(function(p)
+    if p == Plr then
+        for _, v in next, listfiles("") do
+            if string.find(v, "customAsset") or string.find(v, "customInstance") then
+                delfile(v)
+            end
+        end
+    end
+end)
+
+for _, v in next, game:GetDescendants() do
+    if v.ClassName == "ModuleScript" then
+        StoredModules[#StoredModules + 1] = v
+    end
+end
 
 for i, v in next, functions do
     if typeof(v) == "function" then
