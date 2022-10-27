@@ -57,7 +57,7 @@ entity.Debug.OnEntitySpawned = function(entityModel)
 end
 
 entity.Debug.OnEntityDespawned = function(entityModel)
-    print("Entity has despawned:", mentityModelodel)
+    print("Entity has despawned:", entityModel)
 end
 
 entity.Debug.OnEntityStartMoving = function(entityModel)
