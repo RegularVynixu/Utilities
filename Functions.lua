@@ -33,7 +33,9 @@ local functions; functions = {
         end
     end,
     LoadCustomAsset = function(url, rDelay)
-        if string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
+        if url == "" then
+            return ""
+        elseif string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
             local assetId = string.gsub(url, "%D", "")
 
             return "rbxassetid://".. assetId
@@ -46,7 +48,9 @@ local functions; functions = {
         end
     end,
     LoadCustomInstance = function(url)
-        if string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
+        if url == "" then
+            return ""
+        elseif string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
             local assetId = string.gsub(url, "%D", "")
 
             return game:GetObjects("rbxassetid://".. assetId)[1]
