@@ -61,99 +61,101 @@ end
 -- Functions
 
 CustomShop.CreateItem = function(self, config, callback)
-    -- Config setup
+    task.spawn(function()
+        -- Config setup
 
-    local rawItemName = string.gsub(config.Title, " ", "")
+        local rawItemName = string.gsub(config.Title, " ", "")
 
-    config.RawItemName = rawItemName
+        config.RawItemName = rawItemName
 
-    -- Check
+        -- Check
 
-    if List:FindFirstChild("CustomItem_".. config.RawItemName) then
-        List["CustomItem_".. config.RawItemName]:Destroy()
-    end
-
-    if ReSt.ItemShop:FindFirstChild(config.RawItemName) then
-        ReSt.ItemShop[config.RawItemName]:Destroy()
-    end
-
-    -- Item creation
-    
-    local Item = { Config = config, Callback = callback }
-
-    local button = List:FindFirstChildOfClass("TextButton"):Clone()
-    local selected = false
-    local connections = {}
-
-    button.Visible = true
-    button.Name = "CustomItem_".. config.RawItemName
-    button.Title.Text = config.Title
-    button.Desc.Text = config.Desc
-    button.ImageLabel.Image = LoadCustomAsset(config.Image)
-    button.Price.Text = config.Price
-    button:SetAttribute("Price", config.Price)
-
-    if not config.Stack or config.Stack <= 1 then
-        button.Stack.Visible = false
-    else
-        button.Stack.Visible = true
-        button.Stack.Text = "x".. config.Stack
-    end
-    
-    button.Parent = List
-    Item.Button = button
-
-    -- Folder
-
-    local folder = ReSt.ItemShop:GetChildren()[1]:Clone()
-    folder.Name = config.RawItemName
-
-    for i, v in next, folder:GetAttributes() do
-        if config[i] then
-            folder:SetAttribute(config[i])
+        if List:FindFirstChild("CustomItem_".. config.RawItemName) then
+            List["CustomItem_".. config.RawItemName]:Destroy()
         end
-    end
 
-    folder.Parent = ReSt.ItemShop
+        if ReSt.ItemShop:FindFirstChild(config.RawItemName) then
+            ReSt.ItemShop[config.RawItemName]:Destroy()
+        end
 
-    -- Select item
+        -- Item creation
+        
+        local Item = { Config = config, Callback = callback }
 
-    connections.select = button.MouseButton1Down:Connect(function()
-        selected = not selected
+        local button = List:FindFirstChildOfClass("TextButton"):Clone()
+        local selected = false
+        local connections = {}
 
-        button.BackgroundTransparency = selected and 0.5 or 0.9
-        Plr.PlayerGui.MainUI.Initiator.Main_Game.PreRun[selected and "Press" or "PressDown"]:Play()
+        button.Visible = true
+        button.Name = "CustomItem_".. config.RawItemName
+        button.Title.Text = config.Title
+        button.Desc.Text = config.Desc
+        button.ImageLabel.Image = LoadCustomAsset(config.Image)
+        button.Price.Text = config.Price
+        button:SetAttribute("Price", config.Price)
 
-        --
-
-        local upvs = debug.getupvalues(getconnections(List:FindFirstChildOfClass("TextButton").MouseButton1Down)[1].Function)
-        local selectedItems = upvs[1]
-
-        if selected then
-            selectedItems[#selectedItems + 1] = config.RawItemName
-            self.Selected[#self.Selected + 1] = Item
+        if not config.Stack or config.Stack <= 1 then
+            button.Stack.Visible = false
         else
-            table.remove(selectedItems, table.find(selectedItems, config.RawItemName))
-            table.remove(self.Selected, table.find(self.Selected, Item))
+            button.Stack.Visible = true
+            button.Stack.Text = "x".. config.Stack
+        end
+        
+        button.Parent = List
+        Item.Button = button
+
+        -- Folder
+
+        local folder = ReSt.ItemShop:GetChildren()[1]:Clone()
+        folder.Name = config.RawItemName
+
+        for i, v in next, folder:GetAttributes() do
+            if config[i] then
+                folder:SetAttribute(config[i])
+            end
         end
 
-        upvs[4]() -- Update price
+        folder.Parent = ReSt.ItemShop
+
+        -- Select item
+
+        connections.select = button.MouseButton1Down:Connect(function()
+            selected = not selected
+
+            button.BackgroundTransparency = selected and 0.5 or 0.9
+            Plr.PlayerGui.MainUI.Initiator.Main_Game.PreRun[selected and "Press" or "PressDown"]:Play()
+
+            --
+
+            local upvs = debug.getupvalues(getconnections(List:FindFirstChildOfClass("TextButton").MouseButton1Down)[1].Function)
+            local selectedItems = upvs[1]
+
+            if selected then
+                selectedItems[#selectedItems + 1] = config.RawItemName
+                self.Selected[#self.Selected + 1] = Item
+            else
+                table.remove(selectedItems, table.find(selectedItems, config.RawItemName))
+                table.remove(self.Selected, table.find(self.Selected, Item))
+            end
+
+            upvs[4]() -- Update price
+        end)
+
+        -- Update list height
+
+        local buttonsCount = 0
+
+        for _, v in next, List:GetChildren() do
+            if v.ClassName == "TextButton" and v.Visible then
+                buttonsCount += 1
+            end
+        end
+
+        local rowCount = math.round(buttonsCount / 2)
+        local rowHeight = 8 + rowCount * 80 + (rowCount - 1) * 15
+        
+        List.CanvasSize = UDim2.new(0, 0, 0, rowHeight)
     end)
-
-    -- Update list height
-
-    local buttonsCount = 0
-
-    for _, v in next, List:GetChildren() do
-        if v.ClassName == "TextButton" and v.Visible then
-            buttonsCount += 1
-        end
-    end
-
-    local rowCount = math.round(buttonsCount / 2)
-    local rowHeight = 8 + rowCount * 80 + (rowCount - 1) * 15
-    
-    List.CanvasSize = UDim2.new(0, 0, 0, rowHeight)
 end
 
 -- Scripts
