@@ -6,8 +6,10 @@ local CG = game:GetService("CoreGui")
 
 -- Variables
 
-local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))()
-local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
+local SelfModules = {
+	UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/UI.lua"))(),
+	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))(),
+}
 
 local Inviter = { Connections = {} }
 
@@ -99,11 +101,11 @@ end
 
 Inviter.Join = function(invite)
 	local success, inviteData = pcall(function()
-		return HS:JSONDecode(Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(invite), Method = "GET" }).Body)
+		return HS:JSONDecode(SelfModules.Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(invite), Method = "GET" }).Body)
 	end)
 	
 	if success == true then
-		Functions.Request({
+		SelfModules.Functions.Request({
 			Url = "http://127.0.0.1:6463/rpc?v=1",
 			Method = "POST",
 			Headers = {
@@ -123,7 +125,7 @@ end
 
 Inviter.Prompt = function(options)
 	local success, inviteData = pcall(function()
-		return HS:JSONDecode(Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(options.invite), Method = "GET" }).Body)
+		return HS:JSONDecode(SelfModules.Functions.Request({ Url = "https://ptb.discord.com/api/invites/".. getInviteCode(options.invite), Method = "GET" }).Body)
 	end)
 
 	if success == false or inviteData == nil then
@@ -132,7 +134,7 @@ Inviter.Prompt = function(options)
 	
 	local Prompt = {}
 
-	Prompt.Frame = UI.Create("Frame", {
+	Prompt.Frame = SelfModules.UI.Create("Frame", {
 		Name = "Background",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = Color3.fromRGB(55, 55, 65),
@@ -140,7 +142,7 @@ Inviter.Prompt = function(options)
 		Size = UDim2.new(0, 0, 0, 0),
 		Visible = false,
 
-		UI.Create("TextLabel", {
+		SelfModules.UI.Create("TextLabel", {
 			Name = "Label",
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0, 10, 0, 110),
@@ -152,7 +154,7 @@ Inviter.Prompt = function(options)
 			TextTransparency = 1,
 		}),
 
-		UI.Create("ImageLabel", {
+		SelfModules.UI.Create("ImageLabel", {
 			Name = "ServerIcon",
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			BackgroundColor3 = Color3.fromRGB(65, 65, 75),
@@ -162,7 +164,7 @@ Inviter.Prompt = function(options)
 			Size = UDim2.new(0, 80, 0, 80),
 			ZIndex = 2,
 
-			UI.Create("TextLabel", {
+			SelfModules.UI.Create("TextLabel", {
 				Name = "ServerInitials",
 				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundTransparency = 1,
@@ -177,7 +179,7 @@ Inviter.Prompt = function(options)
 			})
 		}, UDim.new(0, 20)),
 
-		UI.Create("TextLabel", {
+		SelfModules.UI.Create("TextLabel", {
 			Name = "ServerName",
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0, 10, 0, 129),
@@ -190,7 +192,7 @@ Inviter.Prompt = function(options)
 			TextWrapped = true,
 		}),
 
-		UI.Create("TextButton", {
+		SelfModules.UI.Create("TextButton", {
 			Name = "Join",
 			BackgroundColor3 = Color3.fromRGB(90, 100, 240),
 			BackgroundTransparency = 1,
@@ -205,7 +207,7 @@ Inviter.Prompt = function(options)
 			TextWrapped = true,
 		}, UDim.new(0, 5)),
 
-		UI.Create("TextButton", {
+		SelfModules.UI.Create("TextButton", {
 			Name = "Ignore",
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0.5, -27, 1, -34),
@@ -216,7 +218,7 @@ Inviter.Prompt = function(options)
 			TextSize = 14,
 			TextTransparency = 1,
 
-			UI.Create("Frame", {
+			SelfModules.UI.Create("Frame", {
 				Name = "Line",
 				BackgroundColor3 = Color3.fromRGB(220, 220, 220),
 				BorderSizePixel = 0,
@@ -229,13 +231,13 @@ Inviter.Prompt = function(options)
 
 	-- Scripts
 	
-	local serverName = (options.name ~= nil and options.name ~= "") and options.name or inviteData.guild.name
+	local serverName = options.name or inviteData.guild.name
 
 	Prompt.Frame.ServerName.Text = serverName
 	Prompt.Frame.Join.Text = "Join ".. serverName
 
 	if inviteData.guild.icon ~= nil then
-		Prompt.Frame.ServerIcon.Image = UI.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png")
+		Prompt.Frame.ServerIcon.Image = SelfModules.Functions.LoadCustomAsset("https://cdn.discordapp.com/icons/".. inviteData.guild.id.. "/".. inviteData.guild.icon.. ".png")
 	else
 		Prompt.Frame.ServerIcon.ServerInitials.Text = getInitialsFromString(serverName)
 	end
@@ -278,7 +280,7 @@ end
 
 -- Scripts
 
-Inviter.Gui = UI.Create("ScreenGui", {
+Inviter.Gui = SelfModules.UI.Create("ScreenGui", {
 	Name = "Vynixu's Discord Inviter",
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 })
