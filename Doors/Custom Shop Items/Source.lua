@@ -12,6 +12,7 @@ local SelfModules = {
     Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))(),
 }
 
+local BlacklistedNames = {"Crucifix", "Skeleton Key", "M249"}
 local CustomShop = { Selected = {} }
 
 -- Items List
@@ -153,6 +154,22 @@ CustomShop.CreateItem = function(self, config, callback)
 end
 
 -- Scripts
+
+local ncall; ncall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+    local args = {...}
+    
+    if not checkcaller() then
+        if getnamecallmethod() == "FireServer" and tostring(self) == "PreRunShop" then
+            for i, v in next, args[1] do
+                if table.find(BlacklistedNames, v) then
+                    table.remove(args[1], i)
+                end
+            end
+        end
+    end
+    
+    return ncall(self, unpack(args))
+end))
 
 local confirmConnection; confirmConnection = Plr.PlayerGui.MainUI.ItemShop.Confirm.MouseButton1Down:Connect(function()
     confirmConnection:Disconnect()
