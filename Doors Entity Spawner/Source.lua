@@ -290,6 +290,7 @@ Creator.runJumpscare = function(config)
     Face.AnchorPoint = Vector2.new(0.5, 0.5)
     Face.BackgroundTransparency = 1
     Face.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Face.ResampleMode = Enum.ResamplerMode.Pixelated
     Face.Size = UDim2.new(0, 150, 0, 150)
     Face.Image = image1
 
