@@ -66,7 +66,7 @@ CustomShop.CreateItem = function(self, config, callback)
 
         local rawItemName = string.gsub(config.Title, " ", "")
 
-        config.RawItemName = string.sub(rawItemName, 1, #rawItemName - 1)
+        config.RawItemName = rawItemName
 
         -- Check
 
@@ -92,7 +92,6 @@ CustomShop.CreateItem = function(self, config, callback)
         button.Desc.Text = config.Desc
         button.ImageLabel.Image = LoadCustomAsset(config.Image)
         button.Price.Text = config.Price
-        button:SetAttribute("Price", config.Price)
 
         if not config.Stack or config.Stack <= 1 then
             button.Stack.Visible = false
@@ -106,16 +105,11 @@ CustomShop.CreateItem = function(self, config, callback)
 
         -- Folder
 
-        local folder = ReSt.ItemShop:GetChildren()[1]:Clone()
+        local folder = Instance.new("Folder")
         folder.Name = config.RawItemName
-
-        for i, v in next, folder:GetAttributes() do
-            if config[i] then
-                folder:SetAttribute(config[i])
-            end
-        end
-
         folder.Parent = ReSt.ItemShop
+        
+        folder:SetAttribute("Price", config.Price)
 
         -- Select item
 
