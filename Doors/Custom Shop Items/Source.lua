@@ -61,7 +61,7 @@ end
 
 -- Functions
 
-CustomShop.CreateItem = function(self, config, callback)
+CustomShop.CreateItem = function(tool, config)
     task.spawn(function()
         -- Config setup
 
@@ -81,7 +81,7 @@ CustomShop.CreateItem = function(self, config, callback)
 
         -- Item creation
         
-        local Item = { Config = config, Callback = callback }
+        local Item = { Tool = tool, Config = config }
 
         local button = List:FindFirstChildOfClass("TextButton"):Clone()
         local selected = false
@@ -127,10 +127,10 @@ CustomShop.CreateItem = function(self, config, callback)
 
             if selected then
                 selectedItems[#selectedItems + 1] = config.RawItemName
-                self.Selected[#self.Selected + 1] = Item
+                CustomShop.Selected[#CustomShop.Selected + 1] = Item
             else
                 table.remove(selectedItems, table.find(selectedItems, config.RawItemName))
-                table.remove(self.Selected, table.find(self.Selected, Item))
+                table.remove(CustomShop.Selected, table.find(CustomShop.Selected, Item))
             end
 
             upvs[4]() -- Update price
@@ -158,12 +158,10 @@ end
 local ncall; ncall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local args = {...}
     
-    if not checkcaller() then
-        if getnamecallmethod() == "FireServer" and tostring(self) == "PreRunShop" then
-            for i, v in next, args[1] do
-                if table.find(BlacklistedNames, v) then
-                    table.remove(args[1], i)
-                end
+    if not checkcaller() and getnamecallmethod() == "FireServer" and tostring(self) == "PreRunShop" then
+        for i, v in next, args[1] do
+            if table.find(BlacklistedNames, v) then
+                table.remove(args[1], i)
             end
         end
     end
@@ -175,18 +173,10 @@ local confirmConnection; confirmConnection = Plr.PlayerGui.MainUI.ItemShop.Confi
     confirmConnection:Disconnect()
 
     for _, v in next, CustomShop.Selected do
-        if v.Config.ToolAssetId then
-            local tool = LoadCustomInstance(v.Config.ToolAssetId)
-
-            if typeof(tool) == "Instance" and tool.ClassName == "Tool" then
-                tool.Parent = Plr.Backpack
-
-                if typeof(v.Callback) == "function" then
-                    v.Callback(tool)
-                end
-            end
+        if typeof(v.Tool) == "Instance" and v.Tool.ClassName == "Tool" then
+            v.Tool.Parent = Plr.Backpack
         end
-    end
+     end
 end)
 
 return CustomShop
