@@ -66,7 +66,7 @@ CustomShop.CreateItem = function(self, config, callback)
 
         local rawItemName = string.gsub(config.Title, " ", "")
 
-        config.RawItemName = rawItemName
+        config.RawItemName = string.sub(rawItemName, 1, #rawItemName - 1)
 
         -- Check
 
