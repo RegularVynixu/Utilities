@@ -32,6 +32,7 @@ local DefaultConfig = {
     DelayTime = 2,
     HeightOffset = 0,
     CanKill = true,
+    KillRange = 50,
     BreakLights = true,
     FlickerLights = {
         true,
