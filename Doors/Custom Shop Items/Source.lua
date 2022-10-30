@@ -36,7 +36,6 @@ if List.ClassName ~= "ScrollingFrame" then
         SelfModules.UI.Create("UIGridLayout", {
             SortOrder = Enum.SortOrder.LayoutOrder,
             CellPadding = UDim2.new(0, 15, 0, 15),
-            CellSize = UDim2.new(0.5, -8, 0, 80),
         }),
 
         SelfModules.UI.Create("UIPadding", {
@@ -57,6 +56,7 @@ if List.ClassName ~= "ScrollingFrame" then
     
     Plr.PlayerGui.MainUI.ItemShop.Items:Destroy()
     List.Parent = Plr.PlayerGui.MainUI.ItemShop
+    List.UIGridLayout.CellSize = UDim2.new(0.5, -8, 0, List.AbsoluteSize.Y / 1 * 0.31 - 4)
 end
 
 -- Functions
@@ -147,7 +147,7 @@ CustomShop.CreateItem = function(tool, config)
         end
 
         local rowCount = math.round(buttonsCount / 2)
-        local rowHeight = 8 + rowCount * 80 + (rowCount - 1) * 15
+        local rowHeight = 8 + rowCount * (List.AbsoluteSize.Y / 1 * 0.31 - 4) + (rowCount - 1) * 15
         
         List.CanvasSize = UDim2.new(0, 0, 0, rowHeight)
     end)
