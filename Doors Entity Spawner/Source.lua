@@ -34,6 +34,7 @@ local DefaultConfig = {
     CanKill = true,
     KillRange = 50,
     BreakLights = true,
+    BackwardsMovement = false,
     FlickerLights = {
         true,
         1,
@@ -200,8 +201,6 @@ Creator.runEntity = function(entity)
     -- Pre-cycle setup
 
     local firstRoom = workspace.CurrentRooms:GetChildren()[1]
-
-    entity.Model:SetPrimaryPartCFrame(nodes[1].CFrame + Vector3.new(0, 3.5 + entity.Config.HeightOffset, 0))
     entity.Model.Parent = workspace
 
     if entity.Config.FlickerLights[1] then
@@ -325,8 +324,20 @@ Creator.runEntity = function(entity)
 
     -- Go through cycles
 
+    if entity.Config.BackwardsMovement then
+        local inverseNodes = {}
+
+        for i = #nodes, 1, -1 do
+            inverseNodes[#inverseNodes + 1] = nodes[i]
+        end
+
+        nodes = inverseNodes
+    end
+
     local cycles = entity.Config.Cycles
     local nodeHeightOffset = 3.5 + entity.Config.HeightOffset
+
+    entity.Model:SetPrimaryPartCFrame(nodes[1].CFrame + Vector3.new(0, 3.5 + entity.Config.HeightOffset, 0))
 
     for cycle = 1, math.random(cycles.Min, cycles.Max) do
         for i = 1, #nodes, 1 do
