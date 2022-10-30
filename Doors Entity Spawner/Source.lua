@@ -147,6 +147,7 @@ Creator.createEntity = function(config)
         if pPart then
             entityModel.PrimaryPart = pPart
             pPart.Anchored = true
+            entityModel:SetAttribute("IsCustomEntity", true)
 
             if config.CustomName then
                 entityModel.Name = config.CustomName
