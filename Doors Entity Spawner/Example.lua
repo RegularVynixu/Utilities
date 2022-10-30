@@ -8,9 +8,10 @@ local entity = Creator.createEntity({
     DelayTime = 2, -- Time before starting cycles (seconds)
     HeightOffset = 0,
     CanKill = true,
+    KillRange = 50,
     BreakLights = true,
     FlickerLights = {
-        true, -- Enabled
+        true, -- Enabled/Disabled
         1, -- Time (seconds)
     },
     Cycles = {
@@ -19,12 +20,12 @@ local entity = Creator.createEntity({
         WaitTime = 2,
     },
     CamShake = {
-        true, -- Enabled
-        {5, 15, 0.1, 1}, -- Shake values (don't change if you don't know)
+        true, -- Enabled/Disabled
+        {3.5, 20, 0.1, 1}, -- Shake values (don't change if you don't know)
         100, -- Shake start distance (from Entity to you)
     },
     Jumpscare = {
-        true, -- Enabled ('false' if you don't want jumpscare)
+        true, -- Enabled/Disabled
         {
             Image1 = "rbxassetid://10483855823", -- Image1 url
             Image2 = "rbxassetid://10483999903", -- Image2 url
@@ -38,38 +39,46 @@ local entity = Creator.createEntity({
                 { Volume = 0.5 }, -- Sound properties
             },
             Flashing = {
-                true, -- Enabled
+                true, -- Enabled/Disabled
                 Color3.fromRGB(255, 255, 255), -- Color
             },
             Tease = {
-                true, -- Enabled ('false' if you don't want tease)
+                true, -- Enabled/Disabled
                 Min = 1,
                 Max = 3,
             },
         },
     },
-    CustomDialog = {"You can", "put your", "custom death", "message here."}, -- Custom death message (can be as long as you want)
+    CustomDialog = {"You can", "put your", "custom death", "message here."}, -- Custom death message
 })
 
 -----[[ Advanced ]]-----
-entity.Debug.OnEntitySpawned = function(entityModel)
-    print("Entity has spawned:", entityModel)
+entity.Debug.OnEntitySpawned = function(entityTable)
+    print("Entity has spawned:", entityTable.Model)
 end
 
-entity.Debug.OnEntityDespawned = function(entityModel)
-    print("Entity has despawned:", entityModel)
+entity.Debug.OnEntityDespawned = function(entityTable)
+    print("Entity has despawned:", entityTable.Model)
 end
 
-entity.Debug.OnEntityStartMoving = function(entityModel)
-    print("Entity has started moving:", entityModel)
+entity.Debug.OnEntityStartMoving = function(entityTable)
+    print("Entity has started moving:", entityTable.Model)
 end
 
-entity.Debug.OnEntityFinishedRebound = function(entityModel)
-    print("Entity finished rebound:", entityModel)
+entity.Debug.OnEntityFinishedRebound = function(entityTable)
+    print("Entity has finished rebound:", entityTable.Model)
 end
 
-entity.Debug.OnDeath = function()
-    warn("You died.")
+entity.Debug.OnEntityEnteredRoom = function(entityTable, room)
+    print("Entity:", entityTable.Model, "has entered room:", room)
+end
+
+entity.Debug.OnLookAtEntity = function(entityTable)
+    print("Player has looked at entity:", entityTable.Model)
+end
+
+entity.Debug.OnDeath = function(entityTable)
+    warn("Player has died.")
 end
 ------------------------
 
