@@ -224,7 +224,7 @@ Creator.runEntity = function(entity)
             local groundRay = Ray.new(entityPos, Vector3.new(0, -4.5 - entity.Config.HeightOffset))
             local groundFound = FindPartOnRayWithIgnoreList(workspace, groundRay, {entity.Model, Char})
 
-            if groundFound and groundFound.Name == "Floor" or string.find(groundFound.Name, "Carpet") then
+            if groundFound and (groundFound.Name == "Floor" or string.find(groundFound.Name, "Carpet")) then
                 for _, room in next, workspace.CurrentRooms:GetChildren() do
                     if groundFound.IsDescendantOf(groundFound, room) and not table.find(enteredRooms, room) then
                         enteredRooms[#enteredRooms + 1] = room
