@@ -216,7 +216,7 @@ Creator.runEntity = function(entity)
     local enteredRooms = {}
 
     Connections[entity.Model].Movement = RS.Stepped:Connect(function()
-        if Hum.Health > 0 then
+        if entity.Model.Parent and Hum.Health > 0 then
             local entityPos = entity.Model.PrimaryPart.Position
             local rootPos = Root.Position
             local found = FindPartOnRayWithIgnoreList(workspace, Ray.new(entityPos, rootPos - entityPos), {entity.Model, Char})
