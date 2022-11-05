@@ -88,8 +88,17 @@ end
 
 -- Functions
 
-DoorReplication.ReplicateDoor = function(room, customKeyName)
-    customKeyName = typeof(customKeyName) == "string" and customKeyName or "Key"
+DoorReplication.ReplicateDoor = function(room, config)
+    -- Door table
+
+    config.CustomKeyName = typeof(config.CustomKeyName) == "string" and config.CustomKeyName or "Key"
+
+    local doorTable = {
+        Model = fakeDoor,
+        Debug = {
+            OnDoorOpened = function() end,
+        },
+    }
 
     -- Fake door setup
 
@@ -132,7 +141,7 @@ DoorReplication.ReplicateDoor = function(room, customKeyName)
         end)
     else
         connections.holdBegan = fakeDoor.Lock.UnlockPrompt.PromptButtonHoldBegan:Connect(function()
-            local key = Char:FindFirstChild(customKeyName) or Char:FindFirstChild("Key")
+            local key = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key")
             
             if key then
                 Hum:LoadAnimation(key.Animations.use):Play()
@@ -142,18 +151,21 @@ DoorReplication.ReplicateDoor = function(room, customKeyName)
         end)
 
         connections.promptTriggered = fakeDoor.Lock.UnlockPrompt.Triggered:Connect(function()
-            local key = Char:FindFirstChild(customKeyName) or Char:FindFirstChild("Key")
+            local key = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key")
             
             if key then
                 for _, v in next, connections do
                     v:Disconnect()
                 end
                 
+                doorTable.Debug.OnDoorOpened(doorTable)
                 openFakeDoor(fakeDoor)
                 
-                -- Destroy key
+                if config.DestroyKey ~= false then
+                    -- Destroy key
 
-                key:Destroy()
+                    key:Destroy()
+                end
             end
         end)
     end
@@ -162,6 +174,8 @@ DoorReplication.ReplicateDoor = function(room, customKeyName)
     
     fakeDoor.Parent = room
     door:Destroy()
+
+    return doorTable
 end
 
 -- Scripts
