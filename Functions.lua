@@ -76,12 +76,6 @@ local functions; functions = {
         if parsedSoundId then
             local sound = Instance.new("Sound")
             sound.SoundId = parsedSoundId
-
-            for i, v in next, properties do
-                if i ~= "SoundId" then
-                    sound[i] = v
-                end
-            end
             
             return sound
         end
