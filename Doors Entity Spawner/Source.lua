@@ -249,7 +249,6 @@ Creator.runEntity = function(entity)
                     -- Crucifix (lol)
                     
                     if Char:FindFirstChild("Crucifix") then
-                        --[[
                         Connections[entity.Model].Movement:Disconnect()
                         entity.Model:SetAttribute("StopMovement", true)
 
@@ -269,9 +268,7 @@ Creator.runEntity = function(entity)
                             drag(entity.Model, nodes[i].Position + Vector3.new(0, 3.5 + entity.Config.HeightOffset, 0), entity.Config.Speed)
                         end
 
-                        destroy(entity)]]--
-                            
-                        Plr:Kick("Fuck you\n~ Vynixu")
+                        destroy(entity)
 
                         return
                     end
