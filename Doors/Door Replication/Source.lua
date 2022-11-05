@@ -19,7 +19,7 @@ local SelfModules = {
     Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))(),
 }
 local Assets = {
-    FakeDoor = LoadCustomInstance("https://github.com/RegularVynixu/Storage/blob/main/Roblox/Models/Doors/FakeDoor.rbxm?raw=true"),
+    FakeDoor = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/blob/main/Doors/Door%20Replication/FakeDoor.rbxm?raw=true"),
 }
 
 local DoorReplication = {}
