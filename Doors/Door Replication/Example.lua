@@ -2,8 +2,17 @@ local DoorReplication = loadstring(game:HttpGet("https://raw.githubusercontent.c
 
 
 -- Get current room
-local currentRoom = workspace.CurrentRooms[game:GetService("ReplicatedStorage").GameData.LatestRoom.Value]
+local room = workspace.CurrentRooms[game:GetService("ReplicatedStorage").GameData.LatestRoom.Value]
 
 
 -- Replicate door
-DoorReplication.ReplicateDoor(currentRoom, "Custom Key Name")
+local replicatedDoor = DoorReplication.ReplicateDoor(room, {
+    CustomKeyName = "CursedKey",
+    DestroyKey = false,
+})
+
+
+-- Debug features [advanced]
+replicatedDoor.Debug.OnDoorOpened = function(doorTable)
+    warn("Door", doorTable.Model, "has opened")
+end
