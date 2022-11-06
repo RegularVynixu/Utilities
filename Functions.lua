@@ -10,7 +10,7 @@ local StoredModules = {}
 
 -- Functions
 
-local functions; functions = {
+local Functions; Functions = {
     IsClosure = is_synapse_function or iskrnlclosure or isexecutorclosure,
     SetIdentity = (syn and syn.set_thread_identity) or set_thread_identity or setthreadidentity or setthreadcontext,
     GetIdentity = (syn and syn.get_thread_identity) or get_thread_identity or getthreadidentity or getthreadcontext,
@@ -19,7 +19,7 @@ local functions; functions = {
     GetAsset = getsynasset or getcustomasset,
     ----------
     GetPlayerByName = function(name)
-        for _, v in next, game:GetService("Players"):GetPlayers() do
+        for _, v in next, Players:GetPlayers() do
             if string.find(string.lower(v.Name), string.lower(name)) or string.find(string.lower(v.DisplayName), string.lower(name)) then
                 return v
             end
@@ -40,9 +40,9 @@ local functions; functions = {
             return "rbxassetid://".. numberId
         else
             local fileName = "customAsset_".. tick().. ".txt"
-            writefile(fileName, functions.Request({Url = url, Method = "GET"}).Body)
+            writefile(fileName, Functions.Request({Url = url, Method = "GET"}).Body)
 
-            return functions.GetAsset(fileName)
+            return Functions.GetAsset(fileName)
         end
     end,
     LoadCustomInstance = function(url)
@@ -55,30 +55,27 @@ local functions; functions = {
             local fileName = "customInstance_".. tick().. ".txt"
             local instance = nil
             writefile(fileName, game:HttpGet(url))
-            instance = game:GetObjects(functions.GetAsset(fileName))[1]
+            instance = game:GetObjects(Functions.GetAsset(fileName))[1]
             delfile(fileName)
 
             return instance
         end
     end,
-    LoadCustomSound = function(url)
-        local parsedSoundId = nil
+    LoadCustomSoundId = function(url)
+        local parsedSoundId = ""
 
-        if string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
+        if url == "" then
+            return ""
+        elseif string.find(url, "rbxassetid://") or string.find(url, "roblox.com") or tonumber(url) then
             local numberId = string.gsub(url, "%D", "")
             parsedSoundId = "rbxassetid://".. numberId
         else
-            local fileName = "customSound_".. tick().. ".mp3"
+            local fileName = "customSoundId_".. tick().. ".mp3"
             writefile(fileName, game:HttpGet(url))
-            parsedSoundId = functions.GetAsset(fileName)
+            parsedSoundId = Functions.GetAsset(fileName)
         end
 
-        if parsedSoundId then
-            local sound = Instance.new("Sound")
-            sound.SoundId = parsedSoundId
-            
-            return sound
-        end
+        return parsedSoundId
     end,
 }
 
@@ -87,7 +84,7 @@ local functions; functions = {
 Players.PlayerRemoving:Connect(function(p)
     if p == Plr then
         for _, v in next, listfiles("") do
-            if string.find(v, "customAsset") or string.find(v, "customInstance") or string.find(v, "customSound") then
+            if string.find(v, "customAsset") or string.find(v, "customInstance") or string.find(v, "customSoundId") then
                 delfile(v)
             end
         end
@@ -100,10 +97,10 @@ for _, v in next, game:GetDescendants() do
     end
 end
 
-for i, v in next, functions do
+for i, v in next, Functions do
     if typeof(v) == "function" then
         getgenv()[i] = v
     end
 end
 
-return functions
+return Functions
