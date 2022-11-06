@@ -158,8 +158,8 @@ DoorReplication.ReplicateDoor = function(room, config)
                     v:Disconnect()
                 end
                 
-                doorTable.Debug.OnDoorOpened(doorTable)
                 openFakeDoor(fakeDoor)
+                doorTable.Debug.OnDoorOpened(doorTable)
                 
                 if config.DestroyKey ~= false then
                     -- Destroy key
