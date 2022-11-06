@@ -103,11 +103,10 @@ DoorReplication.ReplicateDoor = function(room, config)
     -- Fake door setup
 
     local roomIdx = tonumber(room.Name)
-    local door = room:WaitForChild("Door", 0.3)
+    local door = room:WaitForChild("Door")
     local fakeDoor = Assets.FakeDoor:Clone()
     local shouldBeLocked = room:WaitForChild("Assets", 0.3):WaitForChild("KeyObtain", 0.3) ~= nil
 
-    fakeDoor.Name = "Door"
     fakeDoor.Door.MaterialVariant = "PlywoodALT"
     fakeDoor.Sign.MaterialVariant = "Plywood"
     fakeDoor:SetPrimaryPartCFrame(door.PrimaryPart.CFrame)
