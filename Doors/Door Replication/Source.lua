@@ -86,7 +86,7 @@ DoorReplication.ReplicateDoor = function(room, config)
     config.CustomKeyName = typeof(config.CustomKeyName) == "string" and config.CustomKeyName or "Key"
 
     local doorTable = {
-        Model = fakeDoor,
+        Model = Assets.FakeDoor:Clone(),
         Debug = {
             OnDoorPreOpened = function() end,
             OnDoorOpened = function() end,
@@ -97,19 +97,18 @@ DoorReplication.ReplicateDoor = function(room, config)
 
     local roomIdx = tonumber(room.Name)
     local door = room:WaitForChild("Door")
-    local fakeDoor = Assets.FakeDoor:Clone()
     local shouldBeLocked = room:WaitForChild("Assets", 0.3):WaitForChild("KeyObtain", 0.3) ~= nil
 
-    fakeDoor.Door.MaterialVariant = "PlywoodALT"
-    fakeDoor.Sign.MaterialVariant = "Plywood"
-    fakeDoor:SetPrimaryPartCFrame(door.PrimaryPart.CFrame)
+    doorTable.Model.Door.MaterialVariant = "PlywoodALT"
+    doorTable.Model.Sign.MaterialVariant = "Plywood"
+    doorTable.Model:SetPrimaryPartCFrame(door.PrimaryPart.CFrame)
 
     local signText = ""
     for _ = #tostring(roomIdx + 1), 3 do
         signText = signText.. "0"
     end
 
-    for _, v in next, fakeDoor.Gui:GetDescendants() do
+    for _, v in next, doorTable.Model.Gui:GetDescendants() do
         if v.ClassName == "TextLabel" then
             v.Text = signText.. tostring(roomIdx + 1)
         end
@@ -120,11 +119,11 @@ DoorReplication.ReplicateDoor = function(room, config)
     local connections = {}
 
     if not shouldBeLocked then
-        fakeDoor.Lock:Destroy()
+        doorTable.Model.Lock:Destroy()
 
         task.spawn(function()
-            while not fakeDoor.GetAttribute(fakeDoor, "IsOpen") do
-                if (Root.Position - fakeDoor.PrimaryPart.Position).Magnitude <= 10 then
+            while not doorTable.Model.GetAttribute(doorTable.Model, "IsOpen") do
+                if (Root.Position - doorTable.Model.PrimaryPart.Position).Magnitude <= 10 then
                     openFakeDoor(doorTable)
                 end
     
@@ -132,7 +131,7 @@ DoorReplication.ReplicateDoor = function(room, config)
             end
         end)
     else
-        connections.holdBegan = fakeDoor.Lock.UnlockPrompt.PromptButtonHoldBegan:Connect(function()
+        connections.holdBegan = doorTable.Model.Lock.UnlockPrompt.PromptButtonHoldBegan:Connect(function()
             local item = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key") or Char:FindFirstChild("Lockpick")
             
             if item then
@@ -142,7 +141,7 @@ DoorReplication.ReplicateDoor = function(room, config)
             end
         end)
 
-        connections.promptTriggered = fakeDoor.Lock.UnlockPrompt.Triggered:Connect(function()
+        connections.promptTriggered = doorTable.Model.Lock.UnlockPrompt.Triggered:Connect(function()
             local item = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key") or Char:FindFirstChild("Lockpick")
             
             if item then
@@ -163,7 +162,7 @@ DoorReplication.ReplicateDoor = function(room, config)
 
     -- Parenting
     
-    fakeDoor.Parent = room
+    doorTable.Model.Parent = room
     door:Destroy()
 
     return doorTable
