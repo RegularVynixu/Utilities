@@ -26,40 +26,42 @@ local DoorReplication = {}
 
 -- Misc Functions
 
-local function openFakeDoor(door)
-    door:SetAttribute("IsOpen", true)
+local function openFakeDoor(doorTable)
+    local model = doorTable.Model
+
+    model:SetAttribute("IsOpen", true)
     doorTable.Debug.OnDoorPreOpened(doorTable)
 
-    if door:FindFirstChild("Lock") then
+    if model:FindFirstChild("Lock") then
         -- Unlock visual
 
-        door.Lock.UnlockPrompt.Enabled = false
-        door.Lock.M_Thing.C0 = door.Lock.M_Thing.C0 * CFrame.Angles(0, math.rad(-45), 0)
-        door.Hinge.Lock:Destroy()
-        door.Lock.UnlockPrompt:Destroy()
+        model.Lock.UnlockPrompt.Enabled = false
+        model.Lock.M_Thing.C0 = model.Lock.M_Thing.C0 * CFrame.Angles(0, math.rad(-45), 0)
+        model.Hinge.Lock:Destroy()
+        model.Lock.UnlockPrompt:Destroy()
     end
 
     -- Door opening visual
 
-    door.Door.CanCollide = false
-    door.Light.Color = Color3.fromRGB(197, 113, 88)
-    door.Light.Attachment.PointLight.Enabled = true
-    door.Light.Hit:Play()
-    door.Door.Open:Play()
+    model.Door.CanCollide = false
+    model.Light.Color = Color3.fromRGB(197, 113, 88)
+    model.Light.Attachment.PointLight.Enabled = true
+    model.Light.Hit:Play()
+    model.Door.Open:Play()
 
     task.spawn(function()
-        local knobC1 = door.Hinge.Knob.C1
+        local knobC1 = model.Hinge.Knob.C1
 
-        TS:Create(door.Hinge.Knob, TweenInfo.new(0.175, Enum.EasingStyle.Quad), {C1 = knobC1 * CFrame.Angles(0, 0, math.rad(-35))}):Play()
+        TS:Create(model.Hinge.Knob, TweenInfo.new(0.175, Enum.EasingStyle.Quad), {C1 = knobC1 * CFrame.Angles(0, 0, math.rad(-35))}):Play()
         task.wait(0.175)
-        TS:Create(door.Hinge.Knob, TweenInfo.new(0.175, Enum.EasingStyle.Quad), {C1 = knobC1}):Play()
+        TS:Create(model.Hinge.Knob, TweenInfo.new(0.175, Enum.EasingStyle.Quad), {C1 = knobC1}):Play()
     end)
 
-    TS:Create(door.Hinge, TweenInfo.new(0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {CFrame = door.Hinge.CFrame * CFrame.Angles(0, math.rad(-90), 0)}):Play()
+    TS:Create(model.Hinge, TweenInfo.new(0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {CFrame = model.Hinge.CFrame * CFrame.Angles(0, math.rad(-90), 0)}):Play()
 
     -- Next room preparations
 
-    local nextRoom = workspace.CurrentRooms:FindFirstChild(tonumber(door.Parent.Name) + 1)
+    local nextRoom = workspace.CurrentRooms:FindFirstChild(tonumber(model.Parent.Name) + 1)
 
     if nextRoom then
         for _, v in next, {"Assets", "Light_Fixtures"} do
@@ -123,7 +125,7 @@ DoorReplication.ReplicateDoor = function(room, config)
         task.spawn(function()
             while not fakeDoor.GetAttribute(fakeDoor, "IsOpen") do
                 if (Root.Position - fakeDoor.PrimaryPart.Position).Magnitude <= 10 then
-                    openFakeDoor(fakeDoor)
+                    openFakeDoor(doorTable)
                 end
     
                 task.wait()
@@ -148,7 +150,7 @@ DoorReplication.ReplicateDoor = function(room, config)
                     v:Disconnect()
                 end
                 
-                openFakeDoor(fakeDoor)
+                openFakeDoor(doorTable)
                 
                 if config.DestroyKey ~= false then
                     -- Destroy key
