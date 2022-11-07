@@ -122,7 +122,7 @@ DoorReplication.ReplicateDoor = function(room, config)
         doorTable.Model.Lock:Destroy()
 
         task.spawn(function()
-            while not doorTable.Model.GetAttribute(doorTable.Model, "IsOpen") do
+            while doorTable.Model.Parent and not doorTable.Model.GetAttribute(doorTable.Model, "IsOpen") do
                 if (Root.Position - doorTable.Model.PrimaryPart.Position).Magnitude <= 10 then
                     openFakeDoor(doorTable)
                 end
