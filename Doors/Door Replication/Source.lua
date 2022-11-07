@@ -28,6 +28,7 @@ local DoorReplication = {}
 
 local function openFakeDoor(door)
     door:SetAttribute("IsOpen", true)
+    doorTable.Debug.OnDoorPreOpened(doorTable)
 
     if door:FindFirstChild("Lock") then
         -- Unlock visual
@@ -71,6 +72,8 @@ local function openFakeDoor(door)
             end
         end
     end
+
+    doorTable.Debug.OnDoorOpened(doorTable)
 end
 
 -- Functions
@@ -145,9 +148,7 @@ DoorReplication.ReplicateDoor = function(room, config)
                     v:Disconnect()
                 end
                 
-                doorTable.Debug.OnDoorPreOpened(doorTable)
                 openFakeDoor(fakeDoor)
-                doorTable.Debug.OnDoorOpened(doorTable)
                 
                 if config.DestroyKey ~= false then
                     -- Destroy key
