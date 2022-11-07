@@ -58,32 +58,19 @@ local function openFakeDoor(door)
 
     -- Next room preparations
 
-    local nextRoom = workspace.CurrentRooms[tonumber(door.Parent.Name) + 1]
+    local nextRoom = workspace.CurrentRooms:FindFirstChild(tonumber(door.Parent.Name) + 1)
 
-    for _, v in next, {"Assets", "Light_Fixtures"} do
-        if nextRoom:FindFirstChild(v) then
-            for _, v2 in next, nextRoom[v]:GetDescendants() do
-                if string.find(v2.ClassName, "Light") and not v2.Enabled then
-                    v2.Enabled = true
+    if nextRoom then
+        for _, v in next, {"Assets", "Light_Fixtures"} do
+            if nextRoom:FindFirstChild(v) then
+                for _, v2 in next, nextRoom[v]:GetDescendants() do
+                    if string.find(v2.ClassName, "Light") and not v2.Enabled then
+                        v2.Enabled = true
+                    end
                 end
             end
         end
     end
-
-    task.spawn(function()
-        local nextDoor = nextRoom:WaitForChild("Door", 1)
-
-        nextDoor:WaitForChild("Light", 1):GetPropertyChangedSignal("Color"):Wait()
-
-        local fakeNextDoor = nextDoor:Clone()
-        fakeNextDoor.Parent = nextRoom
-        nextDoor.Parent = StorageFolder
-
-        task.wait(1)
-
-        nextDoor.Parent = nextRoom
-        fakeNextDoor:Destroy()
-    end)
 end
 
 -- Functions
