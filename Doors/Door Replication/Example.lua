@@ -13,6 +13,10 @@ local replicatedDoor = DoorReplication.ReplicateDoor(room, {
 
 
 -- Debug features [advanced]
+replicatedDoor.Debug.OnDoorPreOpened = function(doorTable)
+    warn("Door", doorTable.Model, "is opening")
+end
+
 replicatedDoor.Debug.OnDoorOpened = function(doorTable)
     warn("Door", doorTable.Model, "has opened")
 end
