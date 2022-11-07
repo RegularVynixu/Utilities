@@ -102,6 +102,8 @@ DoorReplication.ReplicateDoor = function(room, config)
     doorTable.Model.Door.MaterialVariant = "PlywoodALT"
     doorTable.Model.Sign.MaterialVariant = "Plywood"
     doorTable.Model:SetPrimaryPartCFrame(door.PrimaryPart.CFrame)
+    doorTable.Model.Parent = room
+    door:Destroy()
 
     local signText = ""
     for _ = #tostring(roomIdx + 1), 3 do
@@ -159,11 +161,6 @@ DoorReplication.ReplicateDoor = function(room, config)
             end
         end)
     end
-
-    -- Parenting
-    
-    doorTable.Model.Parent = room
-    door:Destroy()
 
     return doorTable
 end
