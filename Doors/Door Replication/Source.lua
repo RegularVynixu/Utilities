@@ -83,6 +83,7 @@ DoorReplication.ReplicateDoor = function(room, config)
     local doorTable = {
         Model = fakeDoor,
         Debug = {
+            OnDoorPreOpened = function() end,
             OnDoorOpened = function() end,
         },
     }
@@ -144,6 +145,7 @@ DoorReplication.ReplicateDoor = function(room, config)
                     v:Disconnect()
                 end
                 
+                doorTable.Debug.OnDoorPreOpened(doorTable)
                 openFakeDoor(fakeDoor)
                 doorTable.Debug.OnDoorOpened(doorTable)
                 
