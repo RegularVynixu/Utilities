@@ -131,19 +131,19 @@ DoorReplication.ReplicateDoor = function(room, config)
         end)
     else
         connections.holdBegan = fakeDoor.Lock.UnlockPrompt.PromptButtonHoldBegan:Connect(function()
-            local key = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key")
+            local item = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key") or Char:FindFirstChild("Lockpick")
             
-            if key then
-                Hum:LoadAnimation(key.Animations.use):Play()
+            if item then
+                Hum:LoadAnimation(item.Animations.use):Play()
             else
                 firesignal(ReSt.Bricks.Caption.OnClientEvent, "You need a key!", true)
             end
         end)
 
         connections.promptTriggered = fakeDoor.Lock.UnlockPrompt.Triggered:Connect(function()
-            local key = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key")
+            local item = Char:FindFirstChild(config.CustomKeyName) or Char:FindFirstChild("Key") or Char:FindFirstChild("Lockpick")
             
-            if key then
+            if item then
                 for _, v in next, connections do
                     v:Disconnect()
                 end
@@ -153,7 +153,7 @@ DoorReplication.ReplicateDoor = function(room, config)
                 if config.DestroyKey ~= false then
                     -- Destroy key
 
-                    key:Destroy()
+                    item:Destroy()
                 end
             end
         end)
