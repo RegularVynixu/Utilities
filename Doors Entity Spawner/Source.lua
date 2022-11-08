@@ -205,7 +205,7 @@ Creator.runEntity = function(entity)
     entity.Model.Parent = workspace
 
     if entity.Config.FlickerLights[1] then
-        task.spawn(ModuleScripts.ModuleEvents.flickerLights, workspace.CurrentRooms[Plr:GetAttribute("CurrentRoom")], entity.Config.FlickerLights[2])
+        task.spawn(ModuleScripts.ModuleEvents.flickerLights, workspace.CurrentRooms[ReSt.GameData.LatestRoom.Value], entity.Config.FlickerLights[2])
     end
 
     entity.Debug.OnEntitySpawned(entity)
