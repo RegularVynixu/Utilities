@@ -193,15 +193,17 @@ DoorReplication.ReplicateDoor = function(doorTable)
             end
         end)
     else
-        while doorTable.Model.Parent and Root do
-            if (Root.Position - doorTable.Model.PrimaryPart.Position).Magnitude <= 15 then
-                openDoor(doorTable)
-
-                break
+        task.spawn(function()
+            while doorTable.Model.Parent and Root do
+                if (Root.Position - doorTable.Model.PrimaryPart.Position).Magnitude <= 15 then
+                    openDoor(doorTable)
+    
+                    break
+                end
+    
+                task.wait()
             end
-
-            task.wait()
-        end
+        end)
     end
 end
 
