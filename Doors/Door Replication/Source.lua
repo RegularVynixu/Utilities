@@ -23,10 +23,12 @@ local DoorReplication = {}
 
 -- Misc Functions
 
-local function openDoor(doorTable, config)
+local function openDoor(doorTable)
     local model = doorTable.Model
+    local config = doorTable.Config
+    local debug = doorTable.Debug
 
-    doorTable.Debug.OnDoorPreOpened()
+    debug.OnDoorPreOpened()
     model:SetAttribute("Opened", true)
 
     if model:FindFirstChild("Lock") then
@@ -76,7 +78,7 @@ local function openDoor(doorTable, config)
         end
     end
 
-    doorTable.Debug.OnDoorOpened()
+    debug.OnDoorOpened()
 end
 
 -- Functions
@@ -110,10 +112,80 @@ DoorReplication.CreateDoor = function(config)
     return door
 end
 
+DoorReplication.Replicate = function(doorTable)
+    local model = doorTable.Model
+    local config = doorTable.Config
+
+    -- Guiding light
+
+    if config.GuidingLight ~= false and model.Parent:GetAttribute("IsDark") then
+        task.spawn(function()
+            if not door.Door.LightAttach.HelpLight.Enabled then
+                task.wait(15)
+            end
+
+            if model.Parent and not model:GetAttribute("Opened") then
+                model.Door.LightAttach.HelpLight.Enabled = true
+                model.Door.LightAttach.HelpParticle.Enabled = true
+
+                TS:Create(model.Door.LightAttach.HelpLight, TweenInfo.new(2), {Brightness = 0.5}):Play()
+            end
+        end)
+    end
+
+    -- Connections
+
+    local connections = {}
+
+    if model:FindFirstChild("Lock") then
+        connections.unlockBegan = model.Lock.UnlockPrompt.PromptButtonHoldBegan:Connect(function()
+            for _, v in next, config.CustomKeyNames do
+                local key = Char:FindFirstChild(v)
+
+                if key and key:FindFirstChild("Animations") and key.Animations:FindFirstChild("use") then
+                    Hum:LoadAnimation(key.Animations.use):Play()
+                    return
+                end
+            end
+
+            firesignal(ReSt.Bricks.Caption.OnClientEvent, "You need a key!", true)
+        end)
+
+        connections.unlockTriggered = model.Lock.UnlockPrompt.Triggered:Connect(function()
+            for _, v in next, connections do
+                v:Disconnect()
+            end
+
+            for _, v in next, config.CustomKeyNames do
+                local key = Char:FindFirstChild(v)
+
+                if key then
+                    if config.DestroyKey ~= false then
+                        key:Destroy()
+                    end
+
+                    openDoor(doorTable)
+                    break
+                end
+            end
+        end)
+    else
+        while model.Parent and Root do
+            if (Root.Position - model.PrimaryPart.Position).Magnitude <= 15 then
+                openDoor(doorTable)
+                break
+            end
+
+            task.wait()
+        end
+    end
+end
+
 DoorReplication.ReplicateDoor = function(room, config)
     -- Door table
 
     local doorTable = {
+        Config = config,
         Debug = {
             OnDoorPreOpened = function() end,
             OnDoorOpened = function() end,
@@ -128,7 +200,7 @@ DoorReplication.ReplicateDoor = function(room, config)
         end
     end
 
-    -- Door replication
+    -- Door model
 
     local door = room:WaitForChild("Door", 1)
 
@@ -145,7 +217,7 @@ DoorReplication.ReplicateDoor = function(room, config)
         
         doorTable.Model = repDoor
 
-        -- Sign
+        -- Door sign
 
         local signText = ""
         for _ = #tostring(room.Name + 1), 3 do
@@ -158,73 +230,10 @@ DoorReplication.ReplicateDoor = function(room, config)
             end
         end
 
-        -- Guiding light
+        -- Handle replication
 
-        if config.GuidingLight ~= false and room:GetAttribute("IsDark") then
-            task.spawn(function()
-                if not door.Door.LightAttach.HelpLight.Enabled then
-                    task.wait(15)
-                end
-
-                if repDoor.Parent and not repDoor:GetAttribute("Opened") then
-                    repDoor.Door.LightAttach.HelpLight.Enabled = true
-                    repDoor.Door.LightAttach.HelpParticle.Enabled = true
-
-                    TS:Create(repDoor.Door.LightAttach.HelpLight, TweenInfo.new(2), {Brightness = 0.5}):Play()
-                end
-            end)
-        end
-
-        -- Connections
-
-        local connections = {}
-
-        if repDoor:FindFirstChild("Lock") then
-            connections.unlockBegan = repDoor.Lock.UnlockPrompt.PromptButtonHoldBegan:Connect(function()
-                for _, v in next, config.CustomKeyNames do
-                    local key = Char:FindFirstChild(v)
-
-                    if key and key:FindFirstChild("Animations") and key.Animations:FindFirstChild("use") then
-                        Hum:LoadAnimation(key.Animations.use):Play()
-                        return
-                    end
-                end
-
-                firesignal(ReSt.Bricks.Caption.OnClientEvent, "You need a key!", true)
-            end)
-
-            connections.unlockTriggered = repDoor.Lock.UnlockPrompt.Triggered:Connect(function()
-                for _, v in next, connections do
-                    v:Disconnect()
-                end
-
-                for _, v in next, config.CustomKeyNames do
-                    local key = Char:FindFirstChild(v)
-
-                    if key then
-                        if config.DestroyKey ~= false then
-                            key:Destroy()
-                        end
-
-                        openDoor(doorTable, config)
-                        break
-                    end
-                end
-            end)
-        else
-            while repDoor.Parent and Root do
-                if (Root.Position - repDoor.PrimaryPart.Position).Magnitude <= 15 then
-                    openDoor(doorTable, config)
-                    break
-                end
-
-                task.wait()
-            end
-        end
-
+        DoorReplication.Replicate(doorTable)
         door:Destroy()
-
-        -- Return
         
         return doorTable
     else
