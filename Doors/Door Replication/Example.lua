@@ -7,16 +7,18 @@ local room = workspace.CurrentRooms[game:GetService("ReplicatedStorage").GameDat
 
 -- Replicate door
 local replicatedDoor = DoorReplication.ReplicateDoor(room, {
-    CustomKeyName = "CursedKey",
-    DestroyKey = false,
+    CustomKeyNames = {"Custom key name here"}, -- Optional
+    DestroyKey = true,
+    GuidingLight = true,
+    SlamOpen = false,
 })
 
 
--- Debug features [advanced]
-replicatedDoor.Debug.OnDoorPreOpened = function(doorTable)
-    warn("Door", doorTable.Model, "is opening")
+-- Debugging
+replicatedDoor.Debug.OnDoorPreOpened = function()
+    warn("Door", replicatedDoor, "has pre-opened")
 end
 
-replicatedDoor.Debug.OnDoorOpened = function(doorTable)
-    warn("Door", doorTable.Model, "has opened")
+replicatedDoor.Debug.OnDoorOpened = function()
+    warn("Door", replicatedDoor, "has opened")
 end
