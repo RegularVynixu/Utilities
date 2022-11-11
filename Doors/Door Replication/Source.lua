@@ -56,7 +56,7 @@ local function openDoor(doorTable)
         TS:Create(doorTable.Model.Hinge.Knob, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {C1 = knobC1}):Play()
     end)
 
-    TS:Create(doorTable.Model.Hinge, TweenInfo.new(doorTable.Config.SlamOpen and 0.15 or 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {CFrame = doorTable.Model.Hinge.CFrame * CFrame.Angles(0, math.rad(-90), 0)}):Play()
+    TS:Create(doorTable.Model.Hinge, TweenInfo.new(doorTable.Config.FastOpen and 0.15 or 0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {CFrame = doorTable.Model.Hinge.CFrame * CFrame.Angles(0, math.rad(-90), 0)}):Play()
 
     -- Next room preparations
 
