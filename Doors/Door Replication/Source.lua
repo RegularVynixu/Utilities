@@ -125,7 +125,7 @@ DoorReplication.CreateDoor = function(config)
     }
 end
 
-DoorReplication.Replicate = function(doorTable)
+DoorReplication.ReplicateDoor = function(doorTable)
     -- Pre-check
 
     if not doorTable.Model.Parent then
@@ -202,30 +202,6 @@ DoorReplication.Replicate = function(doorTable)
 
             task.wait()
         end
-    end
-end
-
-DoorReplication.ReplicateRoomDoor = function(room)
-    if room:FindFirstChild("Door") then
-        local originalDoor = room.Door
-
-        local doorTable = DoorReplication.CreateDoor({
-            Locked = room:WaitForChild("Assets"):WaitForChild("KeyObtain", 0.3),
-            Sign = true,
-            Light = true,
-            Barricaded = false,
-            CustomKeyNames = {},
-            DestroyKey = true,
-            GuidingLight = true,
-            SlamOpen = originalDoor:GetAttribute("FastOpen"),
-        })
-
-        doorTable.Model:SetPrimaryPartCFrame(originalDoor.PrimaryPart.CFrame)
-        doorTable.Model.Parent = room
-        DoorReplication.Replicate(doorTable)
-        originalDoor:Destroy()
-    else
-        warn("Failure - Could not find original door of room:", room)
     end
 end
 
