@@ -5,13 +5,8 @@ local DoorReplication = loadstring(game:HttpGet("https://raw.githubusercontent.c
 local room = workspace.CurrentRooms[game:GetService("ReplicatedStorage").GameData.LatestRoom.Value]
 
 
--- Replicate door
-local replicatedDoor = DoorReplication.ReplicateDoor(room, {
-    CustomKeyNames = {"Custom key name here"}, -- Optional
-    DestroyKey = true,
-    GuidingLight = true,
-    SlamOpen = false,
-})
+-- Replicate room door
+local replicatedDoor = DoorReplication.ReplicateRoomDoor(room)
 
 
 -- Debugging
