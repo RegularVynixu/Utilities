@@ -193,7 +193,13 @@ Creator.runEntity = function(entity)
 
     for _, room in next, workspace.CurrentRooms:GetChildren() do
         if room:FindFirstChild("Nodes") then
-            for _, node in next, room.Nodes:GetChildren() do
+            local roomNodes = room.Nodes:GetChildren()
+
+            table.sort(roomNodes, function(a, b)
+                return a.Name < b.Name
+            end)
+
+            for _, node in next, roomNodes do
                 nodes[#nodes + 1] = node
             end
         end
