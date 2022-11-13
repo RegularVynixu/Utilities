@@ -252,9 +252,16 @@ Creator.runEntity = function(entity)
                 -- Within kill range
 
                 if (Root.Position - entity.Model.PrimaryPart.Position).Magnitude <= entity.Config.KillRange then
-                    -- Crucifix (lol)
+                    -- Entity deflection
                     
-                    if Char:FindFirstChild("Crucifix") then
+                    local doggo = workspace:FindFirstChild("Doggo")
+                    local crucifix = Char:FindFirstChild("Crucifix")
+                    
+                    if doggo or crucifix then
+                        if doggo then
+                            doggo.Growl:Play()
+                        end
+                        
                         Connections[entity.Model].Movement:Disconnect()
                         entity.Model:SetAttribute("StopMovement", true)
 
