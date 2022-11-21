@@ -19,7 +19,7 @@ local WorldToViewportPoint = Camera.WorldToViewportPoint
 local StaticRushSpeed = 50
 local MinTeaseSize = 150
 local MaxTeaseSize = 300
-
+local SuspendRevive = game.ReSt.GameData.ChaseInSession
 local SelfModules = {
     Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))(),
 }
@@ -32,6 +32,7 @@ local DefaultConfig = {
     DelayTime = 2,
     HeightOffset = 0,
     CanKill = true,
+    DisableReviveButton = true
     KillRange = 50,
     BreakLights = true,
     BackwardsMovement = false,
@@ -198,7 +199,6 @@ end
 
 Creator.runEntity = function(entity)
     -- Obtain nodes
-
     local nodes = {}
 
     for _, room in next, workspace.CurrentRooms:GetChildren() do
@@ -218,12 +218,16 @@ Creator.runEntity = function(entity)
     -- Pre-cycle setup
 
     local firstRoom = workspace.CurrentRooms:GetChildren()[1]
-    entity.Model.Parent = workspace
+    entity.Model.Parent = workspace 
 
     if entity.Config.FlickerLights[1] then
         task.spawn(ModuleScripts.ModuleEvents.flickerLights, workspace.CurrentRooms[ReSt.GameData.LatestRoom.Value], entity.Config.FlickerLights[2])
     end
 
+    if entity.Config.DisableReviveButton[1] then
+        SuspendRevive.Value = true
+    end
+    
     entity.Debug.OnEntitySpawned(entity)
     task.wait(entity.Config.DelayTime or 0)
 
@@ -391,6 +395,10 @@ Creator.runEntity = function(entity)
     -- Remove entity after cycles
 
     destroy(entity)
+    task.wait(0.75)
+    if entity.Config.DisableReviveButton[1] then
+        SuspendRevive.Value = false
+    end
 end
 
 Creator.runJumpscare = function(config)
