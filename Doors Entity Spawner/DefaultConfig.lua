@@ -3,6 +3,7 @@ return {
     DelayTime = 2,
     HeightOffset = 0,
     CanKill = true,
+    DisableReviveButton = true,
     KillRange = 50,
     BreakLights = true,
     BackwardsMovement = false,
