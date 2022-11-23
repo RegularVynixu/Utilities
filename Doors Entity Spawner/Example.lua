@@ -1,7 +1,8 @@
-local Creator = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors%20Entity%20Spawner/Source.lua"))()
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors%20Entity%20Spawner/Source.lua"))()
+
 
 -- Create entity
-local entity = Creator.createEntity({
+local entityTable = Spawner.createEntity({
     CustomName = "Template Entity", -- Custom name of your entity
     Model = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true", -- Can be GitHub file or rbxassetid
     Speed = 100, -- Percentage, 100 = default Rush speed
@@ -9,8 +10,8 @@ local entity = Creator.createEntity({
     HeightOffset = 0,
     CanKill = true,
     KillRange = 50,
-    BreakLights = true,
     BackwardsMovement = false,
+    BreakLights = true,
     FlickerLights = {
         true, -- Enabled/Disabled
         1, -- Time (seconds)
@@ -53,35 +54,37 @@ local entity = Creator.createEntity({
     CustomDialog = {"You can", "put your", "custom death", "message here."}, -- Custom death message
 })
 
------[[ Advanced ]]-----
-entity.Debug.OnEntitySpawned = function(entityTable)
-    print("Entity has spawned:", entityTable.Model)
+
+-----[[  Debug -=- Advanced  ]]-----
+entityTable.Debug.OnEntitySpawned = function()
+    print("Entity has spawned:", entityTable)
 end
 
-entity.Debug.OnEntityDespawned = function(entityTable)
-    print("Entity has despawned:", entityTable.Model)
+entityTable.Debug.OnEntityDespawned = function()
+    print("Entity has despawned:", entityTable)
 end
 
-entity.Debug.OnEntityStartMoving = function(entityTable)
-    print("Entity has started moving:", entityTable.Model)
+entityTable.Debug.OnEntityStartMoving = function()
+    print("Entity has started moving:", entityTable)
 end
 
-entity.Debug.OnEntityFinishedRebound = function(entityTable)
-    print("Entity has finished rebound:", entityTable.Model)
+entityTable.Debug.OnEntityFinishedRebound = function()
+    print("Entity has finished rebound:", entityTable)
 end
 
-entity.Debug.OnEntityEnteredRoom = function(entityTable, room)
-    print("Entity:", entityTable.Model, "has entered room:", room)
+entityTable.Debug.OnEntityEnteredRoom = function(room)
+    print("Entity:", entityTable, "has entered room:", room)
 end
 
-entity.Debug.OnLookAtEntity = function(entityTable)
-    print("Player has looked at entity:", entityTable.Model)
+entityTable.Debug.OnLookAtEntity = function()
+    print("Player has looked at entity:", entityTable)
 end
 
-entity.Debug.OnDeath = function(entityTable)
+entityTable.Debug.OnDeath = function()
     warn("Player has died.")
 end
-------------------------
+------------------------------------
+
 
 -- Run the created entity
-Creator.runEntity(entity)
+Spawner.runEntity(entityTable)
