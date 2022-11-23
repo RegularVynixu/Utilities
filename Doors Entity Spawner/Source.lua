@@ -207,7 +207,7 @@ Spawner.runEntity = function(entityTable)
 
                 -- Kill player
 
-                if entityTable.Config.CanKill and not Char.GetAttribute(Char, "Hiding") and (Root.Position - entityModel.PrimaryPart.Position).Magnitude <= entityTable.Config.KillRange then
+                if entityTable.Config.CanKill and not Char.GetAttribute(Char, "Hiding") and not Char.GetAttribute(Char, "Invincible") and (Root.Position - entityModel.PrimaryPart.Position).Magnitude <= entityTable.Config.KillRange then
                     entityConnections.movement:Disconnect()
                     
                     -- Mute entity
