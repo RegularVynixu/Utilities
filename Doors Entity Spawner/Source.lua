@@ -14,8 +14,6 @@ local Hum = Char:WaitForChild("Humanoid")
 local Camera = workspace.CurrentCamera
 
 local StaticRushSpeed = 60
-local MinTeaseSize = 150
-local MaxTeaseSize = 300
 
 local FindPartOnRayWithIgnoreList = workspace.FindPartOnRayWithIgnoreList
 local WorldToViewportPoint = Camera.WorldToViewportPoint
@@ -347,6 +345,7 @@ Spawner.runJumpscare = function(config)
 
     JumpscareGui.Name = "JumpscareGui"
     JumpscareGui.IgnoreGuiInset = true
+    JumpscareGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     Background.Name = "Background"
     Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -369,19 +368,22 @@ Spawner.runJumpscare = function(config)
     -- Tease
 
     local teaseConfig = config.Tease
+    local absHeight = JumpscareGui.AbsoluteSize.Y
+    local minTeaseSize = absHeight / 5
+    local maxTeaseSize = absHeight / 2.5
 
     if teaseConfig[1] then
         local teaseAmount = math.random(teaseConfig.Min, teaseConfig.Max)
 
         sound1:Play()
-
+        
         for _ = teaseConfig.Min, teaseAmount do
             task.wait(math.random(100, 200) / 100)
 
-            local growFactor = (MaxTeaseSize - MinTeaseSize) / teaseAmount
+            local growFactor = (maxTeaseSize - minTeaseSize) / teaseAmount
             Face.Size = UDim2.new(0, Face.AbsoluteSize.X + growFactor, 0, Face.AbsoluteSize.Y + growFactor)
         end
-        
+
         task.wait(math.random(100, 200) / 100)
     end
     
@@ -416,10 +418,10 @@ Spawner.runJumpscare = function(config)
     -- Jumpscare
     
     Face.Image = image2
-    Face.Size = UDim2.new(0, 750, 0, 750)
+    Face.Size = UDim2.new(0, maxTeaseSize, 0, maxTeaseSize)
     sound2:Play()
     
-    TS:Create(Face, TweenInfo.new(0.75), {Size = UDim2.new(0, 2000, 0, 2000), ImageTransparency = 0.5}):Play()
+    TS:Create(Face, TweenInfo.new(0.75), {Size = UDim2.new(0, absHeight * 3, 0,  absHeight * 3), ImageTransparency = 0.5}):Play()
     task.wait(0.75)
     JumpscareGui:Destroy()
     
