@@ -10,7 +10,6 @@ local CG = game:GetService("CoreGui")
 
 local Plr = Players.LocalPlayer
 local Char = Plr.Character or Plr.CharacterAdded:Wait()
-local Root = Char:WaitForChild("HumanoidRootPart")
 local Hum = Char:WaitForChild("Humanoid")
 local Camera = workspace.CurrentCamera
 
@@ -35,6 +34,10 @@ local Spawner = {}
 
 -- Misc Functions
 
+function getPlayerRoot()
+    return Char:FindFirstChild("HumanoidRootPart") or Char:FindFirstChild("Head")
+end
+
 function dragEntity(entityModel, pos, speed)
     local entityConnections = EntityConnections[entityModel]
 
@@ -52,8 +55,6 @@ function dragEntity(entityModel, pos, speed)
             else
                 entityConnections.movementNode:Disconnect()
             end
-        else
-            entityConnections.movementNode:Disconnect()
         end
     end)
 
@@ -170,10 +171,10 @@ Spawner.runEntity = function(entityTable)
     local entityConnections = EntityConnections[entityModel]
     local enteredRooms = {}
 
-    entityConnections.movement = RS.Stepped:Connect(function()
-        if entityModel.Parent and Hum.Health > 0 and not entityModel.GetAttribute(entityModel, "NoAI") then
+    entityConnections.movementTick = RS.Stepped:Connect(function()
+        if entityModel.Parent and not entityModel:GetAttribute("NoAI") then
             local entityPos = entityModel.PrimaryPart.Position
-            local rootPos = Root.Position
+            local rootPos = getPlayerRoot().Position
             local floorRay = FindPartOnRayWithIgnoreList(workspace, Ray.new(entityPos, Vector3.new(0, -10, 0)), {entityModel, Char})
             local playerInSight = FindPartOnRayWithIgnoreList(workspace, Ray.new(entityPos, rootPos - entityPos), {entityModel, Char}) == nil
             
@@ -181,7 +182,7 @@ Spawner.runEntity = function(entityTable)
 
             if floorRay ~= nil and floorRay.Name == "Floor" then
                 for _, room in next, workspace.CurrentRooms:GetChildren() do
-                    if floorRay.IsDescendantOf(floorRay, room) and not table.find(enteredRooms, room) then
+                    if floorRay:IsDescendantOf(room) and not table.find(enteredRooms, room) then
                         enteredRooms[#enteredRooms + 1] = room
                         task.spawn(entityTable.Debug.OnEntityEnteredRoom, room)
 
@@ -194,6 +195,22 @@ Spawner.runEntity = function(entityTable)
                         break
                     end
                 end
+            end
+
+            -- Camera shaking
+            
+            local shakeConfig = entityTable.Config.CamShake
+            local shakeMag = (getPlayerRoot().Position - entityModel.PrimaryPart.Position).Magnitude
+
+            if shakeConfig[1] and shakeMag <= shakeConfig[3] then
+                local shakeRep = {}
+
+                for i, v in next, shakeConfig[2] do
+                    shakeRep[i] = v
+                end
+                shakeRep[1] = shakeConfig[2][1] / shakeConfig[3] * (shakeConfig[3] - shakeMag)
+
+                ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
             end
 
             -- Player in sight
@@ -209,69 +226,53 @@ Spawner.runEntity = function(entityTable)
 
                 -- Kill player
 
-                if entityTable.Config.CanKill and not Char.GetAttribute(Char, "Hiding") and not Char.GetAttribute(Char, "Invincible") and (Root.Position - entityModel.PrimaryPart.Position).Magnitude <= entityTable.Config.KillRange then
-                    entityConnections.movement:Disconnect()
-                    
-                    -- Mute entity
-
-                    local playingSounds = {}
-
-                    for _, v in next, entityModel:GetDescendants() do
-                        if v.ClassName == "Sound" and v.Playing then
-                            playingSounds[#playingSounds + 1] = v
-                            v:Stop()
-                        end
-                    end
-
-                    -- Jumpscare
-                    
-                    if entityTable.Config.Jumpscare[1] then
-                        Spawner.runJumpscare(entityTable.Config.Jumpscare[2])
-                    end
-
-                    -- Death handling
-                    
-                    task.spawn(entityTable.Debug.OnDeath)
-                    Hum.Health = 0
-                    ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entityModel.Name
-                    
-                    if #entityTable.Config.CustomDialog > 0 then
-                        firesignal(ReSt.Bricks.DeathHint.OnClientEvent, entityTable.Config.CustomDialog)
-                    end
-
-                    -- Unmute entity
-
+                if entityTable.Config.CanKill and not Char:GetAttribute("IsDead") and not Char:GetAttribute("Invincible") and not Char:GetAttribute("Hiding") and (getPlayerRoot().Position - entityModel.PrimaryPart.Position).Magnitude <= entityTable.Config.KillRange then
                     task.spawn(function()
-                        Plr.PlayerGui.MainUI.DeathPanelDead:GetPropertyChangedSignal("Visible"):Wait()
+                        Char:SetAttribute("IsDead", true)
 
-                        for _, v in next, playingSounds do
-                            local oldVolume = v.Volume
+                        -- Mute entity
 
-                            v.Volume = 0
-                            v:Play()
-                            TS:Create(v, TweenInfo.new(2), {Volume = oldVolume}):Play()
+                        local playingSounds = {}
+
+                        for _, v in next, entityModel:GetDescendants() do
+                            if v.ClassName == "Sound" and v.Playing then
+                                playingSounds[#playingSounds + 1] = v
+                                v:Stop()
+                            end
                         end
+
+                        -- Jumpscare
+                        
+                        if entityTable.Config.Jumpscare[1] then
+                            Spawner.runJumpscare(entityTable.Config.Jumpscare[2])
+                        end
+
+                        -- Death handling
+                        
+                        task.spawn(entityTable.Debug.OnDeath)
+                        Hum.Health = 0
+                        ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entityModel.Name
+                        
+                        if #entityTable.Config.CustomDialog > 0 then
+                            firesignal(ReSt.Bricks.DeathHint.OnClientEvent, entityTable.Config.CustomDialog)
+                        end
+
+                        -- Unmute entity
+
+                        task.spawn(function()
+                            Plr.PlayerGui.MainUI.DeathPanelDead:GetPropertyChangedSignal("Visible"):Wait()
+
+                            for _, v in next, playingSounds do
+                                local oldVolume = v.Volume
+
+                                v.Volume = 0
+                                v:Play()
+                                TS:Create(v, TweenInfo.new(2), {Volume = oldVolume}):Play()
+                            end
+                        end)
                     end)
                 end
             end
-
-            -- Camera shaking
-            
-            local shakeConfig = entityTable.Config.CamShake
-            local shakeMag = (Root.Position - entityModel.PrimaryPart.Position).Magnitude
-
-            if shakeConfig[1] and shakeMag <= shakeConfig[3] then
-                local shakeRep = {}
-    
-                for i, v in next, shakeConfig[2] do
-                    shakeRep[i] = v
-                end
-                shakeRep[1] = shakeConfig[2][1] / shakeConfig[3] * (shakeConfig[3] - shakeMag)
-
-                ModuleScripts.MainGame.camShaker.ShakeOnce(ModuleScripts.MainGame.camShaker, table.unpack(shakeRep))
-            end
-        else
-            entityConnections.movement:Disconnect()
         end
     end)
 
@@ -291,44 +292,35 @@ Spawner.runEntity = function(entityTable)
         entityNodes = inverseNodes
     end
 
-    for _ = 1, math.max(math.random(cyclesConfig.Min, cyclesConfig.Max), 1) do
-        if not entityModel:GetAttribute("NoAI") then
-            for nodeIdx = 1, #entityNodes, 1 do
-                if not entityModel:GetAttribute("NoAI") then
-                    dragEntity(entityModel, entityNodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
-                else
-                    break
-                end
-            end
-
-            if cyclesConfig.Max > 1 and not entityModel:GetAttribute("NoAI") then
-                for nodeIdx = #entityNodes, 1, -1 do
-                    if not entityModel:GetAttribute("NoAI") then
-                        dragEntity(entityModel, entityNodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
-                    else
-                        break
-                    end
-                end
-            else
-                break
-            end
-        else
-            break
+    for cycle = 1, math.max(math.random(cyclesConfig.Min, cyclesConfig.Max), 1) do
+        for nodeIdx = 1, #entityNodes, 1 do
+            dragEntity(entityModel, entityNodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
         end
 
+        if cyclesConfig.Max > 1 then
+            for nodeIdx = #entityNodes, 1, -1 do
+                dragEntity(entityModel, entityNodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
+            end
+        end
+
+        -- Rebound finished
+
         task.spawn(entityTable.Debug.OnEntityFinishedRebound)
-        task.wait(cyclesConfig.WaitTime or 0)
+        
+        if cycle < cyclesConfig.Max then
+            task.wait(cyclesConfig.WaitTime)
+        end
     end
 
     -- Destroy
 
-    if not entityModel:GetAttribute("NoAI") then    
+    if not entityModel:GetAttribute("NoAI") then
         for _, v in next, entityConnections do
             v:Disconnect()
         end
         
         entityModel:Destroy()
-        entityTable.Debug.OnEntityDespawned()
+        task.spawn(entityTable.Debug.OnEntityDespawned)
     end
 end
 
@@ -379,8 +371,9 @@ Spawner.runJumpscare = function(config)
     local teaseConfig = config.Tease
 
     if teaseConfig[1] then
-        sound1:Play()
         local teaseAmount = math.random(teaseConfig.Min, teaseConfig.Max)
+
+        sound1:Play()
 
         for _ = teaseConfig.Min, teaseAmount do
             task.wait(math.random(100, 200) / 100)
@@ -431,14 +424,30 @@ Spawner.runJumpscare = function(config)
     JumpscareGui:Destroy()
     
     if sound1 then
-        sound1:Stop()
+        sound1:Destroy()
     end
     
     if sound2 then
-        sound2:Stop()
+        sound2:Destroy()
     end
 end
 
 -- Scripts
+
+task.spawn(function()
+    while true do
+        local canRevive = true
+        
+        for _, v in next, workspace:GetChildren() do
+            if v.Name == "RushMoving" or v.Name == "AmbushMoving" or v:GetAttribute("IsCustomEntity") then
+                canRevive = false
+                break
+            end
+        end
+        
+        ReSt.GameData.ChaseInSession.Value = not canRevive
+        task.wait(1)
+    end
+end)
 
 return Spawner
