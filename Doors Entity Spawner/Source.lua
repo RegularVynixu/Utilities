@@ -95,6 +95,8 @@ Spawner.createEntity = function(config)
         entityModel.PrimaryPart = entityModel.PrimaryPart or entityModel:FindFirstChildWhichIsA("BasePart")
         
         if entityModel.PrimaryPart then
+            entityModel.PrimaryPart.Anchored = true
+            
             if config.CustomName then
                 entityModel.Name = config.CustomName
             end
