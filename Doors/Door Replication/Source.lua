@@ -104,6 +104,24 @@ DoorReplication.CreateDoor = function(config)
         if config.Sign == false then
             model.Sign:Destroy()
             model.Gui:Destroy()
+        else
+            task.spawn(function()
+                repeat task.wait() until model.Parent and tonumber(model.Parent.Name)
+                
+                local signText = ""
+                
+                for i = #tostring(model.Parent.Name + 1), 3 do
+                    signText = signText.. "0"
+                end
+
+                signText = signText.. model.Parent.Name + 1
+
+                for _, v in next, model.Gui:GetDescendants() do
+                    if v.ClassName == "TextLabel" then
+                        v.Text = signText
+                    end
+                end
+            end)
         end
 
         if config.Light == false then
@@ -165,7 +183,6 @@ DoorReplication.ReplicateDoor = function(doorTable)
 
                 if key and key:FindFirstChild("Animations") and key.Animations:FindFirstChild("use") then
                     Hum:LoadAnimation(key.Animations.use):Play()
-
                     return
                 end
             end
