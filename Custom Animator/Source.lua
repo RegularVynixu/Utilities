@@ -134,6 +134,12 @@ function playAnimation(self)
                 local prevKeyframe = keyframes[keyframeIdx - 1]
                 local duration = prevKeyframe and (keyframe.Time - prevKeyframe.Time) / self.Speed or 0.05
                 totalDuration += duration
+
+                task.spawn(function()
+                    task.wait(duration)
+
+                    task.spawn(self.KeyframeReached, keyframe.Name)
+                end)
             end
 
             task.wait(totalDuration + 0.1)
@@ -182,6 +188,7 @@ CustomAnimator.LoadAnimation = function(model, keyframeSequence)
         Stop = stopAnimation,
         AdjustSpeed = adjustSpeed,
         Speed = 1
+        KeyframeReached = function() end,
     }
 end
 
