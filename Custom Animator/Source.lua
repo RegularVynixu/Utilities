@@ -187,8 +187,8 @@ CustomAnimator.LoadAnimation = function(model, keyframeSequence)
         Play = playAnimation,
         Stop = stopAnimation,
         AdjustSpeed = adjustSpeed,
-        Speed = 1
-        KeyframeReached = function() end,
+        Speed = 1,
+        KeyframeReached = function() end
     }
 end
 
