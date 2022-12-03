@@ -133,16 +133,11 @@ function playAnimation(self)
             for keyframeIdx, keyframe in next, keyframes do
                 local prevKeyframe = keyframes[keyframeIdx - 1]
                 local duration = prevKeyframe and (keyframe.Time - prevKeyframe.Time) / self.Speed or 0.05
+                
                 totalDuration += duration
-
-                task.spawn(function()
-                    task.wait(duration)
-
-                    task.spawn(self.KeyframeReached, keyframe.Name)
-                end)
             end
 
-            task.wait(totalDuration + 0.1)
+            task.wait(totalDuration)
 
             if startTick == activeAnimations.StartTick then
                 stopAnimation(self, true)
