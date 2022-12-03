@@ -106,7 +106,7 @@ function playAnimation(self)
                                     Pose = pose,
                                     Style = Enum.EasingStyle[pose.EasingStyle.Name],
                                     Direction = Enum.EasingDirection[pose.EasingDirection.Name],
-                                    Duration = prevKeyframe and (keyframe.Time - prevKeyframe.Time) / self.Speed or 0.05
+                                    Duration = prevKeyframe and (keyframe.Time - prevKeyframe.Time) / self.Speed or 0.025
                                 })
     
                                 break
@@ -114,14 +114,17 @@ function playAnimation(self)
                         end
                     end
     
-                    for _, pose in next, poses do
+                    for i, pose in next, poses do
                         if startTick ~= activeAnimations.StartTick then
                             break
                         end
 
-                        local tween = TS:Create(motor.Motor, TweenInfo.new(pose.Duration, pose.Style, pose.Direction), {C0 = motor.Properties.C0 * pose.Pose.CFrame})
-                        table.insert(activeAnimations.Tweens, tween)
-                        tween:Play()
+                        if i == 1 or i == #poses or (i > 1 and i < #poses and pose.Pose.CFrame ~= CFrame.new()) then
+                            local tween = TS:Create(motor.Motor, TweenInfo.new(pose.Duration, pose.Style, pose.Direction), {C0 = motor.Properties.C0 * pose.Pose.CFrame})
+                            
+                            table.insert(activeAnimations.Tweens, tween)
+                            tween:Play()
+                        end
     
                         task.wait(pose.Duration)
                     end
@@ -132,8 +135,8 @@ function playAnimation(self)
 
             for keyframeIdx, keyframe in next, keyframes do
                 local prevKeyframe = keyframes[keyframeIdx - 1]
-                local duration = prevKeyframe and (keyframe.Time - prevKeyframe.Time) / self.Speed or 0.05
-                
+                local duration = prevKeyframe and (keyframe.Time - prevKeyframe.Time) / self.Speed or 0.025
+
                 totalDuration += duration
             end
 
