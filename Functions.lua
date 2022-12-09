@@ -29,10 +29,17 @@ function convertString(str)
 
     elseif str:find("http") then
         local fileName = "customObject_".. tick().. ".txt"
+        local success, result = pcall(function()
+            return unctions.Request({Url = str, Method = "GET"}).Body
+        end)
 
-        writefile(fileName, Functions.Request({Url = str, Method = "GET"}))
+        if success then
+            writefile(fileName, result)
 
-        return fileName
+            return fileName
+        else
+            return ""
+        end
     else
         return Functions.GetAsset(str)
     end
