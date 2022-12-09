@@ -30,7 +30,7 @@ function convertString(str)
     elseif str:find("http") then
         local fileName = "customObject_".. tick().. ".txt"
 
-        writefile(fileName, game:HttpGet(str))
+        writefile(fileName, Functions.Request({Url = str, Method = "GET"}))
 
         return fileName
     else
