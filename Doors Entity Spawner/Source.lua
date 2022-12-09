@@ -26,7 +26,7 @@ local ModuleScripts = {
     ModuleEvents = require(ReSt.ClientModules.Module_Events),
     MainGame = require(Plr.PlayerGui.MainUI.Initiator.Main_Game),
 }
-getgenv().EntityConnections = EntityConnections or {}
+local EntityConnections = {}
 
 local Spawner = {}
 
@@ -59,18 +59,26 @@ function dragEntity(entityModel, pos, speed)
     repeat task.wait() until not entityConnections.movementNode.Connected
 end
 
-function loadSound(soundId, properties)
+function loadSound(soundData)
     local sound = Instance.new("Sound")
-    local numberId = string.gsub(soundId, "%D", "")
-
-    sound.SoundId = "rbxassetid://".. numberId
-    sound.Parent = workspace
+    local soundId = tostring(soundData[1])
+    local properties = soundData[2]
 
     for i, v in next, properties do
         if i ~= "SoundId" and i ~= "Parent" then
             sound[i] = v
         end
     end
+
+    if soundId:find("rbxasset://") then -- Custom audio
+        sound.SoundId = soundId
+    else
+        local numberId = soundId:gsub("%D", "")
+
+        sound.SoundId = "rbxassetid://".. numberId
+    end
+    
+    sound.Parent = workspace
 
     return sound
 end
@@ -152,9 +160,23 @@ Spawner.runEntity = function(entityTable)
     local startNodeOffset = entityTable.Config.BackwardsMovement and -50 or 50
 
     EntityConnections[entityModel] = {}
+    local entityConnections = EntityConnections[entityModel]
+    
     entityModel:SetPrimaryPartCFrame(entityNodes[startNodeIndex].CFrame * CFrame.new(0, 0, startNodeOffset) + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0))
     entityModel.Parent = workspace
     task.spawn(entityTable.Debug.OnEntitySpawned)
+
+    -- Mute entity on spawn
+
+    if CG:FindFirstChild("JumpscareGui") or (Plr.PlayerGui.MainUI.Death.HelpfulDialogue.Visible and not Plr.PlayerGui.MainUI.DeathPanelDead.Visible) then
+        warn("on death screen, mute entity")
+
+        for _, v in next, entityModel:GetDescendants() do
+            if v.ClassName == "Sound" and v.Playing then
+                v:Stop()
+            end
+        end
+    end
 
     -- Flickering
 
@@ -166,7 +188,6 @@ Spawner.runEntity = function(entityTable)
 
     task.wait(entityTable.Config.DelayTime)
 
-    local entityConnections = EntityConnections[entityModel]
     local enteredRooms = {}
 
     entityConnections.movementTick = RS.Stepped:Connect(function()
@@ -230,11 +251,10 @@ Spawner.runEntity = function(entityTable)
 
                         -- Mute entity
 
-                        local playingSounds = {}
+                        warn("mute entity")
 
                         for _, v in next, entityModel:GetDescendants() do
                             if v.ClassName == "Sound" and v.Playing then
-                                playingSounds[#playingSounds + 1] = v
                                 v:Stop()
                             end
                         end
@@ -254,18 +274,22 @@ Spawner.runEntity = function(entityTable)
                         if #entityTable.Config.CustomDialog > 0 then
                             firesignal(ReSt.Bricks.DeathHint.OnClientEvent, entityTable.Config.CustomDialog)
                         end
-
+                        
                         -- Unmute entity
 
                         task.spawn(function()
-                            Plr.PlayerGui.MainUI.DeathPanelDead:GetPropertyChangedSignal("Visible"):Wait()
+                            repeat task.wait() until Plr.PlayerGui.MainUI.DeathPanelDead.Visible
 
-                            for _, v in next, playingSounds do
-                                local oldVolume = v.Volume
+                            warn("unmute entity:", entityModel)
 
-                                v.Volume = 0
-                                v:Play()
-                                TS:Create(v, TweenInfo.new(2), {Volume = oldVolume}):Play()
+                            for _, v in next, entityModel:GetDescendants() do
+                                if v.ClassName == "Sound" then
+                                    local oldVolume = v.Volume
+                                
+                                    v.Volume = 0
+                                    v:Play()
+                                    TS:Create(v, TweenInfo.new(2), {Volume = oldVolume}):Play()
+                                end
                             end
                         end)
                     end)
@@ -330,11 +354,11 @@ Spawner.runJumpscare = function(config)
     local sound1, sound2 = nil, nil
 
     if config.Sound1 then
-        sound1 = loadSound(config.Sound1[1], config.Sound1[2])
+        sound1 = loadSound(config.Sound1)
     end
 
     if config.Sound2 then
-        sound2 = loadSound(config.Sound2[1], config.Sound2[2])
+        sound2 = loadSound(config.Sound2)
     end
 
     -- UI Construction
@@ -438,17 +462,17 @@ end
 
 task.spawn(function()
     while true do
-        local canRevive = true
+        local inSession = false
         
         for _, v in next, workspace:GetChildren() do
             if v.Name == "RushMoving" or v.Name == "AmbushMoving" or v:GetAttribute("IsCustomEntity") then
-                canRevive = false
+                inSession = true
                 break
             end
         end
         
-        ReSt.GameData.ChaseInSession.Value = not canRevive
-        task.wait(1)
+        ReSt.GameData.ChaseInSession.Value = inSession
+        task.wait(0.5)
     end
 end)
 
