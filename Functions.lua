@@ -6,7 +6,6 @@ local Players = game:GetService("Players")
 
 local Plr = Players.LocalPlayer
 
-local ModuleScripts = {}
 local Functions = {
     IsClosure = is_synapse_function or iskrnlclosure or isexecutorclosure,
     SetIdentity = (syn and syn.set_thread_identity) or set_thread_identity or setthreadidentity or setthreadcontext,
@@ -15,35 +14,7 @@ local Functions = {
     QueueOnTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport,
     GetAsset = getsynasset or getcustomasset,
 }
-
--- Misc Functions
-
-function convertString(str)
-    if str == "" then
-        return ""
-    
-    elseif str:find("rbxassetid") or str:find("roblox.com") or tonumber(str) then
-        local numberId = str:gsub("%D", "")
-
-        return "rbxassetid://".. numberId
-
-    elseif str:find("http") then
-        local fileName = "customObject_".. tick().. ".txt"
-        local success, result = pcall(function()
-            return unctions.Request({Url = str, Method = "GET"}).Body
-        end)
-
-        if success then
-            writefile(fileName, result)
-
-            return fileName
-        else
-            return ""
-        end
-    else
-        return Functions.GetAsset(str)
-    end
-end
+local ModuleScripts = {}
 
 -- Functions
 
@@ -64,14 +35,47 @@ Functions.LoadModule = function(name)
 end
 
 Functions.LoadCustomAsset = function(str)
-    return convertString(str)
+    if str == "" then
+        return ""
+
+    elseif str:find("rbxassetid://") or str:find("roblox.com") or tonumber(str) then
+        local numberId = str:gsub("%D", "")
+
+        return "rbxassetid://".. numberId
+    else
+        local dirs = str:split("/")
+
+        if isfolder(dirs[1]) or isfile(dirs[1]) then -- is local file
+            return Functions.GetAsset(str)
+        else
+            local fileName = "customObject_".. tick().. ".txt"
+
+            writefile(fileName, Functions.Request({Url = str, Method = "GET"}).Body)
+
+            return Functions.GetAsset(fileName)
+        end
+    end
 end
 
 Functions.LoadCustomInstance = function(str)
-    local converted = convertString(str)
+    if str ~= "" then
+        if str:find("rbxassetid://") or str:find("roblox.com") or tonumber(str) then
+            local numberId = str:gsub("%D", "")
 
-    if converted ~= "" then
-        return game:GetObjects(converted)[1]
+            return game:GetObjects("rbxassetid://".. numberId)[1]
+        else
+            local dirs = str:split("/")
+
+            if isfolder(dirs[1]) or isfile(dirs[1]) then -- is local file
+                return game:GetObjects(Functions.GetAsset(str))[1]
+            else
+                local fileName = "customObject_".. tick().. ".txt"
+
+                writefile(fileName, Functions.Request({Url = str, Method = "GET"}).Body)
+
+                return game:GetObjects(Functions.GetAsset(fileName))[1]
+            end
+        end
     end
 end
 
@@ -83,6 +87,12 @@ for _, v in next, game:GetDescendants() do
     end
 end
 
+for name, func in next, Functions do
+    if typeof(func) == "function" then
+        getgenv()[name] = func
+    end
+end
+
 game.DescendantAdded:Connect(function(des)
     if des.ClassName == "ModuleScript" then
         table.insert(ModuleScripts, des)
@@ -90,7 +100,7 @@ game.DescendantAdded:Connect(function(des)
 end)
 
 Players.PlayerRemoving:Connect(function(player)
-    if player == plr then
+    if player == Plr then
         for _, v in next, listfiles("") do
             if v:find("customObject") then
                 delfile(v)
@@ -98,11 +108,5 @@ Players.PlayerRemoving:Connect(function(player)
         end
     end
 end)
-
-for name, func in next, Functions do
-    if typeof(func) == "function" then
-        getgenv()[name] = func
-    end
-end
 
 return Functions
