@@ -43,9 +43,7 @@ Functions.LoadCustomAsset = function(str)
 
         return "rbxassetid://".. numberId
     else
-        local dirs = str:split("/")
-
-        if isfolder(dirs[1]) or isfile(dirs[1]) then -- is local file
+        if isfile(str) then -- is local file
             return Functions.GetAsset(str)
         else
             local fileName = "customObject_".. tick().. ".txt"
@@ -64,9 +62,7 @@ Functions.LoadCustomInstance = function(str)
 
             return game:GetObjects("rbxassetid://".. numberId)[1]
         else
-            local dirs = str:split("/")
-
-            if isfolder(dirs[1]) or isfile(dirs[1]) then -- is local file
+            if isfile(str) then -- is local file
                 return game:GetObjects(Functions.GetAsset(str))[1]
             else
                 local fileName = "customObject_".. tick().. ".txt"
