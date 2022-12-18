@@ -69,8 +69,8 @@ function openDoor(doorTable)
         local nextRoom = workspace.CurrentRooms:WaitForChild(ReSt.GameData.LatestRoom.Value + 1, 1)
 
         if nextRoom then
-            for _, v in next, nextRoom:GetDescendants() do
-                if v:IsA("Light") and not v:IsDescendantOf(nextRoom:WaitForChild("Door")) then
+            for _, v in next, nextRoom:WaitForChild("Assets"):WaitForChild("Light_Fixtures"):GetDescendants() do
+                if v:IsA("Light") then
                     v.Enabled = true
                 end
             end
@@ -110,7 +110,7 @@ DoorReplicator.CreateDoor = function(config)
             for _ = 1, 4 - #tostring(config.RoomIndex) do
                 text ..= "0"
             end
-            text ..= config.RoomIndex
+            text ..= config.RoomIndex + 1
             
             for _, v in next, door.Gui:GetDescendants() do
                 if v.ClassName == "TextLabel" then
