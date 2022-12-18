@@ -192,6 +192,8 @@ DoorReplicator.ReplicateDoor = function(door, config)
             end
         end)
     end
+
+    return doorTable
 end
 
 -- Scripts
