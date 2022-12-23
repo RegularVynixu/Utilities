@@ -63,14 +63,11 @@ Directory.DecodeConfig = function(directory)
     return success, success and dConfig or {}
 end
 
-Directory.GetNameFromDirectory = function(directory)
-    for i = #directory, 1, -1 do
-        if table.find({"/", [[\]]}, string.sub(directory, i, i)) then
-            return string.sub(directory, i + 1, #directory)
-        end
-    end
+Directory.GetNameFromDirectory = function(directory, noExtension)
+    local splt = directory:split([[\]])
+    local name = splt[#splt]
     
-    return directory
+    return name:sub(1, #name - (noExtension and 4 or 0))
 end
 
 return Directory
