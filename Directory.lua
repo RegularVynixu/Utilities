@@ -67,7 +67,15 @@ Directory.GetNameFromDirectory = function(directory, noExtension)
     local splt = directory:split([[\]])
     local name = splt[#splt]
     
-    return name:sub(1, #name - (noExtension and 4 or 0))
+    if noExtension then
+        local splt2 = name:split(".")
+        
+        if #splt2 > 1 then
+            name = splt2[1]
+        end
+    end
+    
+    return name
 end
 
 return Directory
