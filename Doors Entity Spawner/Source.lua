@@ -32,6 +32,10 @@ local Spawner = {}
 
 -- Misc Functions
 
+function onCharacterAdded(char)
+    Char, Hum = char, char:WaitForChild("Humanoid")
+end
+
 function getPlayerRoot()
     return Char:FindFirstChild("HumanoidRootPart") or Char:FindFirstChild("Head")
 end
@@ -49,7 +53,7 @@ function dragEntity(entityModel, pos, speed)
             local diff = Vector3.new(pos.X, pos.Y, pos.Z) - rootPos
 
             if diff.Magnitude > 0.1 then
-                entityModel:SetPrimaryPartCFrame(CFrame.new(rootPos + diff.Unit * math.min(step * speed, diff.Magnitude)))
+                entityModel:PivotTo(CFrame.new(rootPos + diff.Unit * math.min(step * speed, diff.Magnitude)))
             else
                 entityConnections.movementNode:Disconnect()
             end
@@ -135,34 +139,40 @@ end
 Spawner.runEntity = function(entityTable)
     -- Nodes
 
-    local entityNodes = {}
+    local nodes = {}
 
     for _, room in next, workspace.CurrentRooms:GetChildren() do
-        local nodes = room:WaitForChild("Nodes", 1)
+        local pathfindNodes = room:FindFirstChild("PathfindNodes")
         
-        if nodes then
-            nodes = nodes:GetChildren()
+        if pathfindNodes then
+            pathfindNodes = pathfindNodes:GetChildren()
+        else
+            local fakeNode = Instance.new("Part")
+            fakeNode.Name = "1"
+            fakeNode.CFrame = room:WaitForChild("RoomExit").CFrame - Vector3.new(0, room.RoomExit.Size.Y / 2, 0)
 
-            table.sort(nodes, function(a, b)
-                return a.Name < b.Name
-            end)
+            pathfindNodes = {fakeNode}
+        end
 
-            for _, node in next, nodes do
-                entityNodes[#entityNodes + 1] = node
-            end
+        table.sort(pathfindNodes, function(a, b)
+            return tonumber(a.Name) < tonumber(b.Name)
+        end)
+
+        for _, node in next, pathfindNodes do
+            nodes[#nodes + 1] = node
         end
     end
 
     -- Spawn
 
     local entityModel = entityTable.Model:Clone()
-    local startNodeIndex = entityTable.Config.BackwardsMovement and #entityNodes or 1
+    local startNodeIndex = entityTable.Config.BackwardsMovement and #nodes or 1
     local startNodeOffset = entityTable.Config.BackwardsMovement and -50 or 50
 
     EntityConnections[entityModel] = {}
     local entityConnections = EntityConnections[entityModel]
     
-    entityModel:SetPrimaryPartCFrame(entityNodes[startNodeIndex].CFrame * CFrame.new(0, 0, startNodeOffset) + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0))
+    entityModel:PivotTo(nodes[startNodeIndex].CFrame * CFrame.new(0, 0, startNodeOffset) + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0))
     entityModel.Parent = workspace
     task.spawn(entityTable.Debug.OnEntitySpawned)
 
@@ -181,7 +191,7 @@ Spawner.runEntity = function(entityTable)
     -- Flickering
 
     if entityTable.Config.FlickerLights[1] then
-        ModuleScripts.ModuleEvents.flickerLights(workspace.CurrentRooms[ReSt.GameData.LatestRoom.Value], entityTable.Config.FlickerLights[2])
+        ModuleScripts.ModuleEvents.flicker(workspace.CurrentRooms[ReSt.GameData.LatestRoom.Value], entityTable.Config.FlickerLights[2])
     end
 
     -- Movement
@@ -208,7 +218,7 @@ Spawner.runEntity = function(entityTable)
                         -- Break lights
                         
                         if entityTable.Config.BreakLights then
-                            ModuleScripts.ModuleEvents.breakLights(room)
+                            ModuleScripts.ModuleEvents.shatter(room)
                         end
 
                         break
@@ -307,21 +317,21 @@ Spawner.runEntity = function(entityTable)
     if entityTable.Config.BackwardsMovement then
         local inverseNodes = {}
 
-        for nodeIdx = #entityNodes, 1, -1 do
-            inverseNodes[#inverseNodes + 1] = entityNodes[nodeIdx]
+        for nodeIdx = #nodes, 1, -1 do
+            inverseNodes[#inverseNodes + 1] = nodes[nodeIdx]
         end
 
-        entityNodes = inverseNodes
+        nodes = inverseNodes
     end
 
     for cycle = 1, math.max(math.random(cyclesConfig.Min, cyclesConfig.Max), 1) do
-        for nodeIdx = 1, #entityNodes, 1 do
-            dragEntity(entityModel, entityNodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
+        for nodeIdx = 1, #nodes, 1 do
+            dragEntity(entityModel, nodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
         end
 
         if cyclesConfig.Max > 1 then
-            for nodeIdx = #entityNodes, 1, -1 do
-                dragEntity(entityModel, entityNodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
+            for nodeIdx = #nodes, 1, -1 do
+                dragEntity(entityModel, nodes[nodeIdx].Position + Vector3.new(0, 3.5 + entityTable.Config.HeightOffset, 0), entityTable.Config.Speed)
             end
         end
 
@@ -460,20 +470,16 @@ end
 
 -- Scripts
 
-task.spawn(function()
-    while true do
-        local inSession = false
-        
-        for _, v in next, workspace:GetChildren() do
-            if v.Name == "RushMoving" or v.Name == "AmbushMoving" or v:GetAttribute("IsCustomEntity") then
-                inSession = true
-                break
-            end
+Plr.CharacterAdded:Connect(onCharacterAdded)
+
+if not SpawnerSetup then
+    getgenv().SpawnerSetup = true
+
+    workspace.DescendantRemoving:Connect(function(des)
+        if des.Name == "PathfindNodes" then
+            des:Clone().Parent = des.Parent
         end
-        
-        ReSt.GameData.ChaseInSession.Value = inSession
-        task.wait(0.5)
-    end
-end)
+    end)
+end
 
 return Spawner
