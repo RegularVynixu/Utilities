@@ -16,20 +16,43 @@ local Functions = {
 }
 local ModuleScripts = {}
 
+-- Misc Functions
+
+local function convertToAsset(str)
+    if isfile(str) then
+        return Functions.GetAsset(str)
+        
+    elseif str:find("rbxassetid") or tonumber(str) then
+        local numberId = str:gsub("%D", "")
+        return "rbxassetid://".. numberId
+        
+    elseif str:find("http") then
+        local req = Functions.Request({Url=str, Method="GET"})
+        
+        if req.Success then
+            local name = "customObject_".. tick().. ".txt"
+            writefile(name, req.Body)
+            return Functions.GetAsset(name)
+        end
+    end
+
+    return str
+end
+
 -- Functions
 
 Functions.GetPlayerByName = function(name)
-    for _, v in next, Players:GetPlayers() do
-        if v.Name:lower():find(name) or v.DisplayName:lower():find(name) then
-            return v
+    for _, plr in next, Players:GetPlayers() do
+        if plr.Name:lower():find(name) or plr.DisplayName:lower():find(name) then
+            return plr
         end
     end
 end
 
 Functions.LoadModule = function(name)
-    for _, v in next, ModuleScripts do
-        if v.Name == name then
-            return require(v)
+    for _, ms in next, ModuleScripts do
+        if ms.Name == name then
+            return require(ms)
         end
     end
 end
@@ -37,49 +60,31 @@ end
 Functions.LoadCustomAsset = function(str)
     if str == "" then
         return ""
-
-    elseif str:find("rbxassetid://") or str:find("roblox.com") or tonumber(str) then
-        local numberId = str:gsub("%D", "")
-
-        return "rbxassetid://".. numberId
-    else
-        if isfile(str) then -- is local file
-            return Functions.GetAsset(str)
-        else
-            local fileName = "customObject_".. tick().. ".txt"
-
-            writefile(fileName, Functions.Request({Url = str, Method = "GET"}).Body)
-
-            return Functions.GetAsset(fileName)
-        end
     end
+
+    return convertToAsset(str)
 end
 
 Functions.LoadCustomInstance = function(str)
     if str ~= "" then
-        if str:find("rbxassetid://") or str:find("roblox.com") or tonumber(str) then
-            local numberId = str:gsub("%D", "")
-
-            return game:GetObjects("rbxassetid://".. numberId)[1]
-        else
-            if isfile(str) then -- is local file
-                return game:GetObjects(Functions.GetAsset(str))[1]
-            else
-                local fileName = "customObject_".. tick().. ".txt"
-
-                writefile(fileName, Functions.Request({Url = str, Method = "GET"}).Body)
-
-                return game:GetObjects(Functions.GetAsset(fileName))[1]
-            end
+        local asset = convertToAsset(str)
+        local success, result = pcall(function()
+            return game:GetObjects(asset)[1]
+        end)
+    
+        if success then
+            return result
         end
     end
+
+    warn("Something went wrong attempting to load custom instance")
 end
 
 -- Scripts
 
-for _, v in next, game:GetDescendants() do
-    if v.ClassName == "ModuleScript" then
-        table.insert(ModuleScripts, v)
+for _, des in next, game:GetDescendants() do
+    if des.ClassName == "ModuleScript" then
+        table.insert(ModuleScripts, des)
     end
 end
 
@@ -97,9 +102,9 @@ end)
 
 Players.PlayerRemoving:Connect(function(player)
     if player == Plr then
-        for _, v in next, listfiles("") do
-            if v:find("customObject") then
-                delfile(v)
+        for _, file in next, listfiles("") do
+            if file:find("customObject") then
+                delfile(file)
             end
         end
     end
