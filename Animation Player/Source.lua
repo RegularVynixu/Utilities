@@ -83,7 +83,6 @@ animator.playAnimation = function(model, keyframeSequence, speed)
 			end);
 		end
 		repeat task.wait() until passers <= 0;
-		break;
 	end
 end;
 
