@@ -50,7 +50,7 @@ animator.playAnimation = function(model, animation, speed)
 		if pose.ClassName == "Pose" then
 			local part = model:FindFirstChild(pose.Name, true);
 			if part then
-				local motor = part:FindFirstChildOfClass("Motor6D");
+				local motor = findFirstDescendantOfClass(part, "Motor6D");
 				if motor then
 					storedMotors[motor.Name] = storedMotors[motor.Name] or motor.C0;
 					
