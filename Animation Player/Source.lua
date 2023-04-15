@@ -69,16 +69,16 @@ animator.playAnimation = function(model, keyframeSequence, speed)
 			end
 		end
 	end
-		
+	
 	for _ = 1, keyframeSequence.Loop and 9e9 or 1, 1 do
 		local passers = 0;
 		for i = 1, #poses do
-			passers += 1;
 			local pose = poses[i];
+			passers += 1;
 			task.delay(pose.time, function()
 				local tween = tweenService:Create(pose.motor, TweenInfo.new(pose.duration / speed, pose.style, pose.direction), {C0 = pose.value});
 				tween:Play();
-				tween.Completed:Wait()
+				tween.Completed:Wait();				
 				passers -= 1;
 			end);
 		end
