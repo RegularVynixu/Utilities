@@ -9,10 +9,10 @@ local storedMotors = {};
 
 --[[ Functions ]]--
 
-local function getKeyframesWithPose(animation, pose)
+local function getKeyframesWithPose(keyframeSequence, pose)
 	local keyframes = {};
 	local current;
-	local children = animation:GetChildren();
+	local children = keyframeSequence:GetChildren();
 	for i = 1, #children do
 		local keyframe = children[i];
 		if keyframe.ClassName == "Keyframe" then
@@ -24,11 +24,9 @@ local function getKeyframesWithPose(animation, pose)
 			end
 		end
 	end
-	
 	table.sort(keyframes, function(a, b)
 		return a.Time < b.Time;
-	end);
-	
+	end);	
 	return keyframes, table.find(keyframes, current);
 end;
 
@@ -42,9 +40,9 @@ local function findFirstDescendantOfClass(obj, class)
 	end
 end;
 
-animator.playAnimation = function(model, animation, speed)
+animator.playAnimation = function(model, keyframeSequence, speed)
 	local poses = {};
-	local descendants = animation:GetDescendants();
+	local descendants = keyframeSequence:GetDescendants();
 	for i = 1, #descendants do
 		local pose = descendants[i];
 		if pose.ClassName == "Pose" then
@@ -54,7 +52,7 @@ animator.playAnimation = function(model, animation, speed)
 				if motor then
 					storedMotors[motor.Name] = storedMotors[motor.Name] or motor.C0;
 					
-					local keyframes, index = getKeyframesWithPose(animation, pose);
+					local keyframes, index = getKeyframesWithPose(keyframeSequence, pose);
 					local frame = keyframes[index];
 					local prevFrame = keyframes[index - 1];
 					local nextFrame = keyframes[index + 1];
@@ -72,7 +70,7 @@ animator.playAnimation = function(model, animation, speed)
 		end
 	end
 		
-	for _ = 1, animation.Loop and 9e9 or 1, 1 do
+	for _ = 1, keyframeSequence.Loop and 9e9 or 1, 1 do
 		local passers = 0;
 		for i = 1, #poses do
 			passers += 1;
