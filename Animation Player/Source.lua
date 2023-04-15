@@ -78,7 +78,7 @@ animator.playAnimation = function(model, animation, speed)
 			passers += 1;
 			local pose = poses[i];
 			task.delay(pose.time, function()
-				local tween = tweenService:Create(pose.motor, TweenInfo.new(pose.duration, pose.style, pose.direction), {C0 = pose.value});
+				local tween = tweenService:Create(pose.motor, TweenInfo.new(pose.duration / speed, pose.style, pose.direction), {C0 = pose.value});
 				tween:Play();
 				tween.Completed:Wait()
 				passers -= 1;
