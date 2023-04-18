@@ -6,6 +6,7 @@ local tweenService = game:GetService("TweenService");
 
 local animator = {};
 local storedMotors = {};
+local isPlayingAnimation = false;
 
 --[[ Functions ]]--
 
@@ -41,6 +42,7 @@ local function findFirstDescendantOfClass(obj, class)
 end;
 
 animator.playAnimation = function(model, keyframeSequence, speed)
+	speed = speed or 1;
 	local poses = {};
 	local descendants = keyframeSequence:GetDescendants();
 	for i = 1, #descendants do
@@ -70,7 +72,18 @@ animator.playAnimation = function(model, keyframeSequence, speed)
 		end
 	end
 	
+	local humanoid = model:FindFirstChild("Humanoid", true);
+	if humanoid then
+		local anims = humanoid:GetPlayingAnimationTracks();
+		if #anims > 0 then
+			for i = 1, #anims do
+				anims[i]:Stop();
+			end
+		end
+	end
+	
 	for _ = 1, keyframeSequence.Loop and 9e9 or 1, 1 do
+		isPlayingAnimation = true;
 		local passers = 0;
 		for i = 1, #poses do
 			local pose = poses[i];
@@ -83,9 +96,23 @@ animator.playAnimation = function(model, keyframeSequence, speed)
 			end);
 		end
 		repeat task.wait() until passers <= 0;
+		isPlayingAnimation = false;
 	end
 end;
 
 --[[Main]]--
+
+local namecall; namecall = hookmetamethod(game, "__namecall", function(self, ...)
+	if not checkcaller() and getnamecallmethod() == "Play" and self.ClassName == "AnimationTrack" and isPlayingAnimation then
+		return;
+	end
+	return namecall(self, ...);
+end)
+local newindex; newindex = hookmetamethod(game, "__newindex", function(t, k, v)
+	if not checkcaller() and (k == "C0" or k == "C1") and isPlayingAnimation then
+		return;
+	end
+	return newindex(t, k, v);
+end)
 
 return animator;
