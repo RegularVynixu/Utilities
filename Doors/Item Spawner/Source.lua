@@ -100,6 +100,7 @@ function spawnItemInRoom(item, room)
 
         --[[ on spawned ]]--
         task.defer(item.Debug.OnSpawned);
+        
         --[[ on entered room ]]--
         local index = tonumber(room.Name);
         if latestRoom.Value == index then
