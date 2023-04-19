@@ -38,6 +38,7 @@ function convertToModel(tool)
     local model = Instance.new("Model");
     local handle = tool.Handle;
     local descendants = tool:GetDescendants();
+
     for i = 1, #descendants do
         local desc = descendants[i];
         if desc:IsA("BasePart") and desc.Name ~= "Handle" then
@@ -52,9 +53,11 @@ function convertToModel(tool)
             desc.Parent = model;
         end
     end
+
     handle.Name = "Root";
     handle.CanCollide = false;
     model.PrimaryPart = handle;
+    
     return model;
 end;
 
@@ -66,13 +69,16 @@ function spawnItemInRoom(item, room)
         if desc:FindFirstChild("Main") then
             if desc.Name == "DrawerContainer" and item.Config.Locations.Drawers then
                 locations[#locations + 1] = {desc.Main, desc.Main.CFrame - Vector3.new(0, 0.1, 0)};
+
             elseif desc.Name == "Table" and item.Config.Locations.Tables then
                 locations[#locations + 1] = {desc.Main, desc.Main.CFrame + Vector3.new(0, desc.Main.Size.Y / 2, 0)};
+                
             elseif desc.Name:find("Chest") and item.Config.Locations.Chests then
                 locations[#locations + 1] = {desc.Main, desc.Main.CFrame};
             end
         elseif desc.Name == "Floor" and desc:IsA("BasePart") and desc.Parent.Name == "Parts" and item.Config.Locations.Floor then
             local size = (desc.Size.X < desc.Size.Z and desc.Size.X or desc.Size.Z) / 2;
+
             while true do
                 local origin = desc.CFrame * CFrame.new(math.random(-size, size), 0, math.random(-size, size)) + Vector3.new(0, desc.Size.Y / 2 + 0.1, 0);
                 if checkRegion(origin, 5) then
@@ -82,6 +88,7 @@ function spawnItemInRoom(item, room)
             end
         end
     end
+
     if #locations > 0 then
         local location = locations[math.random(1, #locations)];
         item.Model:PivotTo(location[2] * item.Config.Spawning.Offset);
@@ -119,6 +126,7 @@ function checkRegion(origin, size)
     local touching = region:GetTouchingParts();
     touched:Disconnect();
     region:Destroy();
+
     local flag = true;
     for i = 1, #touching do
         local p = touching[i];
@@ -165,6 +173,7 @@ spawner.createItem = function(config)
                 OnEnteredItemRoom = function() end;
             };
         };
+
         --[[ on pickup ]]--
         local interact; interact = prompt.Triggered:Connect(function()
             interact:Disconnect();
@@ -172,12 +181,16 @@ spawner.createItem = function(config)
             tool.Parent = localPlayer:WaitForChild("Backpack");
             task.defer(data.Debug.OnPickedUp);
         end);
+
         --[[ on equipped ]]--
         tool.Equipped:Connect(function() task.defer(data.Debug.OnEquipped); end);
+
         --[[ on activated ]]--
         tool.Activated:Connect(function() task.defer(data.Debug.OnActivated); end);
+
         --[[ on unequipped ]]--
         tool.Unequipped:Connect(function() task.defer(data.Debug.OnUnequipped); end);
+
         return data;
     else
         warn("Failed to load custom item");
@@ -186,6 +199,7 @@ end;
 
 spawner.spawnItem = function(item)
     local rooms = workspace.CurrentRooms:GetChildren();
+
     for i = 1, #rooms do
         local room = rooms[i];
         local index = tonumber(room.Name);
@@ -197,6 +211,7 @@ spawner.spawnItem = function(item)
             end
         end
     end
+
     local roomAdded; roomAdded = workspace.CurrentRooms.ChildAdded:Connect(function(room)
         local index = tonumber(room.Name);
         if index >= item.Config.Spawning.MinRoom and index <= item.Config.Spawning.MaxRoom then
