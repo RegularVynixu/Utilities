@@ -79,7 +79,7 @@ function spawnItemInRoom(item, room)
         elseif desc.Name == "Floor" and desc:IsA("BasePart") and desc.Parent.Name == "Parts" and item.Config.Locations.Floor then
             local size = (desc.Size.X < desc.Size.Z and desc.Size.X or desc.Size.Z) / 2;
 
-            while true do
+            for _ = 1, 100 do
                 local origin = desc.CFrame * CFrame.new(math.random(-size, size), 0, math.random(-size, size)) + Vector3.new(0, desc.Size.Y / 2 + 0.1, 0);
                 if checkRegion(origin, 5) then
                     locations[#locations + 1] = {desc, origin};
@@ -219,7 +219,7 @@ spawner.spawnItem = function(item)
             local chance = math.random(1, 100);
             if chance <= item.Config.Spawning.Chance then
                 roomAdded:Disconnect();
-                spawnItemInRoom(item, room);
+                task.delay(3, spawnItemInRoom, item, room);
             end
         end
     end);
