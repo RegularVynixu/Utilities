@@ -54,6 +54,7 @@ function convertToModel(tool)
         end
     end
 
+    model.Name = tool.Name;
     handle.Name = "Root";
     handle.CanCollide = false;
     model.PrimaryPart = handle;
