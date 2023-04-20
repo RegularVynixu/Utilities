@@ -282,7 +282,7 @@ Spawner.runEntity = function(entityTable)
                         ReSt.GameStats["Player_".. Plr.Name].Total.DeathCause.Value = entityModel.Name
                         
                         if #entityTable.Config.CustomDialog > 0 then
-                            firesignal(ReSt.Bricks.DeathHint.OnClientEvent, entityTable.Config.CustomDialog)
+                            firesignal(ReSt.Bricks.EntityInfo.OnClientEvent, entityTable.Config.CustomDialog, "Blue")
                         end
                         
                         -- Unmute entity
