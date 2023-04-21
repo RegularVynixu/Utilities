@@ -120,15 +120,19 @@ function spawnItemInRoom(item, room)
 end;
 
 function checkRegion(origin, size)
-    local region = Instance.new("Part");
-    region.Size = Vector3.new(size, size, size);
-    region:PivotTo(origin);
-    region.Parent = workspace;
-    local touched = region.Touched:Connect(function() end);
-    local touching = region:GetTouchingParts();
-    touched:Disconnect();
-    region:Destroy();
-
+    if not regionPart then
+        getgenv().regionPart = Instance.new("Part");
+        regionPart.Name = "RegionPart";
+        regionPart.Anchored = true;
+        regionPart.CanCollide = false;
+        regionPart.Transparency = 1;
+        regionPart.Size = Vector3.new(size, size, size);
+        regionPart.Parent = workspace;
+        regionPart.Touched:Connect(function() end);
+    end
+    regionPart:PivotTo(origin);
+    
+    local touching = regionPart:GetTouchingParts();
     local flag = true;
     for i = 1, #touching do
         local p = touching[i];
