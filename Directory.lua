@@ -4,45 +4,7 @@ local HttpService = game:GetService("HttpService")
 -- Variables
 local directory = {}
 
--- Misc Functions
-local function createFolder(path)
-    if not isfolder(path) then
-        makefolder(path)
-    end
-end
-
-local function createBranch(tree, branch, path)
-    for i, v in branch do
-        if type(v) == "table" then
-            createBranch(tree, v, path .. "/" .. i)
-        else
-            createFolder(path .. "/" .. i)
-        end
-    end
-end
-
 -- Functions
-directory.Create = function(tree, fPath)
-    fPath = fPath or ""
-    local t = {}
-    for i, v in tree do
-        if type(v) == "table" then
-            createBranch(t, v, fPath .. "/" .. i)
-        else
-            createFolder(fPath .. "/" .. i)
-        end
-    end
-    return t
-end
-
--- Services
-local HttpService = game:GetService("HttpService")
-
--- Variables
-local directory = {}
-
--- Misc Functions
-
 local function createFolder(path)
     if not isfolder(path) then
         makefolder(path)
@@ -63,13 +25,11 @@ local function createBranch(tree, branch, bPath)
     end
 end
 
--- Functions
-
 directory.Create = function(tree, fPath)
     fPath = fPath and fPath.."/" or ""
     local t = {}
     for i, v in tree do
-        local tPath = fPath..((typeof(v) == "table") and i or v)
+        local tPath = fPath..(typeof(v) == "table" and i or v)
         t.Root = tPath
         createFolder(tPath)
         if typeof(v) == "table" then
@@ -80,9 +40,9 @@ directory.Create = function(tree, fPath)
     return t
 end
 
-directory.WriteConfig = function(fPath, content)
+directory.WriteConfig = function(fPath, data)
     local success = pcall(function()
-        writefile(fPath, HttpService:JSONEncode(content))
+        writefile(fPath, HttpService:JSONEncode(data))
     end)
     return success
 end
