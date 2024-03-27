@@ -6,14 +6,14 @@ local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 local entity = spawner.Create({
 	Entity = {
-		Name = "Template Entity",
+		Name = "Rush Harder",
 		Asset = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true",
 		HeightOffset = 0
 	},
 	Lights = {
 		Flicker = {
 			Enabled = true,
-			Duration = 1
+			Duration = 10
 		},
 		Shatter = true,
 		Repair = false
@@ -24,31 +24,31 @@ local entity = spawner.Create({
 		Values = {1.5, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 100,
-		Delay = 2,
+		Speed = 200,
+		Delay = 15,
 		Reversed = false
 	},
 	Rebounding = {
 		Enabled = true,
 		Type = "Ambush", -- "Blitz"
-		Min = 1,
-		Max = 1,
+		Min = 13,
+		Max = 20,
 		Delay = 2
 	},
 	Damage = {
-		Enabled = true,
+		Enabled = false,
 		Range = 40,
 		Amount = 125
 	},
 	Crucifixion = {
 		Enabled = true,
 		Range = 40,
-		Resist = false,
-		Break = true
+		Resist = true,
+		Break = false
 	},
 	Death = {
 		Type = "Guiding", -- "Curious"
-		Hints = {"Death", "Hints", "Go", "Here"},
+		Hints = {"Man u died to him lmfao", "Bros noob", "LOL", "good luck next time kid"},
 		Cause = ""
 	}
 })
