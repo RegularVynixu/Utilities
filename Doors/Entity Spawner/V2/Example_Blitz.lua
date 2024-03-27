@@ -78,7 +78,7 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 	end
 
 	-- Play sounds
-    if startOfRebound == true then
+	if startOfRebound == true then
 		sounds.footsteps.PlaybackSpeed = 0.35
 		sounds.playSound.PlaybackSpeed = 0.25
 		sounds.switch:Play()
