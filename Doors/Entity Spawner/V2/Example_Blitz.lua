@@ -47,8 +47,8 @@ local entity = spawner.Create({
 		Break = true
 	},
 	Death = {
-		Type = "Guiding",
-		Hints = {"Death", "Hints", "Go", "Here"},
+		Type = "Curious",
+		Hints = {"Oh... Hello.", "I didn't expect to see you here.", "Let's see what you died to.", "Oh, one of my favorites.", "She said we should call that one Blitz.", "Well... I'll see you later, right? You'll come back?", "Haha... of course you will."},
 		Cause = ""
 	}
 })
