@@ -30,26 +30,28 @@ end
 
 stuff.LoadCustomAsset = function(path)
     if path ~= "" then
-        if isfile(path) then
-            return getcustomasset(path, true)
-    
-        elseif path:find("rbxassetid") or tonumber(path) then
-            return "rbxassetid://".. path:match("%d+")
-    
-        elseif path:sub(1, 4) == "http" then
-            local r = request({
-                Url = path,
-                Method = "GET"
-            })
-            if r ~= nil and r.Success == true then
-                local fileName = ("customAsset_%s.txt"):format(tick())
-                writefile(fileName, r.Body)
-                local result = getcustomasset(fileName, true)
-                delfile(fileName)
-                return result
-            else
-                warn("Failed to load custom asset for: ".. path)
+        if getcustomasset then
+            if isfile(path) then
+                return getcustomasset(path, true)
+        
+            elseif path:sub(1, 4) == "http" then
+                local r = request({
+                    Url = path,
+                    Method = "GET"
+                })
+                if r ~= nil and r.Success == true then
+                    local fileName = ("customAsset_%s.txt"):format(tick())
+                    writefile(fileName, r.Body)
+                    local result = getcustomasset(fileName, true)
+                    delfile(fileName)
+                    return result
+                else
+                    warn("Failed to load custom asset for: ".. path)
+                end
             end
+        end
+        if path:find("rbxassetid") or tonumber(path) then
+            return "rbxassetid://".. path:match("%d+")
         end
     end
 end
