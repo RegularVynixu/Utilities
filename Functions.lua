@@ -49,6 +49,8 @@ stuff.LoadCustomAsset = function(path)
                     warn("Failed to load custom asset for: ".. path)
                 end
             end
+        else
+            warn("Executor doesn't support 'getcustomasset', bruh. Better hope the asset is rbxassetid.")
         end
         if path:find("rbxassetid") or tonumber(path) then
             return "rbxassetid://".. path:match("%d+")
