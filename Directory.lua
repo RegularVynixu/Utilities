@@ -49,7 +49,7 @@ end
 
 directory.DecodeConfig = function(fPath)
     local success, result = pcall(function()
-        return HttpService:JSONDecode(readfile(directory))
+        return HttpService:JSONDecode(readfile(fPath))
     end)
     return success, (success and result or {})
 end
@@ -57,14 +57,20 @@ end
 directory.GetNameFromDirectory = function(fPath, noExtension)
     local splt = fPath:split([[\]])
     local name = splt[#splt]
-    
     if noExtension then
-        local splt2 = name:split(".")
-        if #splt2 > 1 then
-            name = splt2[1]
+        local i = name:find("%.[^.]+$")
+        if i then
+            name = name:sub(1, i - 1)
         end
     end
     return name
+end
+
+-- Main
+for i, v in directory do
+    if typeof(v) == "function" then
+        getgenv()[i] = v
+    end
 end
 
 return directory
