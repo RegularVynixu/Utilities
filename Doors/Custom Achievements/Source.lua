@@ -6,9 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 
-local vynixuModules = {
-    Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
-}
 local moduleScripts = {
     AchievementUnlock = require(playerGui:FindFirstChild("AchievementUnlock", true)),
     Achievements = require(ReplicatedStorage.Achievements)
@@ -17,7 +14,7 @@ local defaultAchievement = {
     Title = "Title",
     Desc = "Description",
     Reason = "Reason",
-    Image = LoadCustomAsset("https://images.emojiterra.com/twitter/v13.1/512px/1f913.png")
+    Image = "rbxassetid://12309073114"
 }
 
 -- Main
