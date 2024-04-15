@@ -7,6 +7,9 @@ local CoreGui = game:GetService("CoreGui")
 local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
+local assets = {
+    DiscordInvitePrompt = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/DiscordInvitePrompt.rbxm")
+}
 local module = {}
 
 -- Functions
@@ -106,7 +109,7 @@ module.Prompt = function(inviteTable)
         local vanity = getInviteCode(invite)
         
         -- Prompt construction
-        local promptGui = LoadCustomInstance("DiscordPromptGui.rbxm")
+        local promptGui = asset.DiscordInvitePrompt:Clone()
         if promptGui then
             local holder = promptGui.Holder
             local serverIcon = holder.ServerIcon
