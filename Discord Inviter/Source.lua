@@ -101,9 +101,12 @@ local function toggleShowPrompt(promptGui, bool)
 end
 
 module.Prompt = function(inviteTable)
+    assert(type(inviteTable) == "table", "<table> Invalid invite table")
+    assert(type(inviteTable.name) == "string", "<string> Invalid invite name")
+    assert(type(inviteTable.invite) == "string", "<string> Invalid invite code")
+
     local name = inviteTable.name
     local invite = inviteTable.invite
-
     local success, result = getInviteData(invite)
     if success and result then
         local vanity = getInviteCode(invite)
@@ -183,23 +186,25 @@ module.Prompt = function(inviteTable)
 end
 
 module.Join = function(sInvite)
+    assert(type(sInvite) == "string", "<string> Invalid invite provided")
+
     local success, result = getInviteData(sInvite)
 	if success and result then
-		request({
-			Url = "http://127.0.0.1:6463/rpc?v=1",
-			Method = "POST",
-			Headers = {
-				["Content-Type"] = "application/json",
-				["Origin"] = "https://discord.com"
-			},
-			Body = HttpService:JSONEncode({
-				cmd = "INVITE_BROWSER",
-				args = {
-					code = result.code
-				},
-				nonce = HttpService:GenerateGUID(false)
-			})
-		})
+        request({
+            Url = "http://127.0.0.1:6463/rpc?v=1",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+                ["Origin"] = "https://discord.com"
+            },
+            Body = HttpService:JSONEncode({
+                cmd = "INVITE_BROWSER",
+                args = {
+                    code = result.code
+                },
+                nonce = HttpService:GenerateGUID(false)
+            })
+        })
 	end
 end
 
