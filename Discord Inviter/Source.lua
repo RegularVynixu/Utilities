@@ -112,7 +112,7 @@ module.Prompt = function(inviteTable)
         local vanity = getInviteCode(invite)
         
         -- Prompt construction
-        local promptGui = asset.DiscordInvitePrompt:Clone()
+        local promptGui = assets.DiscordInvitePrompt:Clone()
         if promptGui then
             local holder = promptGui.Holder
             local serverIcon = holder.ServerIcon
