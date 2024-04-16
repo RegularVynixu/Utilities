@@ -4,90 +4,71 @@ local Players = game:GetService("Players")
 -- Variables
 local localPlayer = Players.LocalPlayer
 
-local stuff = {
+local module = {
     set_identity = set_thread_identity or setthreadidentity,
     get_identity = get_thread_identity or getthreadidentity,
     request = http_request or request
 }
-local moduleScripts = {}
 
 -- Functions
-stuff.GetPlayerByName = function(name)
-    for _, plr in Players:GetPlayers() do
-        if plr.Name:lower():find(name) or plr.DisplayName:lower():find(name) then
-            return plr
-        end
-    end
+local function writeTempFile(content)
+    local fileName = ("temp_%s.txt"):format(tick())
+    writefile(fileName, content)
+    local result = readfile(fileName)
+    delfile(fileName)
+    return result
 end
 
-stuff.LoadModule = function(name)
-    for _, ms in moduleScripts do
-        if ms.Name == name then
-            return require(ms)
-        end
+module.LoadCustomAsset = function(url, httpMethod)
+    assert(url ~= "", "URL cannot be empty.")
+    if httpMethod == nil then
+        httpMethod = "request"
     end
-end
-
-stuff.LoadCustomAsset = function(path)
-    if path ~= "" then
-        if getcustomasset then
-            if isfile(path) then
-                return getcustomasset(path, true)
-        
-            elseif path:sub(1, 4) == "http" then
-                local r = request({
-                    Url = path,
-                    Method = "GET"
-                })
-                if r ~= nil and r.Success == true then
-                    local fileName = ("customAsset_%s.txt"):format(tick())
-                    writefile(fileName, r.Body)
-                    local result = getcustomasset(fileName, true)
-                    delfile(fileName)
-                    return result
+    httpMethod = httpMethod:lower()
+    if getcustomasset then
+        if isfile(url) then
+            return getcustomasset(url, true)
+        elseif url:sub(1, 4) == "http" then
+            if httpMethod == "httpget" then
+                return writeTempFile(game:HttpGet(url))
+            elseif httpMethod == "request" then
+                local r = request({Url = url, Method = "GET"})
+                if r and r.Success then
+                    return writeTempFile(r.Body)
                 else
-                    warn("Failed to load custom asset for: ".. path)
+                    warn("Failed to load custom asset for: ".. url)
                 end
             end
-        else
-            warn("Executor doesn't support 'getcustomasset', bruh. Better hope the asset is rbxassetid.")
         end
-        if path:find("rbxassetid") or tonumber(path) then
-            return "rbxassetid://".. path:match("%d+")
-        end
+    else
+        warn("Executor doesn't support 'getcustomasset', bruh. Better hope the asset is rbxassetid.")
+    end
+    if url:find("rbxassetid") or tonumber(url) then
+        return "rbxassetid://".. url:match("%d+")
     end
 end
 
-stuff.LoadCustomInstance = function(path)
-    if path ~= "" then
-        local success, result = pcall(function()
-            return game:GetObjects(LoadCustomAsset(path))[1]
-        end)
-        if success then
-            return result
-        else
-            warn("Failed to load custom instance for: ".. path)
-        end
+module.LoadCustomInstance = function(url)
+    assert(url ~= "", "URL cannot be empty.")
+    local success, result = pcall(function()
+        return game:GetObjects(LoadCustomAsset(url, "request"))[1]
+    end)
+    if success then
+        return result
+    else
+        warn("Failed to load custom instance for: ".. url)
     end
+end
+
+module.LoadCustomSound = function(url)
+    assert(url ~= "", "URL cannot be empty.")
+    return LoadCustomAsset(url, "httpget")
 end
 
 -- Main
-for _, d in game:GetDescendants() do
-    if d.ClassName == "ModuleScript" then
-        moduleScripts[#moduleScripts + 1] = d
-    end
-end
-
-for name, func in stuff do
+for name, func in module do
     if typeof(func) == "function" then
         getgenv()[name] = func
     end
 end
-
-game.DescendantAdded:Connect(function(d)
-    if d.ClassName == "ModuleScript" then
-        table.insert(moduleScripts, d)
-    end
-end)
-
-return stuff
+return module
