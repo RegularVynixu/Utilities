@@ -7,9 +7,6 @@ local CoreGui = game:GetService("CoreGui")
 local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
-local assets = {
-    DiscordInvitePrompt = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/DiscordInvitePrompt.rbxm")
-}
 local module = {}
 
 -- Functions
@@ -104,15 +101,14 @@ module.Prompt = function(inviteTable)
     assert(type(inviteTable) == "table", "<table> Invalid invite table")
     assert(type(inviteTable.name) == "string", "<string> Invalid invite name")
     assert(type(inviteTable.invite) == "string", "<string> Invalid invite code")
-
     local name = inviteTable.name
     local invite = inviteTable.invite
     local success, result = getInviteData(invite)
     if success and result then
         local vanity = getInviteCode(invite)
         
-        -- Prompt construction
-        local promptGui = assets.DiscordInvitePrompt:Clone()
+        -- Invite prompt construction
+        local promptGui = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/DiscordInvitePrompt.rbxm")
         if promptGui then
             local holder = promptGui.Holder
             local serverIcon = holder.ServerIcon
@@ -187,7 +183,6 @@ end
 
 module.Join = function(sInvite)
     assert(type(sInvite) == "string", "<string> Invalid invite provided")
-
     local success, result = getInviteData(sInvite)
 	if success and result then
         request({
