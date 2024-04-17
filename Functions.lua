@@ -14,7 +14,7 @@ local module = {
 local function writeTempFile(content)
     local fileName = ("temp_%s.txt"):format(tick())
     writefile(fileName, content)
-    local result = readfile(fileName)
+    local result = getcustomasset(fileName)
     delfile(fileName)
     return result
 end
@@ -33,7 +33,7 @@ module.LoadCustomAsset = function(url, httpMethod)
                 return writeTempFile(game:HttpGet(url))
             elseif httpMethod == "request" then
                 local r = request({Url = url, Method = "GET"})
-                if r and r.Success then
+                if r ~= nil and r.Success then
                     return writeTempFile(r.Body)
                 else
                     warn("Failed to load custom asset for: ".. url)
@@ -51,7 +51,9 @@ end
 module.LoadCustomInstance = function(url)
     assert(url ~= "", "URL cannot be empty.")
     local success, result = pcall(function()
-        return game:GetObjects(LoadCustomAsset(url, "request"))[1]
+        local asset = LoadCustomAsset(url, "request")
+        asset = game:GetObjects(asset)[1]
+        return asset
     end)
     if success then
         return result
