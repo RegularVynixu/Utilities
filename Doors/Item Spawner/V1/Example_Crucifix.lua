@@ -57,24 +57,6 @@ local item = spawner.Create({
     }
 })
 
----====== Debug item ======---
-
-item:SetCallback("OnPickedUp", function()
-    print("Item picked up!")
-end)
-
-item:SetCallback("OnEquipped", function()
-    print("Item equipped!")
-end)
-
-item:SetCallback("OnActivated", function()
-    print("Item activated!")
-end)
-
-item:SetCallback("OnUnequipped", function()
-    print("Item unequipped!")
-end)
-
 ---====== Spawn item ======---
 
 local currentRoomIndex = localPlayer:GetAttribute("CurrentRoom") -- current room number index
