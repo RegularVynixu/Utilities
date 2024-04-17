@@ -59,7 +59,7 @@ local item = spawner.Create({
 
 ---====== Spawn item ======---
 
-local currentRoomIndex = localPlayer:GetAttribute("CurrentRoom") -- current room number index
+local currentRoomIndex = game:GetService("Players").LocalPlayer:GetAttribute("CurrentRoom") -- current room number index
 local currentRoom = workspace.CurrentRooms[currentRoomIndex] -- current room instance
 
 item:Spawn(currentRoom)
