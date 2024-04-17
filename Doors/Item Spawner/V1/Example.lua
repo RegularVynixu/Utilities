@@ -4,10 +4,14 @@ local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 ---====== Create item ======---
 
+local tool = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/blob/main/Doors/Item%20Spawner/Assets/Template%20Item.rbxm?raw=true")
+
+tool.TextureId = LoadCustomAsset("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Item%20Spawner/Assets/Template_Item.png")
+
 local item = spawner.Create({
     Item = {
         Name = "Example Item",
-        Asset = "https://github.com/RegularVynixu/Utilities/blob/main/Doors/Item%20Spawner/Assets/Template%20Item.rbxm?raw=true",
+        Asset = tool,
         DestroyOnPickup = false,
         PickupOnTouch = true
     },
