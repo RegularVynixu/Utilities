@@ -7,6 +7,10 @@ local CoreGui = game:GetService("CoreGui")
 local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
+local assets = {
+    DiscordInvitePrompt = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/DiscordInvitePrompt.rbxm"),
+    NotificationSound = LoadCustomAsset("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/Notification.mp3")
+}
 local module = {}
 
 -- Functions
@@ -108,7 +112,7 @@ module.Prompt = function(inviteTable)
         local vanity = getInviteCode(invite)
         
         -- Invite prompt construction
-        local promptGui = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/DiscordInvitePrompt.rbxm")
+        local promptGui = assets.DiscordInvitePrompt:Clone()
         if promptGui then
             local holder = promptGui.Holder
             local serverIcon = holder.ServerIcon
@@ -122,10 +126,10 @@ module.Prompt = function(inviteTable)
             holder.Size = UDim2.new()
             holder.UICorner.CornerRadius = UDim.new(1, 0)
             serverName.Text = name
-            accept.Text = ("Join <b>%s</b>"):format(name)
+            accept.Text = `Join <b>{name}</b>`
             
             if result.guild.icon ~= nil then
-                serverIcon.Image = LoadCustomAsset(("https://cdn.discordapp.com/icons/%s/%s.png"):format(result.guild.id, result.guild.icon))
+                serverIcon.Image = LoadCustomAsset(`https://cdn.discordapp.com/icons/{result.guild.id}/{result.guild.icon}.png`)
             else
                 serverInitials.Text = getInitials(name)
                 serverInitials.Visible = true
@@ -168,7 +172,7 @@ module.Prompt = function(inviteTable)
             do
                 local text = ignore.Text
                 connections.ignoreEnter = ignore.MouseEnter:Connect(function()
-                    ignore.Text = ("<u>%s</u>"):format(text)
+                    ignore.Text = `<u>{text}</u>`
                 end)
                 connections.ignoreLeave = ignore.MouseLeave:Connect(function()
                     ignore.Text = text
@@ -200,6 +204,14 @@ module.Join = function(sInvite)
                 nonce = HttpService:GenerateGUID(false)
             })
         })
+        
+        -- Play notification sound
+        local sound = Instance.new("Sound")
+        sound.Volume = 1
+        sound.PlayOnRemove = true
+        sound.SoundId = assets.NotificationSound
+        sound.Parent = CoreGui
+        sound:Destroy()
 	end
 end
 
