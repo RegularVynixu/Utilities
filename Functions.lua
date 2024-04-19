@@ -2,29 +2,16 @@
 local module = {}
 
 -- Functions
-local function writeTempFile(content)
-    local fileName = "temp_"..tick()..".txt"
-    writefile(fileName, content)
-    local result = getcustomasset(fileName, true)
-    delfile(fileName)
-    return result
-end
-
-module.LoadCustomAsset = function(url, httpMethod)
-    url = url:lower()
-    httpMethod = (httpMethod or "request"):lower()
+module.LoadCustomAsset = function(url)
     if getcustomasset then
         if isfile(url) then
             return getcustomasset(url, true)
-        elseif url:sub(1, 4) == "http" then
-            if httpMethod == "httpget" then
-                return writeTempFile(game:HttpGet(url))
-            elseif httpMethod == "request" then
-                local r = request({Url = url, Method = "GET"})
-                if r ~= nil and r.Success then
-                    return writeTempFile(r.Body)
-                end
-            end
+        elseif url:lower():sub(1, 4) == "http" then
+            local fileName = `temp_{tick()}.txt`
+            writefile(fileName, content)
+            local result = getcustomasset(fileName, true)
+            delfile(fileName)
+            return result
         end
     else
         warn("Executor doesn't support 'getcustomasset', rbxassetid only.")
@@ -37,7 +24,7 @@ end
 
 module.LoadCustomInstance = function(url)
     local success, result = pcall(function()
-        return game:GetObjects(LoadCustomAsset(url, "request"))[1]
+        return game:GetObjects(module.LoadCustomAsset(url))[1]
     end)
     if success then
         return result
