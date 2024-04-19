@@ -8,7 +8,7 @@ module.LoadCustomAsset = function(url)
             return getcustomasset(url, true)
         elseif url:lower():sub(1, 4) == "http" then
             local fileName = `temp_{tick()}.txt`
-            writefile(fileName, content)
+            writefile(fileName, game:HttpGet(url))
             local result = getcustomasset(fileName, true)
             delfile(fileName)
             return result
@@ -34,12 +34,7 @@ end
 -- Main
 for name, func in module do
     if typeof(func) == "function" then
-        local g = getgenv()
-        if not g[name] then
-            g[name] = func
-        else
-            warn("Failed to load global utility function '"..name.."' as it already exists.")
-        end
+        getgenv()[name] = func
     end
 end
 return module
