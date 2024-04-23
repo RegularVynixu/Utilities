@@ -53,29 +53,42 @@ local item = spawner.Create({
 
 ---====== Debug item ======---
 
+item:SetCallback("OnInputBegan", function()
+    -- Note: only applied when prompt duration greater than 0
+    print("Item model prompt input began.")
+end)
+
+item:SetCallback("OnInputEnded", function()
+    -- Note: only applied when prompt duration greater than 0
+    print("Item model prompt input ended.")
+end)
+
+item:SetCallback("OnPromptTriggered", function()
+    print("Item model prompt triggered.")
+end)
+
 item:SetCallback("OnPickedUp", function()
-    print("Item picked up!")
+    print("Item tool picked up.")
 end)
 
 item:SetCallback("OnEquipped", function()
-    print("Item equipped!")
+    print("Item tool equipped.")
 end)
 
 item:SetCallback("OnActivated", function()
-    print("Item activated!")
+    print("Item tool activated.")
 end)
 
 item:SetCallback("OnUnequipped", function()
-    print("Item unequipped!")
+    print("Item tool unequipped.")
 end)
 
 item:SetCallback("OnDespawned", function()
-    print("Item despawned!")
+    print("Item model despawned.")
 end)
 
 ---====== Spawn item ======---
 
-local currentRoomIndex = game:GetService("Players").LocalPlayer:GetAttribute("CurrentRoom") -- current room number index
-local currentRoom = workspace.CurrentRooms[currentRoomIndex] -- current room instance
+local currentRoomIndex = game:GetService("Players").LocalPlayer:GetAttribute("CurrentRoom") -- current number index of room player is in
 
-item:Spawn(currentRoom)
+item:Spawn(currentRoomIndex) -- spawn item in current room
