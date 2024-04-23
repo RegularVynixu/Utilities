@@ -12,7 +12,7 @@ local item = spawner.Create({
     Item = {
         Name = "Example Item",
         Asset = tool,
-        DestroyOnPickup = false,
+        DestroyOnPickup = true,
         PickupOnTouch = true
     },
     Prompt = {
@@ -67,6 +67,10 @@ end)
 
 item:SetCallback("OnUnequipped", function()
     print("Item unequipped!")
+end)
+
+item:SetCallback("OnDespawned", function()
+    print("Item despawned!")
 end)
 
 ---====== Spawn item ======---
