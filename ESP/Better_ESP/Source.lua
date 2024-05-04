@@ -19,14 +19,12 @@ local waitForChild = game.WaitForChild
 local findFirstIsA = game.FindFirstChildWhichIsA
 local descendantOf = game.IsDescendantOf
 local getPlayers = Players.GetPlayers
-local getPivot = localChar.GetPivot
 local wtvp = localCamera.WorldToViewportPoint
 local math_max = math.max
 local math_round = math.round
 local math_clamp = math.clamp
-local insert = table.insert
-local sub = string.sub
-local lower = string.lower
+local table_insert = table.insert
+local string_lower = string.lower
 
 local module = {
     Containers = {},
@@ -175,11 +173,11 @@ function module:Add(rootPart, options, callbacks)
     highlight.Parent = config.HighlightFocus
 
     -- Indexing
-    insert(drawing, { Obj = name, Name = "Name", Type = "Text" })
-    insert(drawing, { Obj = distance, Name = "Distance", Type = "Text" })
-    insert(drawing, { Obj = health, Name = "Health", Type = "Text" })
-    insert(drawing, { Obj = tracer, Name = "Tracer", Type = "Line" })
-    insert(drawing, { Obj = highlight, Name = "Highlight", Type = "Highlight" })
+    table_insert(drawing, { Obj = name, Name = "Name", Type = "Text" })
+    table_insert(drawing, { Obj = distance, Name = "Distance", Type = "Text" })
+    table_insert(drawing, { Obj = health, Name = "Health", Type = "Text" })
+    table_insert(drawing, { Obj = tracer, Name = "Tracer", Type = "Line" })
+    table_insert(drawing, { Obj = highlight, Name = "Highlight", Type = "Highlight" })
 
     self.Containers[rootPart] = container
     return container
@@ -298,7 +296,7 @@ connections.Update = RunService.Stepped:Connect(function()
                     elseif name == "Health" and eHealth.Enabled then
                         local bool, args = checkCallback(container, "Health") -- args: health, maxHealth
                         if bool then
-                            local hType = lower(eHealth.Type)
+                            local hType = string_lower(eHealth.Type)
                             if hType == "percentage" then
                                 obj.Text = `[{math_clamp(math_round(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
                             elseif hType == "fraction" then
