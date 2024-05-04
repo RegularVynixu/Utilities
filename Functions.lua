@@ -1,10 +1,17 @@
+-- Additional help: @ActualMasterOogway
+
 -- Services
 local MarketplaceService = game:GetService("MarketplaceService")
+local HttpService = game:GetService("HttpService")
 
 -- Variables
 local module = {}
 
 -- Functions
+local function timestampToMillis(timestamp: string | number | DateTime)
+    return (typeof(timestamp) == "string" and DateTime.fromIsoDate(timestamp).UnixTimestampMillis) or (typeof(timestamp) == "number" and timestamp) or timestamp.UnixTimestampMillis
+end
+
 module.LoadCustomAsset = function(url: string)
     if getcustomasset then
         if isfile(url) then
@@ -22,7 +29,7 @@ module.LoadCustomAsset = function(url: string)
     if url:find("rbxassetid") or tonumber(url) then
         return "rbxassetid://"..url:match("%d+")
     end
-    warn("Failed to load custom asset for:\n"..url)
+    error(debug.traceback("Failed to load custom asset for:\n"..url))
 end
 
 module.LoadCustomInstance = function(url: string)
@@ -39,9 +46,26 @@ module.GetGameLastUpdate = function()
 end
 
 module.HasGameUpdated = function(timestamp: string | number | DateTime)
-    local millis = (typeof(timestamp) == "string" and DateTime.fromIsoDate(timestamp).UnixTimestampMillis) or (typeof(timestamp) == "number" and timestamp) or timestamp.UnixTimestampMillis
+    local millis = timestampToMillis(timestamp)
     if millis then
         return millis < module.GetGameLastUpdate().UnixTimestampMillis
+    end
+    return false
+end
+
+module.GetGitLastUpdate = function(owner: string, repo: string, filePath: string)
+    local url = `https://api.github.com/repos/{owner}/{repo}/commits?per_page=1&path={filePath}`
+    local success, result = pcall(HttpService.JSONDecode, HttpService, game:HttpGet(url))
+    if not success then
+        error(debug.traceback("Failed to get last commit for:\n"..url))
+    end
+    return DateTime.fromIsoDate(result[1].commit.committer.date)
+end
+
+module.HasGitUpdated = function(owner: string, repo: string, filePath: string, timestamp: string | number | DateTime)
+    local millis = timestampToMillis(timestamp)
+    if millis then
+        return millis < module.GetGitLastUpdate(owner, repo, filePath).UnixTimestampMillis
     end
     return false
 end
