@@ -127,14 +127,12 @@ function module:Add(rootPart, options, callbacks)
         Callbacks = callbacks,
         Config = config,
         Hide = function(self, bool)
-            if self.Config.Hidden ~= bool then
-                self.Config.Hidden = bool
-                for _, draw in self.Drawing do
-                    if draw.Type ~= "Highlight" then
-                        draw.Obj.Visible = not bool
-                    else
-                        draw.Obj.Enabled = not bool
-                    end
+            self.Config.Hidden = bool
+            for _, draw in self.Drawing do
+                if draw.Type ~= "Highlight" then
+                    draw.Obj.Visible = not bool
+                else
+                    draw.Obj.Enabled = not bool
                 end
             end
         end,
@@ -245,93 +243,100 @@ connections.Update = RunService.Stepped:Connect(function()
         local config = container.Config
         local callbacks = container.Callbacks
 
-        -- Skip hidden containers
-        if config.Hidden then continue end
-
         -- Check if alive
         if not isAlive(container) then
             container:Remove()
             continue
         end
-        
+
+        local bruh = false -- this is very important trust me
+
         -- Get on-screen position
         local root = container.Root
         local pos, onScreen = wtvp(localCamera, root.Position)
         if not onScreen then
-            container:Hide(true)
-            continue
+            bruh = true
         end
         
         -- Check distance
         local mag = (root.Position - localRoot.Position).Magnitude
         if mag > eDistance.Max then
-            container:Hide(true)
+            bruh = true
+        end
+
+        -- Hide container if necessary
+        if bruh then
+            if not config.Hidden then
+                container:Hide(true)
+            end
             continue
         end
 
-        -- Update container content
-        local vec2 = vec2new(pos.X, pos.Y)
-        local color = eConfig.Rainbow and col3hsv(tick() % 5 / 5, 1, 1) or config.Color
-        local rows = 0
-        for _, draw in container.Drawing do
-            if draw.Type == "Text" and draw.Obj.Text ~= "" then
-                rows += 1
+        -- Update container content (if not hidden)
+        if not config.Hidden then
+            local vec2 = vec2new(pos.X, pos.Y)
+            local color = eConfig.Rainbow and col3hsv(tick() % 5 / 5, 1, 1) or config.Color
+            local rows = 0
+            for _, draw in container.Drawing do
+                if draw.Type == "Text" and draw.Obj.Text ~= "" then
+                    rows += 1
+                end
             end
-        end
-        
-        -- Update visuals
-        for i = 1, #container.Drawing, 1 do
-            local draw = container.Drawing[i]
-            local obj = draw.Obj
-            local name = draw.Name
-            local ttype = draw.Type
             
-            if ttype ~= "Highlight" then
-                obj.Color = color
-                obj.Visible = (ttype ~= "Line" or (ttype == "Line" and eTracer.Enabled))
+            -- Update visuals
+            for i = 1, #container.Drawing, 1 do
+                local draw = container.Drawing[i]
+                local obj = draw.Obj
+                local name = draw.Name
+                local ttype = draw.Type
                 
-                if ttype == "Text" then
-                    obj.Size = textSize
-                    obj.Position = vec2 - vec2new(0, (rows - i) * textSize)
-    
-                    if name == "Name" then
-                        obj.Text = config.Name
+                if ttype ~= "Highlight" then
+                    obj.Color = color
+                    obj.Visible = (ttype ~= "Line" or (ttype == "Line" and eTracer.Enabled))
                     
-                    elseif name == "Distance" and eDistance.Enabled then
-                        obj.Text = `[{math_round(mag)} studs]`
+                    if ttype == "Text" then
+                        obj.Size = textSize
+                        obj.Position = vec2 - vec2new(0, (rows - i) * textSize)
+        
+                        if name == "Name" then
+                            obj.Text = config.Name
+                        
+                        elseif name == "Distance" and eDistance.Enabled then
+                            obj.Text = `[{math_round(mag)} studs]`
 
-                    elseif name == "Health" and eHealth.Enabled then
-                        local bool, args = checkCallback(container, "Health") -- args: health, maxHealth
-                        if bool then
-                            local hType = string_lower(eHealth.Type)
-                            if hType == "percentage" then
-                                obj.Text = `[{math_clamp(math_round(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
-                            elseif hType == "fraction" then
-                                obj.Text = `[{math_round(math_max(args[1], 0))}/{math_round(args[2])}]`
+                        elseif name == "Health" and eHealth.Enabled then
+                            local bool, args = checkCallback(container, "Health") -- args: health, maxHealth
+                            if bool then
+                                local hType = string_lower(eHealth.Type)
+                                if hType == "percentage" then
+                                    obj.Text = `[{math_clamp(math_round(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
+                                elseif hType == "fraction" then
+                                    obj.Text = `[{math_round(math_max(args[1], 0))}/{math_round(args[2])}]`
+                                end
                             end
                         end
+                    elseif ttype == "Line" then
+                        obj.Visible = eTracer.Enabled
+                        if eTracer.Enabled then
+                            obj.From = eTracer.From
+                            obj.To = vec2 + vec2new(0, math_max(rows * textSize / 2, textSize)) -- dynamic text rows offset
+                            obj.Thickness = eTracer.Thickness
+                        end
                     end
-                elseif ttype == "Line" then
-                    obj.Visible = eTracer.Enabled
-                    if eTracer.Enabled then
-                        obj.From = eTracer.From
-                        obj.To = vec2 + vec2new(0, math_max(rows * textSize / 2, textSize)) -- dynamic text rows offset
-                        obj.Thickness = eTracer.Thickness
+                else
+                    obj.Enabled = eHighlight.Enabled
+                    if eHighlight.Enabled then
+                        obj.FillColor = color
+                        obj.OutlineColor = color
+                        obj.FillTransparency = eHighlight.Transparency.Fill
+                        obj.OutlineTransparency = eHighlight.Transparency.Outline
+                        obj.DepthMode = (eHighlight.AlwaysOnTop and "AlwaysOnTop" or "Occluded")
                     end
-                end
-            else
-                obj.Enabled = eHighlight.Enabled
-                if eHighlight.Enabled then
-                    obj.FillColor = color
-                    obj.OutlineColor = color
-                    obj.FillTransparency = eHighlight.Transparency.Fill
-                    obj.OutlineTransparency = eHighlight.Transparency.Outline
-                    obj.DepthMode = (eHighlight.AlwaysOnTop and "AlwaysOnTop" or "Occluded")
                 end
             end
         end
 
-        -- Update container hidden after update
+        -- Make container visible after update (if it passed all checks)
         if container.Config.Hidden then
             container:Hide(false)
         end
