@@ -301,18 +301,24 @@ connections.Update = RunService.Stepped:Connect(function()
                         if name == "Name" then
                             obj.Text = config.Name
                         
-                        elseif name == "Distance" and eDistance.Enabled then
-                            obj.Text = `[{math_round(mag)} studs]`
+                        elseif name == "Distance" then
+                            obj.Text = eDistance.Enabled and `[{math_round(mag)} studs]` or ""
 
-                        elseif name == "Health" and eHealth.Enabled then
-                            local bool, args = checkCallback(container, "Health") -- args: health, maxHealth
-                            if bool then
-                                local hType = string_lower(eHealth.Type)
-                                if hType == "percentage" then
-                                    obj.Text = `[{math_clamp(math_round(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
-                                elseif hType == "fraction" then
-                                    obj.Text = `[{math_round(math_max(args[1], 0))}/{math_round(args[2])}]`
+                        elseif name == "Health" then
+                            if eHealth.Enabled then
+                                local bool, args = checkCallback(container, "Health") -- args: health, maxHealth
+                                if bool then
+                                    local hType = string_lower(eHealth.Type)
+                                    if hType == "percentage" then
+                                        obj.Text = `[{math_clamp(math_round(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
+                                    elseif hType == "fraction" then
+                                        obj.Text = `[{math_round(math_max(args[1], 0))}/{math_round(args[2])}]`
+                                    else
+                                        obj.Text = ""
+                                    end
                                 end
+                            else
+                                obj.Text = ""
                             end
                         end
                     elseif ttype == "Line" then
