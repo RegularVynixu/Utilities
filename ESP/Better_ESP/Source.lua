@@ -127,6 +127,18 @@ function module:Add(rootPart, options, callbacks)
         Drawing = drawing,
         Callbacks = callbacks,
         Config = config,
+        Toggle = function(self, bool)
+            if self.Config.Hidden ~= bool then
+                self.Config.Hidden = bool
+                for _, draw in self.Drawing do
+                    if draw.Type ~= "Highlight" then
+                        draw.Obj.Visible = bool
+                    else
+                        draw.Obj.Enabled = bool
+                    end
+                end
+            end
+        end,
         Remove = function(self)
             module:Remove(self.Root)
         end
@@ -231,36 +243,32 @@ connections.Update = RunService.Stepped:Connect(function()
 
     -- Update containers
     for _, container in module.Containers do
+        local config = container.Config
+        local callbacks = container.Callbacks
+
+        -- Skip hidden containers
+        if config.Hidden then continue end
+
         -- Check if alive
         if not isAlive(container) then
             container:Remove()
             continue
         end
         
-        local config = container.Config
-        local callbacks = container.Callbacks
-        
         -- Get on-screen position
         local root = container.Root
         local pos, onScreen = wtvp(localCamera, root.Position)
         if not onScreen then
-            -- Hide container
-            if not config.Hidden then
-                config.Hidden = true -- This prevents unnecessary updates
-                for _, draw in container.Drawing do
-                    if draw.Type ~= "Highlight" then
-                        draw.Obj.Visible = false
-                    else
-                        draw.Obj.Enabled = false
-                    end
-                end
-            end
+            container:Toggle(false)
             continue
         end
         
         -- Check distance
         local mag = (root.Position - localRoot.Position).Magnitude
-        if mag > eDistance.Max then continue end
+        if mag > eDistance.Max then
+            container:Toggle(false)
+            continue
+        end
 
         -- Update container content
         local vec2 = vec2new(pos.X, pos.Y)
@@ -324,8 +332,10 @@ connections.Update = RunService.Stepped:Connect(function()
             end
         end
 
-        -- Update container hidden
-        config.Hidden = false
+        -- Update container hidden after update
+        if container.Config.Hidden then
+            container:Toggle(true)
+        end
     end
 end)
 getgenv().Vynixu_ESPModule = module
