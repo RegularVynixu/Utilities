@@ -77,7 +77,6 @@ end
 local function checkCallback(container, key)
     local callback = container.Callbacks[key]
     if not callback then
-        warn("Failed to find callback: " .. key)
         return false
     end
     return true, {callback()}
