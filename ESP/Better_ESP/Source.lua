@@ -127,14 +127,14 @@ function module:Add(rootPart, options, callbacks)
         Drawing = drawing,
         Callbacks = callbacks,
         Config = config,
-        Toggle = function(self, bool)
+        Hide = function(self, bool)
             if self.Config.Hidden ~= bool then
                 self.Config.Hidden = bool
                 for _, draw in self.Drawing do
                     if draw.Type ~= "Highlight" then
-                        draw.Obj.Visible = bool
+                        draw.Obj.Visible = not bool
                     else
-                        draw.Obj.Enabled = bool
+                        draw.Obj.Enabled = not bool
                     end
                 end
             end
@@ -259,14 +259,14 @@ connections.Update = RunService.Stepped:Connect(function()
         local root = container.Root
         local pos, onScreen = wtvp(localCamera, root.Position)
         if not onScreen then
-            container:Toggle(false)
+            container:Hide(true)
             continue
         end
         
         -- Check distance
         local mag = (root.Position - localRoot.Position).Magnitude
         if mag > eDistance.Max then
-            container:Toggle(false)
+            container:Hide(true)
             continue
         end
 
@@ -334,7 +334,7 @@ connections.Update = RunService.Stepped:Connect(function()
 
         -- Update container hidden after update
         if container.Config.Hidden then
-            container:Toggle(true)
+            container:Hide(false)
         end
     end
 end)
