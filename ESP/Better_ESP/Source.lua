@@ -313,12 +313,14 @@ connections.Update = RunService.RenderStepped:Connect(function()
                         obj.Text = text or ""
                     end
                     obj.Size = textSize
+                    obj.Color = color
                     obj.Position = vec2 - vec2new(0, (textRows - math_min(textRows, draw.Order)) * textSize) -- dynamically order text positions (dogshit lol)
                     obj.Visible = true
 
                 elseif ttype == "Line" then
                     local enabled = eTracer.Enabled
                     if enabled then
+                        obj.Color = color
                         obj.From = eTracer.From
                         obj.To = vec2 + vec2new(0, math_max(textRows * textSize / 2, textSize)) -- always under last text row
                         obj.Thickness = eTracer.Thickness
