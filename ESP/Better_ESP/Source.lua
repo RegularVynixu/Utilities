@@ -20,8 +20,9 @@ local findFirstIsA = game.FindFirstChildWhichIsA
 local descendantOf = game.IsDescendantOf
 local getPlayers = Players.GetPlayers
 local wtvp = localCamera.WorldToViewportPoint
+local math_min = math.min
 local math_max = math.max
-local math_round = math.round
+local math_floor = math.floor
 local math_clamp = math.clamp
 local table_insert = table.insert
 local string_lower = string.lower
@@ -30,8 +31,8 @@ local module = {
     Containers = {},
     Connections = {},
     Config = {
-        Rainbow = false,
         TextSize = 16,
+        Rainbow = false,
         Distance = {
             Enabled = true,
             Max = math.huge
@@ -74,12 +75,9 @@ local function isAlive(container)
     return true
 end
 
-local function checkCallback(container, key)
+local function getCallback(container, key)
     local callback = container.Callbacks[key]
-    if not callback then
-        return false
-    end
-    return true, {callback()}
+    return typeof(callback) == "function" and {callback()} or {}
 end
 
 function module:Add(rootPart, options, callbacks)
@@ -126,16 +124,6 @@ function module:Add(rootPart, options, callbacks)
         Drawing = drawing,
         Callbacks = callbacks,
         Config = config,
-        Hide = function(self, bool)
-            self.Config.Hidden = bool
-            for _, draw in self.Drawing do
-                if draw.Type ~= "Highlight" then
-                    draw.Obj.Visible = not bool
-                else
-                    draw.Obj.Enabled = not bool
-                end
-            end
-        end,
         Remove = function(self)
             module:Remove(self.Root)
         end
@@ -182,9 +170,9 @@ function module:Add(rootPart, options, callbacks)
     highlight.Parent = config.HighlightFocus
 
     -- Indexing
-    table_insert(drawing, { Obj = name, Name = "Name", Type = "Text" })
-    table_insert(drawing, { Obj = distance, Name = "Distance", Type = "Text" })
-    table_insert(drawing, { Obj = health, Name = "Health", Type = "Text" })
+    table_insert(drawing, { Obj = name, Name = "Name", Type = "Text", Order = 1 })
+    table_insert(drawing, { Obj = distance, Name = "Distance", Type = "Text", Order = 2})
+    table_insert(drawing, { Obj = health, Name = "Health", Type = "Text", Order = 3})
     table_insert(drawing, { Obj = tracer, Name = "Tracer", Type = "Line" })
     table_insert(drawing, { Obj = highlight, Name = "Highlight", Type = "Highlight" })
 
@@ -217,20 +205,21 @@ function module:Clear()
 end
 
 function module:Unload()
+    self:Clear()
     for i, connection in self.Connections do
         connection:Disconnect()
         self.Connections[i] = nil
     end
-    self:Clear()
     for i, _ in self do
         self[i] = nil
     end
+    getgenv().Vynixu_ESPModule = nil
 end
 
 -- Main
 local connections = module.Connections
 connections.CharacterAdded = localPlayer.CharacterAdded:Connect(onCharacterAdded)
-connections.Update = RunService.Stepped:Connect(function()
+connections.Update = RunService.RenderStepped:Connect(function()
     local eConfig = module.Config
     local eDistance = eConfig.Distance
     local eHealth = eConfig.Health
@@ -241,110 +230,112 @@ connections.Update = RunService.Stepped:Connect(function()
     -- Update containers
     for _, container in module.Containers do
         local config = container.Config
+        local drawing = container.Drawing
         local callbacks = container.Callbacks
-
+        local shouldHide = false
+        
         -- Check if alive
         if not isAlive(container) then
             container:Remove()
             continue
         end
 
-        local bruh = false -- this is very important trust me
-
         -- Get on-screen position
         local root = container.Root
         local pos, onScreen = wtvp(localCamera, root.Position)
         if not onScreen then
-            bruh = true
+            shouldHide = true
         end
         
         -- Check distance
         local mag = (root.Position - localRoot.Position).Magnitude
         if mag > eDistance.Max then
-            bruh = true
+            shouldHide = true
         end
 
-        -- Hide container if necessary
-        if bruh then
+        if shouldHide then
+            -- Hide container
             if not config.Hidden then
-                container:Hide(true)
+                config.Hidden = true
+                for i2 = 1, #drawing, 1 do
+                    local draw = drawing[i2]
+                    if draw.Type ~= "Highlight" then
+                        draw.Obj.Visible = false
+                    else
+                        draw.Obj.Enabled = false
+                    end
+                end
             end
             continue
-        end
+        else
+            config.Hidden = false
 
-        -- Update container content (if not hidden)
-        if not config.Hidden then
+            -- Update container
             local vec2 = vec2new(pos.X, pos.Y)
-            local color = eConfig.Rainbow and col3hsv(tick() % 5 / 5, 1, 1) or config.Color
-            local rows = 0
-            for _, draw in container.Drawing do
+            local color = eConfig.Rainbow and col3hsv(tick() % 4 / 4, 1, 1) or config.Color
+            local textRows = 0
+            
+            -- Get text rows count
+            for i = 1, #drawing, 1 do
+                local draw = drawing[i]
                 if draw.Type == "Text" and draw.Obj.Text ~= "" then
-                    rows += 1
+                    textRows += 1
                 end
             end
             
-            -- Update visuals
-            for i = 1, #container.Drawing, 1 do
-                local draw = container.Drawing[i]
+            for i = 1, #drawing, 1 do
+                local draw = drawing[i]
                 local obj = draw.Obj
                 local name = draw.Name
                 local ttype = draw.Type
-                
-                if ttype ~= "Highlight" then
-                    obj.Color = color
-                    obj.Visible = (ttype ~= "Line" or (ttype == "Line" and eTracer.Enabled))
-                    
-                    if ttype == "Text" then
-                        obj.Size = textSize
-                        obj.Position = vec2 - vec2new(0, (rows - i) * textSize)
-        
-                        if name == "Name" then
-                            obj.Text = config.Name
-                        
-                        elseif name == "Distance" then
-                            obj.Text = eDistance.Enabled and `[{math_round(mag)} studs]` or ""
 
-                        elseif name == "Health" then
-                            if eHealth.Enabled then
-                                local bool, args = checkCallback(container, "Health") -- args: health, maxHealth
-                                if bool then
-                                    local hType = string_lower(eHealth.Type)
-                                    if hType == "percentage" then
-                                        obj.Text = `[{math_clamp(math_round(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
-                                    elseif hType == "fraction" then
-                                        obj.Text = `[{math_round(math_max(args[1], 0))}/{math_round(args[2])}]`
-                                    else
-                                        obj.Text = ""
-                                    end
+                if ttype == "Text" then
+                    if name == "Name" then
+                        obj.Text = config.Name
+
+                    elseif name == "Distance" then
+                        obj.Text = eDistance.Enabled and `[{math_floor(mag)} studs]` or ""
+
+                    elseif name == "Health" then
+                        local text;
+                        if eHealth.Enabled then
+                            local args = getCallback(container, "Health")
+                            if #args > 1 then
+                                local hType = string_lower(eHealth.Type)
+                                if hType == "percentage" then
+                                    text = `[{math_clamp(math_floor(100 / args[2] * args[1] * 10) / 10, 0, 100)}%]`
+                                elseif hType == "fraction" then
+                                    text = `[{math_floor(math_max(args[1], 0))}/{math_floor(args[2])}]`
                                 end
-                            else
-                                obj.Text = ""
                             end
                         end
-                    elseif ttype == "Line" then
-                        obj.Visible = eTracer.Enabled
-                        if eTracer.Enabled then
-                            obj.From = eTracer.From
-                            obj.To = vec2 + vec2new(0, math_max(rows * textSize / 2, textSize)) -- dynamic text rows offset
-                            obj.Thickness = eTracer.Thickness
-                        end
+                        obj.Text = text or ""
                     end
-                else
-                    obj.Enabled = eHighlight.Enabled
-                    if eHighlight.Enabled then
+                    obj.Size = textSize
+                    obj.Position = vec2 - vec2new(0, (textRows - math_min(textRows, draw.Order)) * textSize) -- dynamically order text positions (dogshit lol)
+                    obj.Visible = true
+
+                elseif ttype == "Line" then
+                    local enabled = eTracer.Enabled
+                    if enabled then
+                        obj.From = eTracer.From
+                        obj.To = vec2 + vec2new(0, math_max(textRows * textSize / 2, textSize)) -- always under last text row
+                        obj.Thickness = eTracer.Thickness
+                    end
+                    obj.Visible = enabled
+                
+                elseif ttype == "Highlight" then
+                    local enabled = eHighlight.Enabled
+                    if enabled then
                         obj.FillColor = color
-                        obj.OutlineColor = color
                         obj.FillTransparency = eHighlight.Transparency.Fill
+                        obj.OutlineColor = color
                         obj.OutlineTransparency = eHighlight.Transparency.Outline
-                        obj.DepthMode = (eHighlight.AlwaysOnTop and "AlwaysOnTop" or "Occluded")
+                        obj.DepthMode = eHighlight.AlwaysOnTop and "AlwaysOnTop" or "Occluded"
                     end
+                    obj.Enabled = enabled
                 end
             end
-        end
-
-        -- Make container visible after update (if it passed all checks)
-        if container.Config.Hidden then
-            container:Hide(false)
         end
     end
 end)
