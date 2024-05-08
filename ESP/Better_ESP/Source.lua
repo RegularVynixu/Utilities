@@ -33,6 +33,7 @@ local module = {
     Config = {
         TextSize = 16,
         Rainbow = false,
+        ColorOverride = nil,
         Distance = {
             Enabled = true,
             Max = math.huge
@@ -272,7 +273,7 @@ connections.Update = RunService.RenderStepped:Connect(function()
 
             -- Update container
             local vec2 = vec2new(pos.X, pos.Y)
-            local color = eConfig.Rainbow and col3hsv(tick() % 4 / 4, 1, 1) or config.Color
+            local color = typeof(eConfig.ColorOverride == "Color3") and eConfig.ColorOverride or eConfig.Rainbow and col3hsv(tick() % 4 / 4, 1, 1) or config.Color
             local textRows = 0
             
             -- Get text rows count
