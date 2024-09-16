@@ -442,15 +442,10 @@ local function damagePlayer(entityTable)
 				end
 				
 				-- Set death hints and type (thanks oogy)
-				for _, v in getgc(false) do
-					if typeof(v) == "function" and tostring(getfenv(v).script) == "Health" then
-						local info = getinfo(v)
-						if info.currentline == 54 and info.nups == 2 and info.is_vararg == 0 then
-							setupvalue(v, 1, config.Death.Hints)
-							setupvalue(v, 2, colour)
-							break
-						end
-					end
+				if firesignal then
+					firesignal(ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
+				else
+					warn("firesignal not supported, ignore death hints.")
 				end
 			end
 
