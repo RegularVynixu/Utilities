@@ -7,7 +7,7 @@ local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 local entity = spawner.Create({
 	Entity = {
 		Name = "Template Entity",
-		Asset = "https://github.com/RegularVynixu/Utilities/blob/main/Doors%20Entity%20Spawner/Models/Rush.rbxm?raw=true",
+		Asset = "https://github.com/RegularVynixu/Utilities/raw/main/Doors/Entity%20Spawner/Assets/Entities/Rush.rbxm",
 		HeightOffset = 0
 	},
 	Lights = {
@@ -61,10 +61,6 @@ end)
 
 entity:SetCallback("OnStartMoving", function()
     print("Entity has started moving")
-end)
-
-entity:SetCallback("OnReachNode", function(node)
-	print("Entity has reached node:", node)
 end)
 
 entity:SetCallback("OnEnterRoom", function(room, firstTime)
@@ -121,7 +117,3 @@ end)
 ---====== Run entity ======---
 
 entity:Run()
--- entity:Pause()
--- entity:Resume()
--- entity:IsPaused()
--- entity:Despawn()
