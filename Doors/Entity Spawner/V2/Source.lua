@@ -415,6 +415,18 @@ local function playerIsProtected()
 	return (tick() - lastRespawn) <= localPlayer:GetAttribute("SpawnProtection")
 end
 
+-- Set death hints and type (thanks oogy)
+local deathHintFunction;
+for _, v in getgc(false) do
+	if typeof(v) == "function" and tostring(getfenv(v).script) == "Health" then
+		local info = (getinfo or debug.getinfo)(v)
+		if info.currentline == 54 and info.nups == 2 and info.is_vararg == 0 then
+			deathHintFunction = v
+			break
+		end
+	end
+end
+
 local function damagePlayer(entityTable)
 	if localHum.Health > 0 and not playerIsProtected() then
 		local config = entityTable.Config
@@ -441,17 +453,8 @@ local function damagePlayer(entityTable)
 					colour = "Blue"
 				end
 				
-				-- Set death hints and type (thanks oogy)
-				for _, v in getgc(false) do
-					if typeof(v) == "function" and tostring(getfenv(v).script) == "Health" then
-						local info = getinfo(v)
-						if info.currentline == 54 and info.nups == 2 and info.is_vararg == 0 then
-							setupvalue(v, 1, config.Death.Hints)
-							setupvalue(v, 2, colour)
-							break
-						end
-					end
-				end
+				setupvalue(deathHintFunction, 1, config.Death.Hints)
+				setupvalue(deathHintFunction, 2, colour)
 			end
 
 			-- Set death cause
