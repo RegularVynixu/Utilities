@@ -25,6 +25,8 @@ local localCamera = workspace.CurrentCamera
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 local gameStats = ReplicatedStorage:WaitForChild("GameStats")
 local gameData = ReplicatedStorage:WaitForChild("GameData")
+local floorReplicated = ReplicatedStorage:WaitForChild("FloorReplicated")
+local remotesFolder = ReplicatedStorage:WaitForChild("RemotesFolder")
 
 local lastRespawn;
 local BaseEntitySpeed = 65
@@ -39,7 +41,8 @@ local assets = {
 }
 local moduleScripts = {
 	Module_Events = require(ReplicatedStorage.ClientModules.Module_Events),
-	Main_Game = require(playerGui.MainUI.Initiator.Main_Game)
+	Main_Game = require(playerGui.MainUI.Initiator.Main_Game),
+	Earthquake = require(remotesFolder.RequestAsset:InvokeServer("Earthquake"))
 }
 local defaultEntityAttributes = {
     Running = false,
@@ -96,6 +99,9 @@ local defaultConfig = {
 		Shatter = true,
 		Repair = false
 	},
+	Earthquake = {
+		Enabled = true
+	},
 	CameraShake = {
 		Enabled = true,
 		Values = {1.5, 20, 0.1, 1}, -- Magnitude, Roughness, FadeIn, FadeOut
@@ -122,11 +128,11 @@ local deathTypes = {
 local spawner = {}
 
 -- Functions
-local function cloneTable(tbl)
+function CloneTable(tbl)
     local cloned = {}
     for key, value in pairs(tbl) do
         if typeof(value) == "table" then
-            cloned[key] = cloneTable(value)
+            cloned[key] = CloneTable(value)
         else
             cloned[key] = value
         end
@@ -134,19 +140,19 @@ local function cloneTable(tbl)
     return cloned
 end
 
-local function onCharacterAdded(char)
+function OnCharacterAdded(char)
 	lastRespawn = tick()
 	localChar, localHum = char, char:WaitForChild("Humanoid")
 end
 
-local function getCurrentRoom(latest)
+function GetCurrentRoom(latest)
     if latest then
         return workspace.CurrentRooms:GetChildren()[#workspace.CurrentRooms:GetChildren()]
     end
     return workspace.CurrentRooms:FindFirstChild(localPlayer:GetAttribute("CurrentRoom"))
 end
 
-local function getNodesFromRoom(room, reversed)
+function GetNodesFromRoom(room, reversed)
 	local nodes = {}
 	local roomEntrance = room:FindFirstChild("RoomEntrance")
 	if roomEntrance then
@@ -183,13 +189,13 @@ local function getNodesFromRoom(room, reversed)
 	return nodes
 end
 
-local function getPathfindNodesAmbush(config)
+function GetPathfindNodesAmbush(config)
 	local pathfindNodes = {}
     local rooms = workspace.CurrentRooms:GetChildren()
     if config.Movement.Reversed == false then
         for i = 1, #rooms, 1 do
             local room = rooms[i]
-            local roomNodes = getNodesFromRoom(room, false)
+            local roomNodes = GetNodesFromRoom(room, false)
             for _, node in roomNodes do
                 pathfindNodes[#pathfindNodes + 1] = node
             end
@@ -197,7 +203,7 @@ local function getPathfindNodesAmbush(config)
     else
         for i = #rooms, 1, -1 do
             local room = rooms[i]
-            local roomNodes = getNodesFromRoom(room, true)
+            local roomNodes = GetNodesFromRoom(room, true)
             for _, node in roomNodes do
                 pathfindNodes[#pathfindNodes + 1] = node
             end
@@ -206,14 +212,14 @@ local function getPathfindNodesAmbush(config)
 	return pathfindNodes
 end
 
-local function getPathfindNodesBlitz(config)
+function GetPathfindNodesBlitz(config)
 	local nodesToCurrent, nodesToEnd = {}, {}
-	local currentRoomIndex = tonumber(localPlayer:GetAttribute("CurrentRoom"))
+	local currentRoomIndex = localPlayer:GetAttribute("CurrentRoom")
     local rooms = workspace.CurrentRooms:GetChildren()
 
     if config.Movement.Reversed == false then
         for _, room in rooms do
-            local roomNodes = getNodesFromRoom(room, false)
+            local roomNodes = GetNodesFromRoom(room, false)
             local roomIndex = tonumber(room.Name)
     
             for _, node in roomNodes do
@@ -227,7 +233,7 @@ local function getPathfindNodesBlitz(config)
     else
         for i = #rooms, 1, -1 do
             local room = rooms[i]
-            local roomNodes = getNodesFromRoom(room, true)
+            local roomNodes = GetNodesFromRoom(room, true)
             local roomIndex = tonumber(room.Name)
     
             for _, node in roomNodes do
@@ -243,15 +249,7 @@ local function getPathfindNodesBlitz(config)
 	return nodesToCurrent, nodesToEnd
 end
 
-local function pathfind_Blitz(entityTable)
-
-end
-
-local function pathfind_Ambush(entityTable)
-
-end
-
-local function playerInLineOfSight(model, config)
+function PlayerInLineOfSight(model, config)
 	local origin = model:GetPivot().Position
 	local charOrigin = localChar:GetPivot().Position
 
@@ -266,7 +264,7 @@ local function playerInLineOfSight(model, config)
 	return false
 end
 
-local function playerHasItemEquipped(name)
+function PlayerHasItemEquipped(name)
 	local tool = localChar:FindFirstChildOfClass("Tool")
 	if tool and tool.Name == name then
 		return true, tool
@@ -274,7 +272,7 @@ local function playerHasItemEquipped(name)
 	return false
 end
 
-local function crucify(entityTable, tool)
+function CrucifixEntity(entityTable, tool)
 	local model = entityTable.Model
 	local config = entityTable.Config
 
@@ -411,12 +409,12 @@ local function crucify(entityTable, tool)
 	task.delay(5, repentance.Destroy, repentance)
 end
 
-local function playerIsProtected()
+function PlayerIsProtected()
 	return (tick() - lastRespawn) <= localPlayer:GetAttribute("SpawnProtection")
 end
 
-local function damagePlayer(entityTable)
-	if localHum.Health > 0 and not playerIsProtected() then
+function DamagePlayer(entityTable)
+	if localHum.Health > 0 and not PlayerIsProtected() then
 		local config = entityTable.Config
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
 
@@ -443,7 +441,7 @@ local function damagePlayer(entityTable)
 				
 				-- Set death hints and type (thanks oogy)
 				if firesignal then
-					firesignal(ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
+					firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
 				else
 					warn("firesignal not supported, ignore death hints.")
 				end
@@ -463,7 +461,7 @@ local function damagePlayer(entityTable)
 	end
 end
 
-local function getRoomAtPoint(vector3)
+function GetRoomAtPoint(vector3)
 	local whitelist = {}
 	for _, room in workspace.CurrentRooms:GetChildren() do
 		local p = room:FindFirstChild(room.Name)
@@ -489,7 +487,7 @@ local function getRoomAtPoint(vector3)
 	end
 end
 
-local function fixRoomLights(room)
+function FixRoomLights(room)
 	if not room:FindFirstChild("RoomEntrance") then
 		return
 	end
@@ -545,22 +543,7 @@ local function fixRoomLights(room)
     end
 end
 
-local function checkEntityHasEnteredRoom(entityModel, room)
-	local roomsEntered = entityModel:FindFirstChild("RoomsEntered")
-	if roomsEntered then
-		return (roomsEntered:GetAttribute(room.Name) ~= nil)
-	end
-	return false
-end
-
-local function registerEntityEnteredRoom(entityModel, room)
-	local roomsEntered = entityModel:FindFirstChild("RoomsEntered")
-	if roomsEntered then
-		roomsEntered:SetAttribute(room.Name, true)
-	end
-end
-
-local function moveTo(model, cframe, speed)
+function EntityMoveTo(model, cframe, speed)
 	local reached = false
 	local connection; connection = RunService.Stepped:Connect(function(_, step)
 		if not model:GetAttribute("Paused") then
@@ -580,7 +563,7 @@ local function moveTo(model, cframe, speed)
 	repeat RunService.Stepped:Wait() until reached
 end
 
-local function applyConfigDefaults(tbl, defaults)
+function ApplyConfigDefaults(tbl, defaults)
     for key, value in defaults do
 		if tbl[key] == nil then
             tbl[key] = value
@@ -589,29 +572,12 @@ local function applyConfigDefaults(tbl, defaults)
             if not tbl[key] or typeof(tbl[key]) ~= "table" then
                 tbl[key] = {}
             end
-            applyConfigDefaults(tbl[key], value)
+            ApplyConfigDefaults(tbl[key], value)
         end
     end
 end
 
-local function compareAllDatatypes(config)
-	local function compareDatatypes(tbl1, tbl2)
-		for key, value in pairs(tbl1) do
-			if typeof(value) == "table" then
-				if not compareDatatypes(value, tbl2[key]) then
-					return false
-				end
-			elseif typeof(value) ~= typeof(tbl2[key]) then
-				return false
-			end
-		end
-		return true
-	end
-
-	return compareDatatypes(defaultConfig, config)
-end
-
-local function getAllDatatypes(config, datatype, ignoreList) -- thanks ChatGPT lmao
+function GetAllDatatypes(config, datatype, ignoreList) -- thanks ChatGPT lmao
 	ignoreList = ignoreList or {}
 	
 	local function traverseConfig(tbl, path, results)
@@ -646,7 +612,7 @@ local function getAllDatatypes(config, datatype, ignoreList) -- thanks ChatGPT l
 	return filteredResults
 end
 
-local function preRunCheck(entityTable)
+function PrerunCheck(entityTable)
 	local config = entityTable.Config
 	local rebounding = config.Rebounding
 
@@ -660,7 +626,7 @@ local function preRunCheck(entityTable)
 	end
 	
 	-- Check for invalid number values
-	for _, v in getAllDatatypes(config, "number", {"Entity.HeightOffset", "CameraShake.Values", "Delay"}) do
+	for _, v in GetAllDatatypes(config, "number", {"Entity.HeightOffset", "CameraShake.Values", "Delay"}) do
 		if v.value <= 0 then
 			warn(("Invalid number value: '%s', returning."):format(v.path))
 			return false
@@ -671,7 +637,7 @@ local function preRunCheck(entityTable)
 end
 
 spawner.Create = function(config)
-	applyConfigDefaults(config, defaultConfig)
+	ApplyConfigDefaults(config, defaultConfig)
 	config.Movement.Speed = BaseEntitySpeed / 100 * config.Movement.Speed
 
 	-- Load and set up entity model
@@ -728,7 +694,7 @@ spawner.Create = function(config)
 		local entityTable = {
 			Model = entityModel,
 			Config = config,
-			Debug = cloneTable(defaultDebug),
+			Debug = CloneTable(defaultDebug),
 			SetCallback = function(self, key, callback)
 				if self.Debug[key] then
 					if typeof(callback) == "function" then
@@ -773,7 +739,7 @@ end
 
 spawner.Run = function(entityTable)
 	task.spawn(function()
-		if preRunCheck(entityTable) == false then
+		if PrerunCheck(entityTable) == false then
 			return
 		end
 	
@@ -802,10 +768,14 @@ spawner.Run = function(entityTable)
 	
 			-- Flickering lights
 			if config.Lights.Flicker.Enabled then
-				local currentRoom = getCurrentRoom(false)
+				local currentRoom = GetCurrentRoom(false)
 				if currentRoom then
 					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
 				end
+			end
+			-- Earthquake
+			if config.Earthquake.Enabled then
+				moduleScripts.Earthquake(moduleScripts.Main_Game, currentRoom)
 			end
 	
 			-- Movement detection handling
@@ -816,7 +786,7 @@ spawner.Run = function(entityTable)
 					if not model:GetAttribute("Paused") then
 						local pivot = model:GetPivot()
 						local charPivot = localChar:GetPivot()
-						local inSight = playerInLineOfSight(model, config)
+						local inSight = PlayerInLineOfSight(model, config)
 	
 						-- Player look detection
 						if localHum.Health > 0 then
@@ -828,7 +798,7 @@ spawner.Run = function(entityTable)
 						
 						-- Room detection
 						do
-							local room = getRoomAtPoint(pivot.Position)
+							local room = GetRoomAtPoint(pivot.Position)
 							if room then
 								local index = tonumber(room.Name)
 								if index ~= model:GetAttribute("LastEnteredRoom") then
@@ -843,13 +813,13 @@ spawner.Run = function(entityTable)
 											roomsEntered:SetAttribute(room.Name, true)
 										end
 										
-										local latestRoom = getCurrentRoom(true)
+										local latestRoom = GetCurrentRoom(true)
 										if room ~= latestRoom then
 											if config.Lights.Shatter then -- Shatter lights
 												moduleScripts.Module_Events.shatter(room)
 		
 											elseif config.Lights.Repair then -- Repair lights
-												fixRoomLights(room)
+												FixRoomLights(room)
 											end
 										end
 									end
@@ -862,14 +832,14 @@ spawner.Run = function(entityTable)
 						do
 							local c = config.Crucifixion
 							if c.Enabled and c.Range > 0 and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
-								local hasTool, tool = playerHasItemEquipped("Crucifix")
+								local hasTool, tool = PlayerHasItemEquipped("Crucifix")
 								if hasTool and tool and not model:GetAttribute("BeingBanished") then
 									-- Crucifixion
 									if typeof(debug.CrucifixionOverwrite) == "function" then
 										entityTable:RunCallback("CrucifixionOverwrite") -- CrucifixionOverwrite
 									else
 										model:SetAttribute("Paused", true)
-										crucify(entityTable, tool)
+										CrucifixEntity(entityTable, tool)
 									end
 									usedCrucifix = true
 								end
@@ -881,7 +851,7 @@ spawner.Run = function(entityTable)
 							local c = config.Damage
 							if c.Enabled and c.Range > 0 and localHum.Health > 0 and not localChar:GetAttribute("Hiding") and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
 								model:SetAttribute("Damage", false)
-								damagePlayer(entityTable)
+								DamagePlayer(entityTable)
 							end
 						end
 	
@@ -912,22 +882,22 @@ spawner.Run = function(entityTable)
 				local reboundType = config.Rebounding.Type:lower()
 				if reboundType == "blitz" then
 					-- Blitz rebounding
-					local nodesToCurrent, nodesToEnd = getPathfindNodesBlitz(config)
+					local nodesToCurrent, nodesToEnd = GetPathfindNodesBlitz(config)
 	
 					for _, n in nodesToCurrent do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						moveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 					
 					-- Rebounding handling
 					if config.Rebounding.Enabled then
-						local currentRoom = getCurrentRoom(false)
+						local currentRoom = GetCurrentRoom(false)
 						if not currentRoom then
 							warn("Failed to obtain current room, returning.")
 							return
 						end
-						local roomNodes = getNodesFromRoom(currentRoom, config.Movement.Reversed)
+						local roomNodes = GetNodesFromRoom(currentRoom, config.Movement.Reversed)
 						if #roomNodes == 1 then
 							warn("Failed to obtain current room nodes, returning.")
 							return
@@ -951,7 +921,7 @@ spawner.Run = function(entityTable)
 							local nodeIndex = tonumber(randomNode.Name)
 							for i = #roomNodes, nodeIndex, -1 do
 								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								moveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
 							
@@ -961,24 +931,24 @@ spawner.Run = function(entityTable)
 		
 							for i = nodeIndex, #roomNodes, 1 do
 								local cframe = roomNodes[math.clamp(i, 1, #roomNodes)].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								moveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
 						end
 					end
 					
-					local _, updatedToEnd = getPathfindNodesBlitz(config)
+					local _, updatedToEnd = GetPathfindNodesBlitz(config)
 					for _, n in updatedToEnd do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						moveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 				else
 					-- Ambush rebounding
-					local pathfindNodes = getPathfindNodesAmbush(config)
+					local pathfindNodes = GetPathfindNodesAmbush(config)
 					for _, n in pathfindNodes do
 						local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-						moveTo(model, cframe, config.Movement.Speed)
+						EntityMoveTo(model, cframe, config.Movement.Speed)
 						task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 					end
 					
@@ -993,7 +963,7 @@ spawner.Run = function(entityTable)
 							-- Run backwards through nodes
 							for i = #pathfindNodes, 1, -1 do
 								local cframe = pathfindNodes[i].CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								moveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
 	
@@ -1001,12 +971,12 @@ spawner.Run = function(entityTable)
 							task.wait(config.Rebounding.Delay)
 							model:SetAttribute("Damage", true)
 							task.spawn(entityTable.RunCallback, entityTable, "OnRebounding", true) -- OnRebounding
-							pathfindNodes = getPathfindNodesAmbush(config)
+							pathfindNodes = GetPathfindNodesAmbush(config)
 	
 							-- Run forwards through nodes
 							for _, n in pathfindNodes do
 								local cframe = n.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-								moveTo(model, cframe, config.Movement.Speed)
+								EntityMoveTo(model, cframe, config.Movement.Speed)
 								task.spawn(entityTable.RunCallback, entityTable, "OnReachNode", n) -- OnReachNode
 							end
 	
@@ -1024,7 +994,7 @@ spawner.Run = function(entityTable)
 				if not model:GetAttribute("Despawning") then
 					model:SetAttribute("Despawning", true)
 					task.spawn(entityTable.RunCallback, entityTable, "OnDespawning") -- OnDespawning
-					moveTo(model, model:GetPivot() - Vector3.new(0, 300, 0), config.Movement.Speed)
+					EntityMoveTo(model, model:GetPivot() - Vector3.new(0, 300, 0), config.Movement.Speed)
 					entityTable:Despawn()
 				end
 			end)
@@ -1033,7 +1003,7 @@ spawner.Run = function(entityTable)
 end
 
 -- Main
-localPlayer.CharacterAdded:Connect(onCharacterAdded)
+localPlayer.CharacterAdded:Connect(OnCharacterAdded)
 
 for name, value in defaultPlayerAttributes do
 	localPlayer:SetAttribute(name, value)
