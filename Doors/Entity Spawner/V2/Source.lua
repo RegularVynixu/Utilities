@@ -290,7 +290,7 @@ function CrucifixEntity(entityTable, tool)
 	-- Setup
 	model:SetAttribute("BeingBanished", true)
 
-	local repentance = assets.RepentanceNEW:Clone()
+	local repentance = assets.Repentance:Clone()
 	local crucifix = repentance.Crucifix
 	local pentagram = repentance.Pentagram
 	local entityPart = repentance.Entity
