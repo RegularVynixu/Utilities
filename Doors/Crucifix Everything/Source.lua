@@ -1,3 +1,6 @@
+-- Check
+if Vynixu_Crucifix_Everything then return Vynixu_Crucifix_Everything end
+
 -- Functions.lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 
@@ -211,7 +214,7 @@ module.GiveCrucifix = function(config)
     crucifix.Parent = localPlayer.Backpack
 end
 
--- Setup
+-- Main
 if vynixu_crucifix_manager.Signals.InputBegan then
     -- Disconnect potential previous signal
     vynixu_crucifix_manager.Signals.InputBegan:Disconnect()
@@ -223,13 +226,15 @@ vynixu_crucifix_manager.Signals.InputBegan = UserInputService.InputBegan:Connect
         local playerTool = localCharacter.Crucifix
         local config = vynixu_crucifix_manager.Crucifixes[playerTool]
 
+        -- Validate config
         if not config then
             warn("Could not find Crucifix config for:", playerTool)
             return
-        elseif config.OnAnything == false then
+        elseif config.EntitiesOnly == true then
             return -- Custom entities only, handled by Entity Spawner module
         end
 
+        -- Get target
         local target = localMouse.Target
         if target then
             local model = target.Parent
@@ -238,15 +243,18 @@ vynixu_crucifix_manager.Signals.InputBegan = UserInputService.InputBegan:Connect
             if model:IsA("Model") and not model:GetAttribute("BeingBanished") and not table.find(config.IgnoreList, model) then
                 local isCustomEntity = model:GetAttribute("CustomEntity")
 
-                if config.OnAnything == false and not isCustomEntity then
+                if config.EntitiesOnly == true and not isCustomEntity then
                     return -- Ignore if not custom entity
                 end
 
+                -- Banish whatever
                 Crucifix(model, playerTool, config)
             end
         end
     end
 end)
 
--- Main
+warn("Crucifix Everything script : by .vynixu") -- I feel like this is necessary
+
+getgenv().Vynixu_Crucifix_Everything = module
 return module
