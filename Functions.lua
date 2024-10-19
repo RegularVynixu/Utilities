@@ -5,6 +5,9 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local HttpService = game:GetService("HttpService")
 
 -- Variables
+local gameSeed = tonumber(game.JobId:gsub("%D+", ""))
+local random = Random.new(gameSeed)
+
 local module = {}
 
 -- Functions
@@ -74,6 +77,15 @@ end
 module.TruncateNumber = function(num: number, decimals: number)
     local shift = 10 ^ (decimals and math.max(decimals, 0) or 0)
 	return num * shift // 1 / shift
+end
+
+module.PredictGlobalChance = function(chancePercentage: number): boolean
+    -- 'chancePercentage' should be an integer between 0 and 100
+    
+    local distributedGameTime = math.floor(workspace.DistributedGameTime)
+    local chance = distributedGameTime * math.clamp(chancePercentage, 0, 100) / 100
+
+    return random:NextInteger(1, distributedGameTime) <= chance
 end
 
 -- Main
