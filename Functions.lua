@@ -6,11 +6,6 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
 -- Variables
-local gameSeed = tonumber(game.JobId:gsub("%D+", ""))
-local random = Random.new(gameSeed)
-
-print(gameSeed)
-
 local module = {}
 
 -- Functions
@@ -82,9 +77,7 @@ module.TruncateNumber = function(num: number, decimals: number)
 	return num * shift // 1 / shift
 end
 
-module.PredictGlobalChance = function(chancePercentage: number): boolean
-    -- 'chancePercentage' should be an integer between 0 and 100
-
+module.SeededRandom = function(min: number, max: number): number
     local player, userId = nil, math.huge
 
     for _, plr in Players:GetPlayers() do
@@ -93,12 +86,12 @@ module.PredictGlobalChance = function(chancePercentage: number): boolean
         end
     end
 
-    if not player then return false end
+    if not player then return min end
 
-    local magnitude = (player.Character:GetPivot().Position - Vector3.zero).Magnitude
-    local chance = magnitude * math.clamp(chancePercentage, 0, 100) / 100
+    local magnitude = math.floor( (player.Character:GetPivot().Position - Vector3.zero).Magnitude )
+    local random = Random.new(magnitude)
 
-    return random:NextInteger(1, magnitude) <= chance
+    return random:NextInteger(min, max)
 end
 
 -- Main
