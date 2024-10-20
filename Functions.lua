@@ -9,6 +9,8 @@ local Players = game:GetService("Players")
 local gameSeed = tonumber(game.JobId:gsub("%D+", ""))
 local random = Random.new(gameSeed)
 
+print(gameSeed)
+
 local module = {}
 
 -- Functions
@@ -86,14 +88,14 @@ module.PredictGlobalChance = function(chancePercentage: number): boolean
     local player, userId = nil, math.huge
 
     for _, plr in Players:GetPlayers() do
-        if plr.UserId < userId and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        if plr.UserId < userId and plr.Character then
             player, userId = plr, plr.UserId
         end
     end
 
     if not player then return false end
 
-    local magnitude = (player.Character.HumanoidRootPart.Position - Vector3.zero).Magnitude
+    local magnitude = (player.Character:GetPivot().Position - Vector3.zero).Magnitude
     local chance = magnitude * math.clamp(chancePercentage, 0, 100) / 100
 
     return random:NextInteger(1, magnitude) <= chance
@@ -105,4 +107,5 @@ for name, func in module do
         getgenv()[name] = func
     end
 end
+
 return module
