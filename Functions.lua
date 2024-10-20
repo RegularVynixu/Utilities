@@ -3,6 +3,7 @@
 -- Services
 local MarketplaceService = game:GetService("MarketplaceService")
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 
 -- Variables
 local gameSeed = tonumber(game.JobId:gsub("%D+", ""))
@@ -81,11 +82,21 @@ end
 
 module.PredictGlobalChance = function(chancePercentage: number): boolean
     -- 'chancePercentage' should be an integer between 0 and 100
-    
-    local distributedGameTime = math.floor(workspace.DistributedGameTime)
-    local chance = distributedGameTime * math.clamp(chancePercentage, 0, 100) / 100
 
-    return random:NextInteger(1, distributedGameTime) <= chance
+    local player, userId = nil, math.huge
+
+    for _, plr in Players:GetPlayers() do
+        if plr.UserId < userId and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            player, userId = plr, plr.UserId
+        end
+    end
+
+    if not player then return false end
+
+    local magnitude = (player.Character.HumanoidRootPart.Position - Vector3.zero).Magnitude
+    local chance = magnitude * math.clamp(chancePercentage, 0, 100) / 100
+
+    return random:NextInteger(1, magnitude) <= chance
 end
 
 -- Main
