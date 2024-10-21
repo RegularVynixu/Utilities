@@ -77,23 +77,6 @@ module.TruncateNumber = function(num: number, decimals: number)
 	return num * shift // 1 / shift
 end
 
-module.SeededRandom = function(min: number, max: number): number
-    local player, userId = nil, math.huge
-
-    for _, plr in Players:GetPlayers() do
-        if plr.UserId < userId and plr.Character then
-            player, userId = plr, plr.UserId
-        end
-    end
-
-    if not player then return min end
-
-    local magnitude = math.floor( (player.Character:GetPivot().Position - Vector3.zero).Magnitude )
-    local random = Random.new(magnitude)
-
-    return random:NextInteger(min, max)
-end
-
 -- Main
 for name, func in module do
     if typeof(func) == "function" then
