@@ -21,6 +21,7 @@ local TweenService = game:GetService("TweenService")
 local localPlayer = Players.LocalPlayer
 local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local localHum = localChar:WaitForChild("Humanoid")
+local localCollision = localChar:WaitForChild("Collision")
 local localCamera = workspace.CurrentCamera
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 local gameStats = ReplicatedStorage:WaitForChild("GameStats")
@@ -142,7 +143,9 @@ end
 
 function OnCharacterAdded(char)
 	lastRespawn = tick()
-	localChar, localHum = char, char:WaitForChild("Humanoid")
+	localChar = char
+	localHum = char:WaitForChild("Humanoid")
+	localCollision = char:WaitForChild("Collision")
 end
 
 function GetCurrentRoom(latest)
@@ -251,7 +254,7 @@ end
 
 function PlayerInLineOfSight(model, config)
 	local origin = model:GetPivot().Position
-	local charOrigin = localChar:GetPivot().Position
+	local charOrigin = localCollision.Position
 
 	if (charOrigin - origin).Magnitude <= config.Damage.Range then
 		local params = RaycastParams.new()
@@ -315,7 +318,7 @@ function CrucifixEntity(entityTable, tool)
 	repentance:PivotTo(CFrame.new(result.Position))
 	crucifix.CFrame = toolPivot
 	repentance.Entity.CFrame = entityPivot
-    crucifix.BodyPosition.Position = (localChar:GetPivot() * CFrame.new(0.5, 3, -6)).Position
+    crucifix.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
 	repentance.Parent = workspace
 	sound:Play()
 
@@ -785,7 +788,7 @@ spawner.Run = function(entityTable)
 				while model.Parent do
 					if not model:GetAttribute("Paused") then
 						local pivot = model:GetPivot()
-						local charPivot = localChar:GetPivot()
+						local charPivot = localCollision.CFrame
 						local inSight = PlayerInLineOfSight(model, config)
 	
 						-- Player look detection
