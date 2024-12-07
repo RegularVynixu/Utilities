@@ -775,7 +775,7 @@ spawner.Run = function(entityTable)
 			end
 			-- Earthquake
 			if config.Earthquake.Enabled then
-				moduleScripts.Earthquake(moduleScripts.Main_Game, currentRoom)
+				task.defer(moduleScripts.Earthquake, moduleScripts.Main_Game, currentRoom)
 			end
 	
 			-- Movement detection handling
