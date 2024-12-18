@@ -200,6 +200,10 @@ Plr.CharacterAdded:Connect(onCharacterAdded, char)
 
 local Section = Tab:AddSection("Tool", {default = true})
 
+Section:AddButton("Place Point", function()
+    add(Root.Position)
+end)
+
 Library.Items.PlacePoint = Section:AddBind("Place Point", Enum.KeyCode.KeypadPlus, {}, function()
     add(Root.Position)
 end)
