@@ -36,9 +36,9 @@ Module.LoadCustomAsset = function(url: string): string?
             local result = getcustomasset(fileName, true)
             delfile(fileName)
             return result
+        elseif isfile(url) then
+            return getcustomasset(url, true)
         end
-	elseif isfile(url) then
-        return getcustomasset(url, true)
     else
         warn("Executor doesn't support 'getcustomasset', rbxassetid only.")
     end
