@@ -41,7 +41,7 @@ local assets = {
 	Repentance = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/blob/main/Doors/Entity%20Spawner/Assets/Repentance.rbxm?raw=true")
 }
 local moduleScripts = {
-	Module_Events = require(ReplicatedStorage.ClientModules.Module_Events),
+	Module_Events = require(ReplicatedStorage.ModulesClient.Module_Events),
 	Main_Game = require(playerGui.MainUI.Initiator.Main_Game),
 	Earthquake = require(remotesFolder.RequestAsset:InvokeServer("Earthquake"))
 }
@@ -503,7 +503,7 @@ function FixRoomLights(room)
     end
     
     -- Set room ambient
-    require(ReplicatedStorage.ClientModules.Module_Events).toggle(room, true, ambientStorage[room])
+    require(ReplicatedStorage.ModulesClient.Module_Events).toggle(room, true, ambientStorage[room])
 
     -- Fix lights
     local stuff = {}
