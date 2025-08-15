@@ -439,7 +439,7 @@ function CrucifixEntity(entityTable, tool)
 		model:SetAttribute("Paused", false)
 		fadeOut()
 	end
-	task.delay(1, repentance.Destroy, repentance)
+	task.delay(5, repentance.Destroy, repentance)
 end
 
 function PlayerIsProtected()
