@@ -327,7 +327,9 @@ function CrucifixEntity(entityTable, tool)
 			model:PivotTo(entityPart.CFrame)
 			task.wait()
 		end
-		model:Destroy()
+		if resist == false then
+		    model:Destroy()
+		end
 	end)
 
 	-- Animation
