@@ -16,7 +16,18 @@ local entity = spawner.Create({
 			Duration = 1
 		},
 		Shatter = true,
-		Repair = false
+		Repair = false,
+		ColorCorrection = {
+		    Enabled = false,
+		    Color = Color3.fromRGB(255, 0, 0), -- Color3.new
+		    Sound = {
+		        SoundId = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
+		        Volume = 1
+		    },
+		    Duration = 5,
+		    FadeIn = 1,
+		    FadeOut = 2
+		}
 	},
 	Earthquake = {
 		Enabled = true
@@ -42,6 +53,23 @@ local entity = spawner.Create({
 		Enabled = true,
 		Range = 40,
 		Amount = 125
+	},
+	Jumpscare = {
+	    Enabled = false,
+	    Face = "rbxassetid://0",
+	    FacePosition = UDim2.new(0.5, 0, 0.5, 0)
+	    FaceSize = UDim2.new(0, 150, 0, 150)
+	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
+	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
+	    Sound = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
+	    SoundVolume = 5
+	},
+	Achievement = {
+	    Enabled = true,
+	    Title = "Title",
+	    Desc = "Description",
+	    Reason = "Reason",
+	    Image = "rbxassetid://12309073114"
 	},
 	Crucifixion = {
 		Enabled = true,
