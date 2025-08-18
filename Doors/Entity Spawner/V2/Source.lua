@@ -421,6 +421,14 @@ function CrucifixEntity(entityTable, tool)
                         d.Color = color.Value
                     end
                 end
+
+                if pentagram.Base.LightAttach.LightBright then
+                    pentagram.Base.LightAttach.LightBright.Color = color.Value
+                end
+
+                if crucifix.Light then
+                    crucifix.Light.Color = color.Value
+                end
                 task.wait()
             end
         end
