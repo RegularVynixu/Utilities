@@ -420,32 +420,6 @@ function CrucifixEntity(entityTable, tool)
 		}):Play()
 
 		if resist == false then
-		    if config.Crucifixion.Type:lower() == "curious" then
-                task.delay(3, function()
-                    local color = Instance.new("Color3Value")
-                    color.Value = colourGuiding
-
-                    local tween = TweenService:Create(color, TweenInfo.new(1.5, Enum.EasingStyle.Sine), { 
-                        Value = Color3.fromRGB(253, 255, 133)
-                    })
-                    tween:Play()
-
-                    while tween.PlaybackState == Enum.PlaybackState.Playing do
-                        for _, d in repentance:GetDescendants() do
-                            if d.ClassName == "Beam" then
-                                d.Color = ColorSequence.new{
-                                    ColorSequenceKeypoint.new(0, color.Value), 
-                                    ColorSequenceKeypoint.new(1, color.Value)
-                                }
-                            elseif d.Name == "Crucifix" then
-                                d.Color = color.Value
-                            end
-                        end
-                        task.wait()
-                    end
-                end)
-            end
-		    
 			TweenService:Create(crucifix.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
 			shaker:StartFadeOut(3)
 			fadeOut()
@@ -455,6 +429,32 @@ function CrucifixEntity(entityTable, tool)
 
 	-- Actions
 	if resist == false then
+	    if config.Crucifixion.Type:lower() == "curious" then
+            task.delay(3, function()
+                local color = Instance.new("Color3Value")
+                color.Value = colourGuiding
+
+                local tween = TweenService:Create(color, TweenInfo.new(1.5, Enum.EasingStyle.Sine), { 
+                    Value = Color3.fromRGB(253, 255, 133)
+                })
+                tween:Play()
+
+                while tween.PlaybackState == Enum.PlaybackState.Playing do
+                    for _, d in repentance:GetDescendants() do
+                        if d.ClassName == "Beam" then
+                            d.Color = ColorSequence.new{
+                                ColorSequenceKeypoint.new(0, color.Value), 
+                                ColorSequenceKeypoint.new(1, color.Value)
+                            }
+                        elseif d.Name == "Crucifix" then
+                            d.Color = color.Value
+                        end
+                    end
+                    task.wait()
+                end
+            end)
+        end
+        
 		waitUntil(2)
 		TweenService:Create(entityPart, TweenInfo.new(3, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = repentance.Entity.CFrame - Vector3.new(0, 25, 0) }):Play()
 		waitUntil(6.75)
