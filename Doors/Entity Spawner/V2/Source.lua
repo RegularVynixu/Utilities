@@ -564,7 +564,7 @@ function CreateJumpscare(jumpscareConfig)
 	Face.ImageTransparency = 0
 	TweenService:Create(Face, TweenInfo.new(0.7), {
 		Size = UDim2.new(0, 2450, 0, 1550),
-	})):Play()
+	}):Play()
 	scareSound:Play()
 	
 	task.delay(0.8, function()
