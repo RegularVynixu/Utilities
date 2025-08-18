@@ -40,7 +40,11 @@ local entity = spawner.Create({
 	Movement = {
 		Speed = 100,
 		Delay = 2,
-		Reversed = false
+		Reversed = false,
+		Following = {
+		    Enabled = false,
+		    Range = 100
+		}
 	},
 	Rebounding = {
 		Enabled = true,
@@ -72,6 +76,7 @@ local entity = spawner.Create({
 	    Image = "rbxassetid://12309073114"
 	},
 	Crucifixion = {
+	    Type = "Curious", -- "Guiding"
 		Enabled = true,
 		Range = 40,
 		Resist = false,
