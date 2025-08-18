@@ -3,6 +3,8 @@
     - Path Error Fixed: "ClientModules" folder name changed to "ModulesClient".
     - Crucifixion Bug Fixed: Entity are also removed when Resist is enabled.
 ## Modified
+- Added Curious Crucifixion
+    - The effect of Curious appears when the entity is crucifixion.
 - Added Following
     - When the entity is within a defined range from the player, it begins to follow the player (Similar to A-120).
 ---
