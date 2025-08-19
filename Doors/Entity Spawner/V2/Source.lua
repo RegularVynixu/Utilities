@@ -422,7 +422,7 @@ function CrucifixEntity(entityTable, tool)
 	repentance:PivotTo(CFrame.new(result.Position))
 	crucifix:PivotTo(toolPivot)
 	repentance.Entity.CFrame = entityPivot
-    crucifix.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
+    crucHandle.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
 	repentance.Parent = workspace
 	sound:Play()
 
@@ -439,7 +439,7 @@ function CrucifixEntity(entityTable, tool)
 
 	-- Animation
 	TweenService:Create(pentagram.Circle, TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { CFrame = pentagram.Circle.CFrame - Vector3.new(0, 25, 0) }):Play()
-	TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
+	TweenService:Create(crucHandle.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
 	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
 
     task.spawn(function()
@@ -480,8 +480,8 @@ function CrucifixEntity(entityTable, tool)
                     pentagram.Base.LightAttach.LightBright.Color = color.Value
                 end
 
-                if crucifix.Light then
-                    crucifix.Light.Color = color.Value
+                if crucHandle.Light then
+                    crucHandle.Light.Color = color.Value
                 end
             end)
         end
@@ -490,7 +490,7 @@ function CrucifixEntity(entityTable, tool)
 			Brightness = 5,
 			Range = 40
 		}):Play()
-		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+		TweenService:Create(crucHandle.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
 			Brightness = 11.25,
 			Range = 30
 		}):Play()
@@ -499,16 +499,16 @@ function CrucifixEntity(entityTable, tool)
 			Brightness = 0,
 			Range = 0
 		}):Play()
-		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+		TweenService:Create(crucHandle.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
 			Brightness = 0,
 			Range = 0
 		}):Play()
 
 		if resist == false then
-			TweenService:Create(crucifix.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
+			TweenService:Create(crucHandle.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
 			shaker:StartFadeOut(3)
 			fadeOut()
-			TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+			TweenService:Create(crucHandle.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		end
 	end)
 
@@ -519,9 +519,9 @@ function CrucifixEntity(entityTable, tool)
 		waitUntil(6.75)
 	else
 		waitUntil(4)
-		TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+		TweenService:Create(crucHandle.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
-		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
+		TweenService:Create(crucHandle.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
 		shaker:StartFadeOut(3)
 		task.spawn(function()
 			local color = Instance.new("Color3Value")
@@ -568,7 +568,7 @@ function CrucifixEntity(entityTable, tool)
 	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 
 	if not resist then
-		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
+		repentance.Crucifix.Handle.ExplodeParticle:Emit(math.random(20, 30))
 		moduleScripts.Main_Game.camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
 		UnlockAchievement(crucifixAchievement)
 	else
