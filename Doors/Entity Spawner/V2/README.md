@@ -8,6 +8,8 @@
 ---
 - Added Achievement
     - Achievement is unlocked when you survive the entity.
+    - Achievement is unlocked when you used crucifix against the entity.
+    - Achievement is unlocked when you died to the entity.
 ---
 - Added Jumpscare
     - Jumpscare is enabled when a player is killed by an entity.
