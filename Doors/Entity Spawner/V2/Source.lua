@@ -400,8 +400,10 @@ function CrucifixEntity(entityTable, tool)
 	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
 
     task.spawn(function()
-        if d.ClassName == "Beam" then
-            d.Enabled = true
+        for _, d in repentance:GetDescendants() do
+            if d.ClassName == "Beam" then
+                d.Enabled = true
+            end
         end
     end)
 
@@ -428,7 +430,7 @@ function CrucifixEntity(entityTable, tool)
                             d.Color = color.Value
                         end
                     end
-                end)
+                end
 
                 if pentagram.Base.LightAttach.LightBright then
                     pentagram.Base.LightAttach.LightBright.Color = color.Value
@@ -438,7 +440,7 @@ function CrucifixEntity(entityTable, tool)
                     crucifix.Light.Color = color.Value
                 end
                 task.wait()
-            end
+            end)
         end
             
 		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
