@@ -73,7 +73,6 @@ local defaultDebug = {
 	OnSpawned = function() end,
 	OnStartMoving = function() end,
 	OnReachedNode = function() end,
-	OnReturningToPath = function() end,
 	OnEnterRoom = function() end,
 	OnLookAt = function() end,
 	OnRebounding = function() end,
@@ -91,11 +90,7 @@ local defaultConfig = {
 	Movement = {
 		Speed = 100,
 		Delay = 2,
-		Reversed = false,
-		Following = {
-		    Enabled = false,
-		    Range = 100
-		}
+		Reversed = false
 	},
 	Damage = {
 		Enabled = true,
@@ -736,26 +731,6 @@ function EntityMoveTo(model, cframe, speed, config, entityTable)
 			local difference = (cframe.Position - pivot.Position)
 			local unit = difference.Unit
 			local magnitude = difference.Magnitude
-
-            if config.Movement.Following.Enabled then
-                pcall(function()
-                    local playerDistance = GetDistanceToPlayer(model)
-                    if playerDistance <= config.Movement.Following.Range then
-                        local playerDirection = (localCollision.Position - pivot.Position).Unit
-                    
-                        model:PivotTo(pivot + playerDirection * (step * speed))
-                    
-                        if playerDistance < 5 then
-                            connection:Disconnect()
-                            reached = true
-                        
-                            entityTable.RunCallback(entityTable, "OnReturningToPath") -- OnReturningToPath
-                            EntityMoveTo(model, originalCFrame, speed, config, entityTable)
-                        end
-                        return
-                    end
-                end)
-            end
 
 			if magnitude > 0.1 then
 				model:PivotTo(pivot + unit * math.min(step * speed, magnitude))
