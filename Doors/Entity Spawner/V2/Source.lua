@@ -398,7 +398,7 @@ function CrucifixEntity(entityTable, tool)
 
 	local repentance = assets.Repentance:Clone()
 	local crucifix = repentance.Crucifix
-	local crucHandle = crucifix.Handle
+	local crucHandle = crucifix:FindFirstChild("Handle")
 	local pentagram = repentance.Pentagram
 	local entityPart = repentance.Entity
 	local sound = (config.Crucifixion.Resist and crucHandle.SoundFail or crucHandle.Sound)
@@ -420,7 +420,7 @@ function CrucifixEntity(entityTable, tool)
 	end
 
 	repentance:PivotTo(CFrame.new(result.Position))
-	crucHandle.CFrame = toolPivot
+	crucifix:PivotTo(toolPivot)
 	repentance.Entity.CFrame = entityPivot
     crucifix.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
 	repentance.Parent = workspace
