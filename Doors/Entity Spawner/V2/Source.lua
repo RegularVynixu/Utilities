@@ -399,6 +399,14 @@ function CrucifixEntity(entityTable, tool)
 	TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
 	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
 
+    task.spawn(function()
+        for _, d in repentance:GetDescendants() do
+            if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
+                d.Enabled = true
+            end
+        end
+    end)
+
 	task.spawn(function()
 		waitUntil(2.625)
 		if config.Crucifixion.Type:lower() == "curious" then
@@ -412,7 +420,7 @@ function CrucifixEntity(entityTable, tool)
 
             while tween.PlaybackState == Enum.PlaybackState.Playing do
                 for _, d in repentance:GetDescendants() do
-                    if d.ClassName == "Beam" then
+                    if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
                         d.Color = ColorSequence.new{
                             ColorSequenceKeypoint.new(0, color.Value),
                             ColorSequenceKeypoint.new(1, color.Value)
@@ -479,7 +487,7 @@ function CrucifixEntity(entityTable, tool)
 
 			while tween.PlaybackState == Enum.PlaybackState.Playing do
 				for _, d in repentance:GetDescendants() do
-					if d.ClassName == "Beam" then
+					if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
 						d.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, color.Value), ColorSequenceKeypoint.new(1, color.Value)}
 
 					elseif d.Name == "Crucifix" then
