@@ -398,9 +398,10 @@ function CrucifixEntity(entityTable, tool)
 
 	local repentance = assets.Repentance:Clone()
 	local crucifix = repentance.Crucifix
+	local crucHandle = crucifix.Handle
 	local pentagram = repentance.Pentagram
 	local entityPart = repentance.Entity
-	local sound = (config.Crucifixion.Resist and crucifix.Handle.SoundFail or crucifix.Handle.Sound)
+	local sound = (config.Crucifixion.Resist and crucHandle.SoundFail or crucHandle.Sound)
 	local shaker = moduleScripts.Main_Game.camShaker:StartShake(5, 20, 2, Vector3.new())
 
 	local function waitUntil(t)
@@ -419,7 +420,7 @@ function CrucifixEntity(entityTable, tool)
 	end
 
 	repentance:PivotTo(CFrame.new(result.Position))
-	crucifix.CFrame = toolPivot
+	crucHandle.CFrame = toolPivot
 	repentance.Entity.CFrame = entityPivot
     crucifix.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
 	repentance.Parent = workspace
@@ -556,7 +557,7 @@ function CrucifixEntity(entityTable, tool)
 
 	-- Crucifix explode
 	task.spawn(function()
-	    for _, c in crucifix.Handle.Shards:GetChildren() do
+	    for _, c in crucHandle.Shards:GetChildren() do
 	        c.Anchored = false
 	        c.CanCollide = true
 	    end
