@@ -7,7 +7,7 @@
         \/  \__, |_| |_|_/_/\_\\__,_| |___/ |______|_| |_|\__|_|\__|\__, | |_____/| .__/ \__,_| \_/\_/ |_| |_|\___|_|        \/   |____|
              __/ |                                                   __/ |        | |                                                   
             |___/                                                   |___/         |_|
-Fixed by FOCUSED_LIGHT (Unofficial)
+Fixed & Modified by FOCUSED_LIGHT (Unofficial)
 ]]--
 
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
@@ -54,7 +54,7 @@ local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
 local assets = {
-	Repentance = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/blob/main/Doors/Entity%20Spawner/Assets/Repentance.rbxm?raw=true")
+	Repentance = LoadCustomInstance("https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/Assets/Repentance.rbxm?raw=true")
 }
 local moduleScripts = {
 	Module_Events = require(ReplicatedStorage.ModulesClient.Module_Events),
@@ -149,25 +149,25 @@ local defaultConfig = {
 	    Survive = {
 	        Enabled = true,
 	        Once = false,
-	        Title = "Title",
-	        Desc = "Description",
-	        Reason = "Reason",
+	        Title = "Survive Title",
+	        Desc = "Survive Description",
+	        Reason = "Survive Reason",
 	        Image = "rbxassetid://12309073114"
 	    },
 	    Crucifix = {
 	        Enabled = true,
-	        Once = false,
-	        Title = "Title",
-	        Desc = "Description",
-	        Reason = "Reason",
+	        Once = true,
+	        Title = "Crucifix Title",
+	        Desc = "Crucifix Description",
+	        Reason = "Crucifix Reason",
 	        Image = "rbxassetid://12309073114"
 	    },
 	    Death = {
 	        Enabled = false,
 	        Once = false,
-	        Title = "Title",
-	        Desc = "Description",
-	        Reason = "Reason",
+	        Title = "Death Title",
+	        Desc = "Death Description",
+	        Reason = "Death Reason",
 	        Image = "rbxassetid://12309073114"
 	    }
 	},
@@ -555,6 +555,13 @@ function CrucifixEntity(entityTable, tool)
 	end
 
 	-- Crucifix explode
+	task.spawn(function()
+	    for _, c in crucifix.Handle.Shards:GetChildren() do
+	        c.Anchored = false
+	        c.CanCollide = true
+	    end
+	end)
+	
 	TweenService:Create(repentance.Crucifix, TweenInfo.new(1), { Size = repentance.Crucifix.Size * 3, Transparency = 1 }):Play()
 	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
