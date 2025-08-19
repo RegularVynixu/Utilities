@@ -141,12 +141,31 @@ local defaultConfig = {
 	    Sound = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
 	    SoundVolume = 5
 	},
-	Achievement = {
-	    Enabled = true,
-	    Title = "Title",
-	    Desc = "Description",
-	    Reason = "Reason",
-	    Image = "rbxassetid://12309073114"
+	Achievements = {
+	    Survive = {
+	        Enabled = true,
+	        Once = false,
+	        Title = "Title",
+	        Desc = "Description",
+	        Reason = "Reason",
+	        Image = "rbxassetid://12309073114"
+	    },
+	    Crucifix = {
+	        Enabled = true,
+	        Once = false,
+	        Title = "Title",
+	        Desc = "Description",
+	        Reason = "Reason",
+	        Image = "rbxassetid://12309073114"
+	    },
+	    Death = {
+	        Enabled = false,
+	        Once = false,
+	        Title = "Title",
+	        Desc = "Description",
+	        Reason = "Reason",
+	        Image = "rbxassetid://12309073114"
+	    }
 	},
 	Crucifixion = {
 		Type = "Curious", -- "Guiding"
@@ -307,6 +326,28 @@ function PlayerInLineOfSight(model, config)
 	return false
 end
 
+function UnlockAchievement(achievement)
+    if not achievement.Enabled then return end
+    
+    local title = achievement.Title
+    if not achievement.Once then
+        achievementGiver({
+            Title = title,
+            Desc = achievement.Desc,
+            Reason = achievement.Reason,
+            Image = achievement.Image
+        })
+    elseif not _G.achievementUnlock[title] then
+        achievementGiver({
+            Title = title,
+            Desc = achievement.Desc,
+            Reason = achievement.Reason,
+            Image = achievement.Image
+        })
+        _G.achievementUnlock[title] = true
+    end
+end
+
 function PlayerHasItemEquipped(name)
 	local tool = localChar:FindFirstChildOfClass("Tool")
 	if tool and tool.Name == name then
@@ -320,6 +361,8 @@ function CrucifixEntity(entityTable, tool)
 	local config = entityTable.Config
 
 	local resist = config.Crucifixion.Resist
+
+    local crucifixAchievement = config.Achievements.Crucifix
 
 	local toolPivot = tool:GetPivot()
 	local entityPivot = model:GetPivot()
@@ -515,10 +558,12 @@ function CrucifixEntity(entityTable, tool)
 	if not resist then
 		repentance.Crucifix.ExplodeParticle:Emit(math.random(20, 30))
 		moduleScripts.Main_Game.camShaker:ShakeOnce(7.5, 7.5, 0.25, 1.5)
+		UnlockAchievement(crucifixAchievement)
 	else
 		model:SetAttribute("BeingBanished", false)
 		model:SetAttribute("Paused", false)
 		fadeOut()
+		UnlockAchievement(crucifixAchievement)
 	end
 	task.delay(5, repentance.Destroy, repentance)
 end
@@ -586,6 +631,7 @@ end
 function DamagePlayer(entityTable)
 	if localHum.Health > 0 and not PlayerIsProtected() then
 		local config = entityTable.Config
+		local deathAchievement = config.Achievements.Death
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
 
 		if newHealth == 0 then
@@ -593,6 +639,9 @@ function DamagePlayer(entityTable)
 		    if config.Jumpscare.Enabled then
 				CreateJumpscare(config.Jumpscare)
 			end
+		    
+		    -- Achievement
+		    UnlockAchievement(deathAchievement)
 		    
 			-- Death hints
 			if #config.Death.Hints > 0 then
@@ -905,15 +954,9 @@ spawner.Create = function(config)
 					self.Model:Destroy()
 					self.Model = nil
 					task.spawn(self.RunCallback, self, "OnDespawned") -- OnDespawned
-					
-					local config = self.Config
-                    if config.Achievement.Enabled and achievementGiver and localHum and localHum.Health > 0 then
-                        pcall(achievementGiver, {
-                            Title = config.Achievement.Title,
-                            Desc = config.Achievement.Desc,
-                            Reason = config.Achievement.Reason,
-                            Image = config.Achievement.Image
-                        })
+					local surviveAchievement = config.Achievements.Survive
+                    if surviveAchievement.Enabled and localHum.Health > 0 then
+                        UnlockAchievement(surviveAchievement)
                     end
 				end
 			end
