@@ -400,35 +400,35 @@ function CrucifixEntity(entityTable, tool)
 	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
 
     task.spawn(function()
-        for _, d in repentance:GetDescendants() do
-            if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
-                d.Enabled = true
-            end
+        if d.ClassName == "Beam" then
+            d.Enabled = true
         end
     end)
 
 	task.spawn(function()
 		waitUntil(2.625)
 		if config.Crucifixion.Type:lower() == "curious" then
-            local color = Instance.new("Color3Value")
-            color.Value = colourGuiding
+		    task.spawn(function()
+                local color = Instance.new("Color3Value")
+                color.Value = colourGuiding
 
-            local tween = TweenService:Create(color, TweenInfo.new(1.5, Enum.EasingStyle.Sine), { 
-                Value = Color3.fromRGB(253, 255, 133)
-            })
-            tween:Play()
+                local tween = TweenService:Create(color, TweenInfo.new(1.5, Enum.EasingStyle.Sine), { 
+                    Value = Color3.fromRGB(253, 255, 133)
+                })
+                tween:Play()
 
-            while tween.PlaybackState == Enum.PlaybackState.Playing do
-                for _, d in repentance:GetDescendants() do
-                    if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
-                        d.Color = ColorSequence.new{
-                            ColorSequenceKeypoint.new(0, color.Value),
-                            ColorSequenceKeypoint.new(1, color.Value)
-                        }
-                    elseif d.Name == "Crucifix" then
-                        d.Color = color.Value
+                while tween.PlaybackState == Enum.PlaybackState.Playing do
+                    for _, d in repentance:GetDescendants() do
+                        if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
+                            d.Color = ColorSequence.new{
+                                ColorSequenceKeypoint.new(0, color.Value),
+                                ColorSequenceKeypoint.new(1, color.Value)
+                            }
+                        elseif d.Name == "Crucifix" then
+                            d.Color = color.Value
+                        end
                     end
-                end
+                end)
 
                 if pentagram.Base.LightAttach.LightBright then
                     pentagram.Base.LightAttach.LightBright.Color = color.Value
