@@ -469,7 +469,7 @@ function CrucifixEntity(entityTable, tool)
                                 ColorSequenceKeypoint.new(0, color.Value),
                                 ColorSequenceKeypoint.new(1, color.Value)
                             }
-                        elseif d.Name == "Crucifix" then
+                        elseif d.Name == "Handle" then
                             d.Color = color.Value
                         end
                     end
@@ -535,7 +535,7 @@ function CrucifixEntity(entityTable, tool)
 					if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
 						d.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, color.Value), ColorSequenceKeypoint.new(1, color.Value)}
 
-					elseif d.Name == "Crucifix" then
+					elseif d.Name == "Handle" then
 						d.Color = color.Value
 					end
 				end
@@ -563,9 +563,9 @@ function CrucifixEntity(entityTable, tool)
 	    end
 	end)
 	
-	TweenService:Create(repentance.Crucifix, TweenInfo.new(1), { Size = repentance.Crucifix.Size * 3, Transparency = 1 }):Play()
+	TweenService:Create(repentance.Crucifix.Handle, TweenInfo.new(1), { Size = repentance.Crucifix.Handle.Size * 3, Transparency = 1 }):Play()
 	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
-	TweenService:Create(repentance.Crucifix.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
+	TweenService:Create(repentance.Crucifix.Handle.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 
 	if not resist then
 		repentance.Crucifix.Handle.ExplodeParticle:Emit(math.random(20, 30))
