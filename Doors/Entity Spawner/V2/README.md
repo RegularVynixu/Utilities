@@ -6,8 +6,8 @@
 - Added Curious Crucifixion
     - The effect of Curious appears when the entity is crucifixion.
 ---
-- Added Following
-    - When the entity is within a defined range from the player, it begins to follow the player (Similar to A-120).
+- Added Achievement
+    - Achievement is unlocked when you survive the entity.
 ---
 - Added Jumpscare
     - Jumpscare is enabled when a player is killed by an entity.
