@@ -6,7 +6,7 @@
 - Added Curious Crucifixion
     - The effect of Curious appears when the entity is crucifixion.
 ---
-- Added Achievements
+- Added Achievement
     - Achievement is unlocked when you survive the entity.
     - Achievement is unlocked when you used crucifix against the entity.
     - Achievement is unlocked when you died to the entity.

@@ -40,11 +40,7 @@ local entity = spawner.Create({
 	Movement = {
 		Speed = 100,
 		Delay = 2,
-		Reversed = false,
-		Following = {
-		    Enabled = false,
-		    Range = 100
-		}
+		Reversed = false
 	},
 	Rebounding = {
 		Enabled = true,
@@ -61,19 +57,38 @@ local entity = spawner.Create({
 	Jumpscare = {
 	    Enabled = false,
 	    Face = "rbxassetid://0",
-	    FacePosition = UDim2.new(0.5, 0, 0.5, 0),
-	    FaceSize = UDim2.new(0, 150, 0, 150),
+	    FacePosition = UDim2.new(0.5, 0, 0.5, 0)
+	    FaceSize = UDim2.new(0, 150, 0, 150)
 	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
 	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
 	    Sound = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
 	    SoundVolume = 5
 	},
-	Achievement = {
-	    Enabled = true,
-	    Title = "Title",
-	    Desc = "Description",
-	    Reason = "Reason",
-	    Image = "rbxassetid://12309073114"
+	Achievements = {
+	    Survive = {
+	        Enabled = true,
+	        Once = false,
+	        Title = "Title",
+	        Desc = "Description",
+	        Reason = "Reason",
+	        Image = "rbxassetid://12309073114"
+	    },
+	    Crucifix = {
+	        Enabled = true,
+	        Once = false,
+	        Title = "Title",
+	        Desc = "Description",
+	        Reason = "Reason",
+	        Image = "rbxassetid://12309073114"
+	    },
+	    Death = {
+	        Enabled = false,
+	        Once = false,
+	        Title = "Title",
+	        Desc = "Description",
+	        Reason = "Reason",
+	        Image = "rbxassetid://12309073114"
+	    }
 	},
 	Crucifixion = {
 	    Type = "Guiding", -- "Curious"
