@@ -430,6 +430,7 @@ function CrucifixEntity(entityTable, tool)
                             d.Color = color.Value
                         end
                     end
+                    task.wait()
                 end
 
                 if pentagram.Base.LightAttach.LightBright then
@@ -439,7 +440,6 @@ function CrucifixEntity(entityTable, tool)
                 if crucifix.Light then
                     crucifix.Light.Color = color.Value
                 end
-                task.wait()
             end)
         end
             
@@ -738,21 +738,23 @@ function EntityMoveTo(model, cframe, speed, config, entityTable)
 			local magnitude = difference.Magnitude
 
             if config.Movement.Following.Enabled then
-                local playerDistance = GetDistanceToPlayer(model)
-                if playerDistance <= config.Movement.Following.Range then
-                    local playerDirection = (localCollision.Position - pivot.Position).Unit
+                pcall(function()
+                    local playerDistance = GetDistanceToPlayer(model)
+                    if playerDistance <= config.Movement.Following.Range then
+                        local playerDirection = (localCollision.Position - pivot.Position).Unit
                     
-                    model:PivotTo(pivot + playerDirection * (step * speed))
+                        model:PivotTo(pivot + playerDirection * (step * speed))
                     
-                    if playerDistance < 5 then
-                        connection:Disconnect()
-                        reached = true
+                        if playerDistance < 5 then
+                            connection:Disconnect()
+                            reached = true
                         
-                        entityTable.RunCallback(entityTable, "OnReturningToPath") -- OnReturningToPath
-                        EntityMoveTo(model, originalCFrame, speed, config, entityTable)
+                            entityTable.RunCallback(entityTable, "OnReturningToPath") -- OnReturningToPath
+                            EntityMoveTo(model, originalCFrame, speed, config, entityTable)
+                        end
+                        return
                     end
-                    return
-                end
+                end)
             end
 
 			if magnitude > 0.1 then
