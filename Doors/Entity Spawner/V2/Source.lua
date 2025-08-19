@@ -46,6 +46,10 @@ local colourCurious = Color3.fromRGB(253, 255, 133)
 
 local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/Utilities/refs/heads/patch-1/Doors/Custom%20Achievements/Source.lua"))()
 
+if not _G.achievementUnlock then
+    _G.achievementUnlock = {}
+end
+
 local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
