@@ -68,25 +68,25 @@ local entity = spawner.Create({
 	    Survive = {
 	        Enabled = true,
 	        Once = false,
-	        Title = "Title",
-	        Desc = "Description",
-	        Reason = "Reason",
+	        Title = "Survive Title",
+	        Desc = "Survive Description",
+	        Reason = "Survive Reason",
 	        Image = "rbxassetid://12309073114"
 	    },
 	    Crucifix = {
 	        Enabled = true,
-	        Once = false,
-	        Title = "Title",
-	        Desc = "Description",
-	        Reason = "Reason",
+	        Once = true,
+	        Title = "Crucifix Title",
+	        Desc = "Crucifix Description",
+	        Reason = "Crucifix Reason",
 	        Image = "rbxassetid://12309073114"
 	    },
 	    Death = {
 	        Enabled = false,
 	        Once = false,
-	        Title = "Title",
-	        Desc = "Description",
-	        Reason = "Reason",
+	        Title = "Death Title",
+	        Desc = "Death Description",
+	        Reason = "Death Reason",
 	        Image = "rbxassetid://12309073114"
 	    }
 	},
