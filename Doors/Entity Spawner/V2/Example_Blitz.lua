@@ -143,10 +143,13 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 end)
 
 entity:SetCallback("OnCrucified", function()
-    for _, c in AttachmentSwitch:GetChildren() do
+    for _, c in attachment:GetChildren() do
 		c.Enabled = true
 	end
-    for _, c in attachment:GetChildren() do
+	task.wait()
+    for _, c in AttachmentSwitch:GetChildren() do
+        c.Enabled = false
+        task.wait()
 		c.Enabled = true
 	end
 end)
