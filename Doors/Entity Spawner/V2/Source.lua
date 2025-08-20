@@ -473,15 +473,15 @@ function CrucifixEntity(entityTable, tool)
                             d.Color = color.Value
                         end
                     end
+
+                    if pentagram.Base.LightAttach.LightBright then
+                        pentagram.Base.LightAttach.LightBright.Color = color.Value
+                    end
+
+                    if crucHandle.Light then
+                        crucHandle.Light.Color = color.Value
+                    end
                     task.wait()
-                end
-
-                if pentagram.Base.LightAttach.LightBright then
-                    pentagram.Base.LightAttach.LightBright.Color = color.Value
-                end
-
-                if crucHandle.Light then
-                    crucHandle.Light.Color = color.Value
                 end
             end)
         end
@@ -556,15 +556,7 @@ function CrucifixEntity(entityTable, tool)
 	end
 
 	-- Crucifix explode
-	task.spawn(function()
-	    for _, c in crucHandle.Shards:GetChildren() do
-	        if c:IsA("BasePart") then
-	            TweenService:Create(c, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.In), { CFrame = c.CFrame - Vector3.new(0, 25, 0) }):Play()
-	            task.wait(2)
-	            c:Destroy()
-	        end
-	    end
-	end)
+	crucHandle.Shards:Destroy()
 	
 	TweenService:Create(crucHandle.Glow, TweenInfo.new(1), { Size = crucHandle.Glow.Size * 3, Transparency = 1 }):Play()
 	TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
