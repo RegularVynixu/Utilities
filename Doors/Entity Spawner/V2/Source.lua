@@ -1110,7 +1110,7 @@ spawner.Run = function(entityTable)
 						do
 							local c = config.Crucifixion
 							if c.Enabled and c.Range > 0 and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
-								local hasTool, tool = PlayerHasItemEquipped("LocalCrucifix")
+								local hasTool, tool = PlayerHasItemEquipped("Crucifix")
 								if hasTool and tool and not model:GetAttribute("BeingBanished") then
 									-- Crucifixion
 									if typeof(debug.CrucifixionOverwrite) == "function" then
