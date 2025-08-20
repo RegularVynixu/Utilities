@@ -6,7 +6,7 @@
 - Added Curious Light Crucifixion
     - The effect of Curious Light appears when the entity is crucifixion.
 ---
-- Added Achievement
+- Added Achievements
     - Achievement is unlocked when you survive the entity.
     - Achievement is unlocked when you used crucifix against the entity.
     - Achievement is unlocked when you died to the entity.
