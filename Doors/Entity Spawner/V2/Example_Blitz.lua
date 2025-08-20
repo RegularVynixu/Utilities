@@ -106,12 +106,14 @@ local entity = spawner.Create({
 
 ---====== Debug entity ======---
 
+local entityModel = entity.Model
+local main = entityModel:WaitForChild("Main")
+
+local attachment = main:WaitForChild("Attachment")
+local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
+
 entity:SetCallback("OnRebounding", function(startOfRebound)
 	-- Variables for the entity
-	local entityModel = entity.Model
-	local main = entityModel:WaitForChild("Main")
-	local attachment = main:WaitForChild("Attachment")
-	local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
 	local sounds = {
 		footsteps = main:WaitForChild("Footsteps"),
 		playSound = main:WaitForChild("PlaySound"),
@@ -137,6 +139,15 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 		sounds.footsteps.PlaybackSpeed = 0.25
 		sounds.playSound.PlaybackSpeed = 0.16
 		sounds.switchBack:Play()
+	end
+end)
+
+entity:SetCallback("OnCrucified", function()
+    for _, c in attachment:GetChildren() do
+		c.Enabled = true
+	end
+	for _, c in AttachmentSwitch:GetChildren() do
+		c.Enabled = true
 	end
 end)
 
