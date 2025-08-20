@@ -397,11 +397,10 @@ function CrucifixEntity(entityTable, tool)
 	model:SetAttribute("BeingBanished", true)
 
 	local repentance = assets.Repentance:Clone()
-	local crucifix = repentance.Crucifix
-	local crucHandle = crucifix:FindFirstChild("Handle")
+	local crucifix = repentance.Crucifix.Handle
 	local pentagram = repentance.Pentagram
 	local entityPart = repentance.Entity
-	local sound = (config.Crucifixion.Resist and crucHandle.SoundFail or crucHandle.Sound)
+	local sound = (config.Crucifixion.Resist and crucifix.SoundFail or crucifix.Sound)
 	local shaker = moduleScripts.Main_Game.camShaker:StartShake(5, 20, 2, Vector3.new())
 
 	local function waitUntil(t)
@@ -422,7 +421,7 @@ function CrucifixEntity(entityTable, tool)
 	repentance:PivotTo(CFrame.new(result.Position))
 	crucifix:PivotTo(toolPivot)
 	repentance.Entity.CFrame = entityPivot
-    crucHandle.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
+    crucifix.BodyPosition.Position = (localCollision.CFrame * CFrame.new(0.5, 3, -6)).Position
 	repentance.Parent = workspace
 	sound:Play()
 
@@ -439,12 +438,12 @@ function CrucifixEntity(entityTable, tool)
 
 	-- Animation
 	TweenService:Create(pentagram.Circle, TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { CFrame = pentagram.Circle.CFrame - Vector3.new(0, 25, 0) }):Play()
-	TweenService:Create(crucHandle.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
+	TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
 	task.delay(2, pentagram.Circle.Destroy, pentagram.Circle)
 
     task.spawn(function()
         for _, d in repentance:GetDescendants() do
-            if d.ClassName == "Beam" then
+            if d:IsA("Beam") then
                 d.Enabled = true
             end
         end
@@ -469,7 +468,7 @@ function CrucifixEntity(entityTable, tool)
                                 ColorSequenceKeypoint.new(0, color.Value),
                                 ColorSequenceKeypoint.new(1, color.Value)
                             }
-                        elseif d.Name == "Handle" then
+                        elseif d.Name == "Glow" then
                             d.Color = color.Value
                         end
                     end
@@ -480,8 +479,8 @@ function CrucifixEntity(entityTable, tool)
                     pentagram.Base.LightAttach.LightBright.Color = color.Value
                 end
 
-                if crucHandle.Light then
-                    crucHandle.Light.Color = color.Value
+                if crucifix.Light then
+                    crucifix.Light.Color = color.Value
                 end
             end)
         end
@@ -490,7 +489,7 @@ function CrucifixEntity(entityTable, tool)
 			Brightness = 5,
 			Range = 40
 		}):Play()
-		TweenService:Create(crucHandle.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
 			Brightness = 11.25,
 			Range = 30
 		}):Play()
@@ -499,16 +498,16 @@ function CrucifixEntity(entityTable, tool)
 			Brightness = 0,
 			Range = 0
 		}):Play()
-		TweenService:Create(crucHandle.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
 			Brightness = 0,
 			Range = 0
 		}):Play()
 
 		if resist == false then
-			TweenService:Create(crucHandle.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
+			TweenService:Create(crucifix.Light, TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 15, Range = 40 }):Play()
 			shaker:StartFadeOut(3)
 			fadeOut()
-			TweenService:Create(crucHandle.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+			TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		end
 	end)
 
@@ -519,9 +518,9 @@ function CrucifixEntity(entityTable, tool)
 		waitUntil(6.75)
 	else
 		waitUntil(4)
-		TweenService:Create(crucHandle.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
+		TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { AngularVelocity = Vector3.new() }):Play()
 		TweenService:Create(pentagram.Base.LightAttach.LightBright, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
-		TweenService:Create(crucHandle.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
+		TweenService:Create(crucifix.Light, TweenInfo.new(1.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), { Brightness = 0, Range = 0, Color = Color3.fromRGB(255, 116, 130) }):Play()
 		shaker:StartFadeOut(3)
 		task.spawn(function()
 			local color = Instance.new("Color3Value")
@@ -535,7 +534,7 @@ function CrucifixEntity(entityTable, tool)
 					if d.ClassName == "Beam" or d.ClassName == "ParticleEmitter" then
 						d.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, color.Value), ColorSequenceKeypoint.new(1, color.Value)}
 
-					elseif d.Name == "Handle" then
+					elseif d.Name == "Glow" then
 						d.Color = color.Value
 					end
 				end
@@ -557,13 +556,15 @@ function CrucifixEntity(entityTable, tool)
 
 	-- Crucifix explode
 	task.spawn(function()
-	    for _, c in crucHandle.Shards:GetChildren() do
-	        c.Anchored = false
-	        c.CanCollide = true
+	    for _, d in crucifix.Shards:GetDescendants() do
+	        if d:IsA("BasePart") then
+	            d.Anchored = false
+	            d.CanCollide = true
+	        end
 	    end
 	end)
 	
-	TweenService:Create(repentance.Crucifix.Handle, TweenInfo.new(1), { Size = repentance.Crucifix.Handle.Size * 3, Transparency = 1 }):Play()
+	TweenService:Create(repentance.Crucifix.Handle.Glow, TweenInfo.new(1), { Size = repentance.Crucifix.Handle.Size * 3, Transparency = 1 }):Play()
 	TweenService:Create(repentance.Pentagram.Base.LightAttach.LightBright, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 	TweenService:Create(repentance.Crucifix.Handle.Light, TweenInfo.new(1), { Brightness = 0, Range = 0 }):Play()
 
