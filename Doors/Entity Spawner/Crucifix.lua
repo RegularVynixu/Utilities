@@ -1,2 +1,8 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local backpack = player.Backpack
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
-LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Doors/Item%20Spawner/Assets/Crucifix.rbxm").Parent = game:GetService("Players").LocalPlayer.Backpack
+local crucifix = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Doors/Item%20Spawner/Assets/Crucifix.rbxm")
+crucifix.Name = "LocalCrucifix"
+crucifix.Parent = backpack
