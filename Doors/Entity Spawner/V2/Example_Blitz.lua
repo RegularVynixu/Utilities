@@ -112,6 +112,9 @@ local main = entityModel:WaitForChild("Main")
 local attachment = main:WaitForChild("Attachment")
 local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
 
+local ogState = attachment:WaitForChild("ParticleEmitter").Enabled
+    local ogSwitchState = AttachmentSwitch:WaitForChild("ParticleEmitter").Enabled
+
 entity:SetCallback("OnRebounding", function(startOfRebound)
 	-- Variables for the entity
 	local sounds = {
@@ -143,15 +146,23 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 end)
 
 entity:SetCallback("CrucifixionOverwrite", function()
-    for _, c in attachment:GetChildren() do
-        if not c.Enabled then
-		    c.Enabled = true
-		end
-	end
-    for _, c in AttachmentSwitch:GetChildren() do
-        if not c.Enabled then
-		    c.Enabled = true
-		end
+    local function Particle(attach, bool)
+        for _, c in attach:GetChildren() do
+            if not c.Enabled then
+		        c.Enabled = bool
+		    end
+	    end
+    end
+
+    if entity.Crucifixion.Resist then
+        Particle(attachment, true)
+        Particle(AttachmentSwitch, true)
+	    task.wait(9.625)
+	    Particle(attachment, ogState)
+	    Particle(AttachmentSwitch, ogSwitchState)
+	else
+	    Particle(attachment, true)
+        Particle(AttachmentSwitch, true)
 	end
 end)
 
