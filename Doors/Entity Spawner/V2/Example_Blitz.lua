@@ -20,6 +20,7 @@ local entity = spawner.Create({
 		ColorCorrection = {
 		    Enabled = false,
 		    Color = Color3.fromRGB(255, 0, 0),
+		    CameraShake = {10, 5, 2, 5},
 		    Sound = {
 		        SoundId = "rbxassetid://0",
 		        Volume = 1

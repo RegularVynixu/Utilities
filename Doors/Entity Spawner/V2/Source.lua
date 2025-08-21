@@ -109,6 +109,7 @@ local defaultConfig = {
 		ColorCorrection = {
 		    Enabled = false,
 		    Color = Color3.fromRGB(255, 0, 0), -- Color3.new
+		    CameraShake = {10, 5, 2, 5},
 		    Sound = {
 		        SoundId = "rbxassetid://0", -- "URL?raw=true",
 		        Volume = 1
@@ -1025,6 +1026,16 @@ spawner.Run = function(entityTable)
                     task.wait(config.Lights.ColorCorrection.FadeOut)
                     colorCorrection:Destroy()
                 end)
+                
+                local CameraShaker = require(ReplicatedStorage.CameraShaker)
+                local cameraShake = config.Lights.ColorCorrection.CameraShake
+                
+                local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+                    localCamera.CFrame = localCamera.CFrame * shakeCf
+                end)
+                camShake:Start()
+                camShake:ShakeOnce(cameraShake)
+                
                 task.wait(config.Lights.ColorCorrection.Duration)
             end
             

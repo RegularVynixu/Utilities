@@ -15,4 +15,4 @@
     - Jumpscare is enabled when a player is killed by an entity.
 ---
 - Added ColorCorrection effect
-    - Create a "ColorCorrectionEffect" visual effect when the entity is spawned.
+    - Create "ColorCorrectionEffect" visual effect when the entity is spawned.
