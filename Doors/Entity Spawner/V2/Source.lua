@@ -992,22 +992,10 @@ spawner.Run = function(entityTable)
 		end
 	
 		if spawnPoint then
-			-- Spawning
-			model:PivotTo(spawnPoint.CFrame + Vector3.new(0, config.Entity.HeightOffset, 0))
-			model.Parent = workspace
-			task.spawn(entityTable.RunCallback, entityTable, "OnSpawned") -- OnSpawned
-	
-			-- Flickering lights
-			if config.Lights.Flicker.Enabled then
-				local currentRoom = GetCurrentRoom(false)
-				if currentRoom then
-					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
-				end
-			end
-			-- Color Correction effect
+		    -- Color Correction effect
 		    if config.Lights.ColorCorrection.Enabled then
                 local colorCorrection = Instance.new("ColorCorrectionEffect")
-                colorCorrection.Name = "EntityPreEffect"
+                colorCorrection.Name = "EntityEffect"
                 colorCorrection.TintColor = config.Lights.ColorCorrection.Color
                 colorCorrection.Parent = localCamera
                 
@@ -1020,9 +1008,6 @@ spawner.Run = function(entityTable)
                         sound.Parent = localCamera
                         sound:Play()
                         
-                        TweenService:Create(sound, TweenInfo.new(config.Lights.ColorCorrection.FadeOut, Enum.EasingStyle.Linear), {
-                            Volume = 0
-                        }):Play()
                         task.delay(config.Lights.ColorCorrection.Duration, sound.Destroy, sound)
                     end
                     
@@ -1042,6 +1027,19 @@ spawner.Run = function(entityTable)
                 end)
                 task.wait(config.Lights.ColorCorrection.Duration)
             end
+            
+			-- Spawning
+			model:PivotTo(spawnPoint.CFrame + Vector3.new(0, config.Entity.HeightOffset, 0))
+			model.Parent = workspace
+			task.spawn(entityTable.RunCallback, entityTable, "OnSpawned") -- OnSpawned
+	
+			-- Flickering lights
+			if config.Lights.Flicker.Enabled then
+				local currentRoom = GetCurrentRoom(false)
+				if currentRoom then
+					moduleScripts.Module_Events.flicker(currentRoom, config.Lights.Flicker.Duration)
+				end
+			end
 			-- Earthquake
 			if config.Earthquake.Enabled then
 				task.defer(moduleScripts.Earthquake, moduleScripts.Main_Game, currentRoom)
