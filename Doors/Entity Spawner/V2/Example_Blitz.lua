@@ -142,13 +142,12 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 	end
 end)
 
-entity:SetCallback("OnCrucified", function()
+entity:SetCallback("CrucifixionOverwrite", function()
     for _, c in attachment:GetChildren() do
         if not c.Enabled then
 		    c.Enabled = true
 		end
 	end
-	task.wait()
     for _, c in AttachmentSwitch:GetChildren() do
         if not c.Enabled then
 		    c.Enabled = true
