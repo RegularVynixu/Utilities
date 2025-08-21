@@ -12,15 +12,6 @@ Fixed & Modified by FOCUSED_LIGHT (Unofficial)
 
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
 
--- Get GitAssets
-function GetGitSound(GithubSnd, SoundName)
-    local url = GithubSnd
-    if not isfile(SoundName..".mp3") then
-	    writefile(SoundName..".mp3", game:HttpGet(url))
-	end
-	return (getcustomasset or getsynasset)(SoundName..".mp3")
-end
-
 -- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -119,7 +110,7 @@ local defaultConfig = {
 		    Enabled = false,
 		    Color = Color3.fromRGB(255, 0, 0), -- Color3.new
 		    Sound = {
-		        SoundId = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
+		        SoundId = "rbxassetid://0", -- "URL?raw=true",
 		        Volume = 1
 		    },
 		    Duration = 5,
@@ -142,7 +133,7 @@ local defaultConfig = {
 	    FaceSize = UDim2.new(0, 150, 0, 150),
 	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
 	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
-	    Sound = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
+	    Sound = "rbxassetid://0", -- URL?raw=true",
 	    SoundVolume = 5
 	},
 	Achievements = {
@@ -607,7 +598,7 @@ function CreateJumpscare(jumpscareConfig)
 	Face.ImageTransparency = 1
 
 	scareSound.Name = "Scare"
-	scareSound.SoundId = jumpscareConfig.Sound
+	scareSound.SoundId = LoadCustomAsset(jumpscareConfig.Sound)
 	scareSound.Volume = jumpscareConfig.SoundVolume
 	scareSound.Parent = JumpscareGui
 
@@ -1024,7 +1015,7 @@ spawner.Run = function(entityTable)
                 task.spawn(function()
                     if config.Lights.ColorCorrection.Sound and config.Lights.ColorCorrection.Sound.SoundId then
                         local sound = Instance.new("Sound")
-                        sound.SoundId = config.Lights.ColorCorrection.Sound.SoundId
+                        sound.SoundId = LoadCustomAsset(config.Lights.ColorCorrection.Sound.SoundId)
                         sound.Volume = config.Lights.ColorCorrection.Sound.Volume
                         sound.Parent = localCamera
                         sound:Play()

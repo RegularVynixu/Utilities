@@ -21,7 +21,7 @@ local entity = spawner.Create({
 		    Enabled = false,
 		    Color = Color3.fromRGB(255, 0, 0), -- Color3.new
 		    Sound = {
-		        SoundId = "rbxassetid://0", -- GetGitSound("URL?raw=true", "Name"),
+		        SoundId = "rbxassetid://0", -- URL?raw=true",
 		        Volume = 1
 		    },
 		    Duration = 5,
@@ -61,7 +61,7 @@ local entity = spawner.Create({
 	    FaceSize = UDim2.new(0, 150, 0, 150),
 	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
 	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
-	    Sound = "rbxassetid://10483790459", -- GetGitSound("URL?raw=true", "Name"),
+	    Sound = "rbxassetid://10483790459", -- "URL?raw=true",
 	    SoundVolume = 5
 	},
 	Achievements = {

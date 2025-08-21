@@ -91,7 +91,7 @@ local entity = spawner.Create({
 	    }
 	},
 	Crucifixion = {
-	    Type = "Curious", -- "Guiding"
+	    Type = "Curious",
 		Enabled = true,
 		Range = 40,
 		Resist = false,
@@ -144,13 +144,15 @@ end)
 
 entity:SetCallback("OnCrucified", function()
     for _, c in attachment:GetChildren() do
-		c.Enabled = true
+        if not c.Enabled then
+		    c.Enabled = true
+		end
 	end
 	task.wait()
     for _, c in AttachmentSwitch:GetChildren() do
-        c.Enabled = false
-        task.wait()
-		c.Enabled = true
+        if not c.Enabled then
+		    c.Enabled = true
+		end
 	end
 end)
 
