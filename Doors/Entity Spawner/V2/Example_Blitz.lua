@@ -107,17 +107,13 @@ local entity = spawner.Create({
 
 ---====== Debug entity ======---
 
-local entityModel = entity.Model
-local main = entityModel:WaitForChild("Main")
-
-local attachment = main:WaitForChild("Attachment")
-local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
-
-local ogState = attachment:WaitForChild("ParticleEmitter").Enabled
-    local ogSwitchState = AttachmentSwitch:WaitForChild("ParticleEmitter").Enabled
-
 entity:SetCallback("OnRebounding", function(startOfRebound)
 	-- Variables for the entity
+	local entityModel = entity.Model
+    local main = entityModel:WaitForChild("Main")
+
+    local attachment = main:WaitForChild("Attachment")
+    local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
 	local sounds = {
 		footsteps = main:WaitForChild("Footsteps"),
 		playSound = main:WaitForChild("PlaySound"),
@@ -143,33 +139,6 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 		sounds.footsteps.PlaybackSpeed = 0.25
 		sounds.playSound.PlaybackSpeed = 0.16
 		sounds.switchBack:Play()
-	end
-end)
-
-entity:SetCallback("CrucifixionOverwrite", function()
-	local hasTool, tool = PlayerHasItemEquipped("Crucifix")
-	if hasTool and tool and not entityModel:GetAttribute("BeingBanished") then
-		entityModel:SetAttribute("Paused", true)
-		CrucifixEntity(entity, tool)
-	end
-
-    local function Particle(attach, bool)
-        for _, c in attach:GetChildren() do
-            if not c.Enabled then
-		        c.Enabled = bool
-		    end
-	    end
-    end
-
-    if entity.Crucifixion.Resist then
-        Particle(attachment, true)
-        Particle(AttachmentSwitch, true)
-	    task.wait(9.625)
-	    Particle(attachment, ogState)
-	    Particle(AttachmentSwitch, ogSwitchState)
-	else
-	    Particle(attachment, true)
-        Particle(AttachmentSwitch, true)
 	end
 end)
 
