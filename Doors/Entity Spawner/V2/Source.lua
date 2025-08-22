@@ -44,6 +44,8 @@ end
 local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
+local LoadCustomAsset = vynixuModules.Functions.LoadCustomAsset
+local LoadCustomInstance = vynixuModules.Functions.LoadCustomInstance
 local assets = {
 	Repentance = LoadCustomInstance("https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/Assets/Repentance.rbxm?raw=true")
 }
@@ -331,14 +333,14 @@ function UnlockAchievement(achievement)
             Title = title,
             Desc = achievement.Desc,
             Reason = achievement.Reason,
-            Image = achievement.Image
+            Image = LoadCustomAsset(achievement.Image)
         })
     elseif not _G.achievementUnlock[title] then
         achievementGiver({
             Title = title,
             Desc = achievement.Desc,
             Reason = achievement.Reason,
-            Image = achievement.Image
+            Image = LoadCustomAsset(achievement.Image)
         })
         _G.achievementUnlock[title] = true
     end
@@ -572,39 +574,39 @@ function PlayerIsProtected()
 end
 
 function CreateJumpscare(jumpscareConfig)
-	local JumpscareGui = Instance.new("ScreenGui")
-	local Background = Instance.new("Frame")
-	local Face = Instance.new("ImageLabel")
-	local scareSound = Instance.new("Sound")
-	
-	JumpscareGui.Name = "JumpscareGui"
-	JumpscareGui.IgnoreGuiInset = true
-	JumpscareGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	JumpscareGui.Parent = playerGui
-	JumpscareGui.Enabled = true
+    local JumpscareGui = Instance.new("ScreenGui")
+    local Background = Instance.new("Frame")
+    local Face = Instance.new("ImageLabel")
+    local scareSound = Instance.new("Sound")
+    
+    JumpscareGui.Name = "JumpscareGui"
+    JumpscareGui.IgnoreGuiInset = true
+    JumpscareGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    JumpscareGui.Parent = playerGui
+    JumpscareGui.Enabled = true
 
-	Background.Name = "Background"
-	Background.BackgroundColor3 = jumpscareConfig.BackgroundColor
-	Background.BorderSizePixel = 0
-	Background.Size = UDim2.new(1, 0, 1, 0)
-	Background.ZIndex = 999
+    Background.Name = "Background"
+    Background.BackgroundColor3 = jumpscareConfig.BackgroundColor
+    Background.BorderSizePixel = 0
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.ZIndex = 999
 
-	Face.Name = "Face"
-	Face.AnchorPoint = Vector2.new(0.5, 0.5)
-	Face.BackgroundTransparency = 1
-	Face.Position = jumpscareConfig.FacePosition
-	Face.ResampleMode = Enum.ResamplerMode.Pixelated
-	Face.Size = jumpscareConfig.FaceSize
-	Face.Image = jumpscareConfig.Face
-	Face.ImageTransparency = 1
+    Face.Name = "Face"
+    Face.AnchorPoint = Vector2.new(0.5, 0.5)
+    Face.BackgroundTransparency = 1
+    Face.Position = jumpscareConfig.FacePosition
+    Face.ResampleMode = Enum.ResamplerMode.Pixelated
+    Face.Size = jumpscareConfig.FaceSize
+    Face.Image = LoadCustomAsset(jumpscareConfig.Face)
+    Face.ImageTransparency = 1
 
-	scareSound.Name = "Scare"
-	scareSound.SoundId = LoadCustomAsset(jumpscareConfig.Sound)
-	scareSound.Volume = jumpscareConfig.SoundVolume
-	scareSound.Parent = JumpscareGui
+    scareSound.Name = "Scare"
+    scareSound.SoundId = LoadCustomAsset(jumpscareConfig.Sound)
+    scareSound.Volume = jumpscareConfig.SoundVolume
+    scareSound.Parent = JumpscareGui
 
-	Background.Parent = JumpscareGui
-	Face.Parent = Background
+    Background.Parent = JumpscareGui
+    Face.Parent = Background
 	
 	task.spawn(function()
 		local startTime = tick()
