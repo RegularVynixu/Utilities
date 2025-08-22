@@ -147,6 +147,12 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 end)
 
 entity:SetCallback("CrucifixionOverwrite", function()
+	local hasTool, tool = PlayerHasItemEquipped("Crucifix")
+	if hasTool and tool and not entityModel:GetAttribute("BeingBanished") then
+		entityModel:SetAttribute("Paused", true)
+		CrucifixEntity(entity, tool)
+	end
+
     local function Particle(attach, bool)
         for _, c in attach:GetChildren() do
             if not c.Enabled then
