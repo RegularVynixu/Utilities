@@ -155,6 +155,16 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 	end
 end)
 
+entity:SetCallback("OnCrucified", function(stateResist)
+    print("Entity was crucified")
+    task.wait(3)
+	if stateResist == true then
+	    print("Entity is resisting the crucifixion")
+	else
+		print("The entity has been breaking by the crucifixion")
+	end
+end)
+
 --[[
 
 DEVELOPER NOTE:

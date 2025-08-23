@@ -44,8 +44,6 @@ end
 local vynixuModules = {
 	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 }
-local LoadCustomAsset = vynixuModules.Functions.LoadCustomAsset
-local LoadCustomInstance = vynixuModules.Functions.LoadCustomInstance
 local assets = {
 	Repentance = LoadCustomInstance("https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/Assets/Repentance.rbxm?raw=true")
 }
@@ -76,6 +74,7 @@ local defaultDebug = {
 	OnDespawning = function() end,
 	OnDespawned = function() end,
 	OnDamagePlayer = function() end,
+	OnCrucified = function() end,
 	CrucifixionOverwrite = ""
 }
 local defaultConfig = {
@@ -333,14 +332,14 @@ function UnlockAchievement(achievement)
             Title = title,
             Desc = achievement.Desc,
             Reason = achievement.Reason,
-            Image = LoadCustomAsset(achievement.Image)
+            Image = achievement.Image
         })
     elseif not _G.achievementUnlock[title] then
         achievementGiver({
             Title = title,
             Desc = achievement.Desc,
             Reason = achievement.Reason,
-            Image = LoadCustomAsset(achievement.Image)
+            Image = achievement.Image
         })
         _G.achievementUnlock[title] = true
     end
@@ -359,6 +358,7 @@ function CrucifixEntity(entityTable, tool)
 	local config = entityTable.Config
 
 	local resist = config.Crucifixion.Resist
+    local stateResist = resist
 
     local crucifixAchievement = config.Achievements.Crucifix
 
@@ -389,6 +389,8 @@ function CrucifixEntity(entityTable, tool)
 
 	-- Setup
 	model:SetAttribute("BeingBanished", true)
+
+    task.spawn(entityTable.RunCallback, entityTable, "OnCrucified", stateResist) -- OnCrucified
 
 	local repentance = assets.Repentance:Clone()
 	local crucifix = repentance.Crucifix
@@ -566,7 +568,18 @@ function CrucifixEntity(entityTable, tool)
 		fadeOut()
 		UnlockAchievement(crucifixAchievement)
 	end
-	task.delay(5, repentance.Destroy, repentance)
+	
+	if resist == false then
+	    task.delay(5, repentance.Destroy, repentance)
+	else
+	    for _, d in repentance:GetDescendants() do
+            if d:IsA("Sound") then
+                d.Parent = model
+                d.Ended:Connect(d.Destory, d)
+            end
+        end
+        task.delay(1, repentance.Destroy, repentance)
+	end
 end
 
 function PlayerIsProtected()
@@ -597,11 +610,11 @@ function CreateJumpscare(jumpscareConfig)
     Face.Position = jumpscareConfig.FacePosition
     Face.ResampleMode = Enum.ResamplerMode.Pixelated
     Face.Size = jumpscareConfig.FaceSize
-    Face.Image = LoadCustomAsset(jumpscareConfig.Face)
+    Face.Image = jumpscareConfig.Face
     Face.ImageTransparency = 1
 
     scareSound.Name = "Scare"
-    scareSound.SoundId = LoadCustomAsset(jumpscareConfig.Sound)
+    scareSound.SoundId = jumpscareConfig.Sound
     scareSound.Volume = jumpscareConfig.SoundVolume
     scareSound.Parent = JumpscareGui
 
@@ -1006,7 +1019,7 @@ spawner.Run = function(entityTable)
                 task.spawn(function()
                     if config.Lights.ColorCorrection.Sound and config.Lights.ColorCorrection.Sound.SoundId then
                         local sound = Instance.new("Sound")
-                        sound.SoundId = LoadCustomAsset(config.Lights.ColorCorrection.Sound.SoundId)
+                        sound.SoundId = config.Lights.ColorCorrection.Sound.SoundId
                         sound.Volume = config.Lights.ColorCorrection.Sound.Volume
                         sound.Parent = localCamera
                         sound:Play()
