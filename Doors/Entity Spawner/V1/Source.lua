@@ -10,7 +10,9 @@
 
     DEVELOPER NOTE:
     - THIS VERSION OF VYNIXU'S DOORS CUSTOM ENTITY SPAWNER IS NOW DEPRECATED
-    - V2 : https://github.com/RegularVynixu/Utilities/tree/main/Doors/Entity%20Spawner/V2
+    - V2 : https://github.com/RegularVynixu/Utilities/tree/main/Doors/Entity%20Spawner/V2 | X
+
+    - The original V2 is unavailable due to The Great Outdoors Update. Please check: "https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2"
 ]]--
 
 warn("\nTHIS VERSION OF VYNIXU'S DOORS CUSTOM ENTITY SPAWNER IS NOW DEPRECATED\nV2 : https://github.com/RegularVynixu/Utilities/tree/main/Doors/Entity%20Spawner/V2")

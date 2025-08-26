@@ -1,6 +1,6 @@
 ---====== Load spawner ======---
 
-local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Entity%20Spawner/V2/Source.lua"))()
+local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/Utilities/refs/heads/patch-1/Doors/Entity%20Spawner/V2/Source.lua"))()
 
 ---====== Create entity ======---
 
@@ -16,7 +16,19 @@ local entity = spawner.Create({
 			Duration = 1
 		},
 		Shatter = true,
-		Repair = false
+		Repair = false,
+		ColorCorrection = {
+		    Enabled = false,
+		    Color = Color3.fromRGB(255, 0, 0),
+		    CameraShake = {10, 5, 2, 5},
+		    Sound = {
+		        SoundId = "rbxassetid://0",
+		        Volume = 1
+		    },
+		    Duration = 5,
+		    FadeIn = 1,
+		    FadeOut = 2
+		}
 	},
 	Earthquake = {
 		Enabled = true
@@ -43,7 +55,44 @@ local entity = spawner.Create({
 		Range = 40,
 		Amount = 125
 	},
+	Jumpscare = {
+	    Enabled = false,
+	    Face = "rbxassetid://0",
+	    FacePosition = UDim2.new(0.5, 0, 0.5, 0),
+	    FaceSize = UDim2.new(0, 150, 0, 150),
+	    BackgroundColor = Color3.new(1, 1, 1),
+	    BackgroundColor2 = Color3.new(0, 0, 0),
+	    Sound = "rbxassetid://0",
+	    SoundVolume = 5
+	},
+	Achievements = {
+	    Survive = {
+	        Enabled = true,
+	        Once = false,
+	        Title = "Survive Title",
+	        Desc = "Survive Description",
+	        Reason = "Survive Reason",
+	        Image = "rbxassetid://12309073114"
+	    },
+	    Crucifix = {
+	        Enabled = true,
+	        Once = true,
+	        Title = "Crucifix Title",
+	        Desc = "Crucifix Description",
+	        Reason = "Crucifix Reason",
+	        Image = "rbxassetid://12309073114"
+	    },
+	    Death = {
+	        Enabled = false,
+	        Once = false,
+	        Title = "Death Title",
+	        Desc = "Death Description",
+	        Reason = "Death Reason",
+	        Image = "rbxassetid://12309073114"
+	    }
+	},
 	Crucifixion = {
+	    Type = "Curious",
 		Enabled = true,
 		Range = 40,
 		Resist = false,
@@ -61,9 +110,10 @@ local entity = spawner.Create({
 entity:SetCallback("OnRebounding", function(startOfRebound)
 	-- Variables for the entity
 	local entityModel = entity.Model
-	local main = entityModel:WaitForChild("Main")
-	local attachment = main:WaitForChild("Attachment")
-	local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
+    local main = entityModel:WaitForChild("Main")
+
+    local attachment = main:WaitForChild("Attachment")
+    local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
 	local sounds = {
 		footsteps = main:WaitForChild("Footsteps"),
 		playSound = main:WaitForChild("PlaySound"),
