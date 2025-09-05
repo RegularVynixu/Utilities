@@ -3,6 +3,10 @@
     - **Path Error Fixed**: "ClientModules" folder name changed to "ModulesClient".
     - **Crucifixion Bug Fixed**: Entity are also removed when Resist is enabled.
 ## Modified
+### Coming Soon
+- **Ignore Hiding Places**
+    - Let the entity ignore some hiding places.
+### Released
 - **Added Curious Light Crucifixion**
     - The effect of Curious Light appears when the entity is crucifixion.
 ---
