@@ -6,10 +6,10 @@
 ### Coming Soon
 - **Death Hints Isolation Floors**
     - When turned on, you can customize the death hints of each floor.
-### Released
+---
 - **Ignore Hiding Places**
     - Have the entity ignore some of the hiding places and damage the player directly.
----
+### Released
 - **Added Curious Light Crucifixion**
     - The effect of Curious Light appears when the entity is crucifixion.
 ---
