@@ -411,14 +411,14 @@ function CrucifixEntity(entityTable, tool)
 	end
 
     local soundInstances = {}
-    for _, descendant in ipairs(model:GetDescendants()) do
-        if descendant:IsA("Sound") then
+    for _, d in ipairs(model:GetDescendants()) do
+        if d:IsA("Sound") then
             table.insert(soundInstances, {
-                instance = descendant,
-                wasPlaying = descendant.IsPlaying,
-                timePosition = descendant.TimePosition
+                instance = d,
+                wasPlaying = d.IsPlaying,
+                timePosition = d.TimePosition
             })
-            descendant:Pause()
+            d:Pause()
         end
     end
 
@@ -1179,162 +1179,72 @@ spawner.Run = function(entityTable)
                             local c = config.Damage
                             local isHiding = localChar:GetAttribute("Hiding")
                             local shouldDamage = true
-    
+
                             if isHiding and c.IgnoreHiding.Enabled then
                                 if c.IgnoreHiding.Type == "All" then
                                     shouldDamage = true
                                 elseif c.IgnoreHiding.Type == "Partial" then
                                     shouldDamage = false
-            
-                                    local floor = game:GetService("ReplicatedStorage").GameData.Floor.Value
+
+                                    local Floor = game:GetService("ReplicatedStorage").GameData.Floor.Value
                                     local currentRoom = workspace.CurrentRooms[localPlayer:GetAttribute("CurrentRoom")]
-            
+
                                     if currentRoom and c.IgnoreHiding.HidingOptions then
                                         local hidingOptions = c.IgnoreHiding.HidingOptions
+                                        local floorOptions;
 
-                                        if floor == "Hotel" and hidingOptions.Hotel then
-                                            local hotelOpts = hidingOptions.Hotel
+                                        if Floor == "Garden" then
+                                            floorOptions = hidingOptions.Outdoors
+                                        else
+                                            floorOptions = hidingOptions[Floor]
+                                        end
 
-                                            if hotelOpts.Wardrobes then
-                                                for _, wardrobe in currentRoom:GetDescendants() do
-                                                    if wardrobe.Name == "Wardrobe" then
-                                                        local hiddenPlayer = wardrobe:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
+                                        if floorOptions then
+                                            local hidingSpots = {
+                                                Hotel = {
+                                                    {Name = "Wardrobe", Check = floorOptions.Wardrobes},
+                                                    {Name = "Bed", Check = floorOptions.Beds},
+                                                    {Name = "Double_Bed", Check = floorOptions.Beds},
+                                                    {Name = "Toolshed", Check = floorOptions.Toolshed}
+                                                },
+                                                Mines = {
+                                                    {Name = "Locker_Large", Check = floorOptions.LargeLockers},
+                                                    {Name = "CircularVent", Check = floorOptions.CircularVents},
+                                                    {Name = "Dumpster", Check = floorOptions.Dumpsters},
+                                                    {Name = "Toolshed", Check = floorOptions.Toolshed}
+                                                },
+                                                Backdoor = {
+                                                    {Name = "Backdoor_Wardrobe", Check = floorOptions.Wardrobes}
+                                                },
+                                                Rooms = {
+                                                    {Name = "Rooms_Locker", Check = floorOptions.Lockers},
+                                                    {Name = "Rooms_Locker_Fridge", Check = floorOptions.Fridges}
+                                                },
+                                                Outdoors = {
+                                                    {Name = "Toolshed", Check = floorOptions.Toolshed}
+                                                }
+                                            }
 
-                                            if not shouldDamage and hotelOpts.Beds then
-                                                for _, bed in currentRoom:GetDescendants() do
-                                                    if bed.Name == "Bed" or bed.Name == "Double_Bed" then
-                                                        local hiddenPlayer = bed:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-
-                                            if not shouldDamage and hotelOpts.Toolshed then
-                                                for _, toolshed in currentRoom:GetDescendants() do
-                                                    if toolshed.Name == "Toolshed" then
-                                                        local hiddenPlayer = toolshed:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-                    
-                                        elseif floor == "Mines" and hidingOptions.Mines then
-                                            local minesOpts = hidingOptions.Mines
-
-                                            if minesOpts.LargeLockers then
-                                                for _, locker in currentRoom:GetDescendants() do
-                                                    if locker.Name == "Locker_Large" then
-                                                        local hiddenPlayer = locker:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-
-                                            if not shouldDamage and minesOpts.CircularVents then
-                                                for _, vent in currentRoom:GetDescendants() do
-                                                    if vent.Name == "CircularVent" then
-                                                        local hiddenPlayer = vent:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-
-                                            if not shouldDamage and minesOpts.Dumpsters then
-                                                for _, dumpster in currentRoom:GetDescendants() do
-                                                    if dumpster.Name == "Dumpster" then
-                                                        local hiddenPlayer = dumpster:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-
-                                            if not shouldDamage and minesOpts.Toolshed then
-                                                for _, toolshed in currentRoom:GetDescendants() do
-                                                    if toolshed.Name == "Toolshed" then
-                                                        local hiddenPlayer = toolshed:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-
-                                        elseif floor == "Backdoor" and hidingOptions.Backdoor then
-                                            local backdoorOpts = hidingOptions.Backdoor
-
-                                            if backdoorOpts.Wardrobes then
-                                                for _, wardrobe in currentRoom:GetDescendants() do
-                                                    if wardrobe.Name == "Backdoor_Wardrobe" then
-                                                        local hiddenPlayer = wardrobe:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
+                                            local spots = hidingSpots[Floor]
+                                            if not spots and Floor == "Garden" then
+                                                spots = hidingSpots.Outdoors
                                             end
                     
-                                        elseif floor == "Rooms" and hidingOptions.Rooms then
-                                            local roomsOpts = hidingOptions.Rooms
-
-                                            if roomsOpts.Lockers then
-                                                for _, locker in currentRoom:GetDescendants() do
-                                                    if locker.Name == "Rooms_Locker" then
-                                                        local hiddenPlayer = locker:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
+                                            if spots then
+                                                for _, spot in pairs(spots) do
+                                                    if spot.Check then
+                                                        for _, d in currentRoom:GetDescendants() do
+                                                            if d.Name == spot.Name then
+                                                                local hiddenPlayer = d:FindFirstChild("HiddenPlayer")
+                                                                hiddenPlayer.Changed:Connect(function(v)
+                                                                    if v == localPlayer.Name then
+                                                                        shouldDamage = true
+                                                                        break
+                                                                    end
+                                                                end)
+                                                            end
                                                         end
-                                                    end
-                                                end
-                                            end
-
-                                            if not shouldDamage and roomsOpts.Fridges then
-                                                for _, fridge in currentRoom:GetDescendants() do
-                                                    if fridge.Name == "Rooms_Locker_Fridge" then
-                                                        local hiddenPlayer = fridge:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
-                                                    end
-                                                end
-                                            end
-                    
-                                        elseif floor == "Garden" and hidingOptions.Outdoors then
-                                            local outdoorsOpts = hidingOptions.Outdoors
-
-                                            if outdoorsOpts.Toolshed then
-                                                for _, toolshed in currentRoom:GetDescendants() do
-                                                    if toolshed.Name == "Toolshed" then
-                                                        local hiddenPlayer = toolshed:FindFirstChild("HiddenPlayer")
-                                                        if hiddenPlayer and hiddenPlayer.Value == localPlayer.Name then
-                                                            shouldDamage = true
-                                                            break
-                                                        end
+                                                        if shouldDamage then break end
                                                     end
                                                 end
                                             end
@@ -1344,7 +1254,7 @@ spawner.Run = function(entityTable)
                             else
                                 shouldDamage = not isHiding
                             end
-    
+
                             if c.Enabled and c.Range > 0 and localHum.Health > 0 and shouldDamage and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
                                 model:SetAttribute("Damage", false)
                                 DamagePlayer(entityTable)
