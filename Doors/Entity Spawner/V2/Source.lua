@@ -7,7 +7,7 @@
         \/  \__, |_| |_|_/_/\_\\__,_| |___/ |______|_| |_|\__|_|\__|\__, | |_____/| .__/ \__,_| \_/\_/ |_| |_|\___|_|        \/   |____|
              __/ |                                                   __/ |        | |                                                   
             |___/                                                   |___/         |_|
-    Fixed & Modified by FOCUSED_LIGHT (Unofficial)
+Fixed & Modified by FOCUSED_LIGHT (Unofficial)
 ]]--
 
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
@@ -91,42 +91,7 @@ local defaultConfig = {
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 125,
-		IgnoreHiding = {
-		    Type = "Partial", -- "All"
-		    Enabled = false,
-		    HidingOptions = { -- Partial's
-		        Hotel = {
-		            Wardrobes = false,
-		            Beds = true,
-		            Toolshed = false
-		        },
-		        Mines = {
-		            LargeLockers = false,
-		            CircularVents = true,
-		            Toolshed = false,
-		            Dumpsters = true
-		        },
-		        Backdoor = {
-		            Wardrobes = false
-		        },
-		        Rooms = {
-		            Lockers = false,
-		            Fridges = true
-		        },
-		        Outdoors = {
-		            Toolshed = false
-		        }--,
-		        --[[
-		        Retro = {
-		            Closets = false
-		        },
-		        Tools = {
-		            HidingBoxes = false
-		        }
-		        ]]
-		    }
-		}
+		Amount = 125
 	},
 	Rebounding = {
 		Enabled = true,
@@ -147,7 +112,7 @@ local defaultConfig = {
 		    Color = Color3.fromRGB(255, 0, 0), -- Color3.new
 		    CameraShake = {10, 5, 2, 5}, -- Magnitude, Roughness, FadeIn, FadeOut
 		    Sound = {
-		        SoundId = "rbxassetid://0", -- "URL?raw=true",
+		        SoundId = "rbxassetid://0",
 		        Volume = 1
 		    },
 		    Duration = 5,
@@ -170,7 +135,7 @@ local defaultConfig = {
 	    FaceSize = UDim2.new(0, 150, 0, 150),
 	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
 	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
-	    Sound = "rbxassetid://0", -- URL?raw=true",
+	    Sound = "rbxassetid://0",
 	    SoundVolume = 5
 	},
 	Achievements = {
@@ -207,39 +172,9 @@ local defaultConfig = {
 		Break = true
 	},
 	Death = {
-	    IsolationFloors = false,
-	    Unified = {
-		    Type = "Guiding", -- "Curious"
-		    Hints = {"Death", "Hints", "Go", "Here"}, -- Required!
-            Cause = ""
-        },
-        Floors = {
-            Hotel = {
-                Type = "Guiding", -- "Curious"
-		        Hints = {"Death", "Hints", "Go", "Here"},
-                Cause = ""
-            },
-            Mines = {
-                Type = "Guiding", -- "Curious"
-		        Hints = {"Death", "Hints", "Go", "Here"},
-                Cause = ""
-            },
-            Backdoor = {
-                Type = "Curious", -- "Guiding"
-		        Hints = {"Death", "Hints", "Go", "Here"},
-                Cause = ""
-            },
-            Rooms = {
-                Type = "Curious", -- "Guiding"
-		        Hints = {"Death", "Hints", "Go", "Here"},
-                Cause = ""
-            },
-            Outdoors = {
-                Type = "Curious", -- "Guiding"
-		        Hints = {"Death", "Hints", "Go", "Here"},
-                Cause = ""
-            }
-        }
+		Type = "Guiding", -- "Curious"
+		Hints = {"Death", "Hints", "Go", "Here"},
+        Cause = ""
 	}
 }
 local ambientStorage = {}
@@ -441,14 +376,14 @@ function CrucifixEntity(entityTable, tool)
 	end
 
     local soundInstances = {}
-    for _, d in ipairs(model:GetDescendants()) do
-        if d:IsA("Sound") then
+    for _, descendant in ipairs(model:GetDescendants()) do
+        if descendant:IsA("Sound") then
             table.insert(soundInstances, {
-                instance = d,
-                wasPlaying = d.IsPlaying,
-                timePosition = d.TimePosition
+                instance = descendant,
+                wasPlaying = descendant.IsPlaying,
+                timePosition = descendant.TimePosition
             })
-            d:Pause()
+            descendant:Pause()
         end
     end
 
@@ -714,79 +649,49 @@ function DamagePlayer(entityTable)
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
 
 		if newHealth == 0 then
-		    localPlayer:SetAttribute("Alive", false)
-		    
 		    -- Jumpscare
 		    if config.Jumpscare.Enabled then
 				CreateJumpscare(config.Jumpscare)
 			end
 		    
-		    -- Unlock achievement
+		    -- Achievement
 		    UnlockAchievement(deathAchievement)
 		    
 			-- Death hints
-            if #config.Death.Unified.Hints > 0 then
-                local deathConfig;
-                if config.Death.IsolationFloors then
-                    local Floor = gameData.Floor.Value
-                    if Floor == "Garden" then
-                        deathConfig = config.Death.Floors.Outdoors
-                    else
-                        deathConfig = config.Death.Floors[Floor] or config.Death.Unified
-                    end
-                else
-                    deathConfig = config.Death.Unified
-                end
-    
-                -- Get death type
-                local colour;
-                for name, values in deathTypes do
-                    if table.find(values, deathConfig.Type:lower()) then
-                        colour = name
-                    end
-                end
-                if not colour then
-                    for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
-                        if c.Name:lower() == deathConfig.Type:lower() then
-                            colour = c.Name
-                        end
-                    end
-                end
-                if not colour then
-                    colour = "Blue"
-                end
-    
-                -- Set death hints and type (thanks oogy)
-                if firesignal then
-                    firesignal(remotesFolder.DeathHint.OnClientEvent, deathConfig.Hints, colour)
-                else
-                    warn("firesignal not supported, ignore death hints.")
-                end
-            end
+			if #config.Death.Hints > 0 then
+				-- Get death type
+				local colour;
+				for name, values in deathTypes do
+					if table.find(values, config.Death.Type:lower()) then
+						colour = name
+					end
+				end
+				if not colour then
+					for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
+						if c.Name:lower() == config.Death.Type:lower() then
+							colour = c.Name
+						end
+					end
+				end
+				if not colour then
+					colour = "Blue"
+				end
+				
+				-- Set death hints and type (thanks oogy)
+				if firesignal then
+					firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
+				else
+					warn("firesignal not supported, ignore death hints.")
+				end
+			end
 
-            -- Set death cause
-            local deathCause = config.Entity.Name
-            if config.Death.Cause ~= "" then
-                deathCause = config.Death.Cause
-            end
-            local deathConfig;
-            if config.Death.IsolationFloors then
-                local Floor = gameData.Floor.Value
-                if Floor == "Garden" then
-                    deathConfig = config.Death.Floors.Outdoors
-                else
-                    deathConfig = config.Death.Floors[Floor] or config.Death.Unified
-                end
-            else
-                deathConfig = config.Death.Unified
-            end
-
-            if deathConfig.Cause ~= "" then
-                deathCause = deathConfig.Cause
-            end
-            deathCause = deathCause or config.Entity.Name
-            gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
-        end
+			-- Set death cause
+			local deathCause = config.Entity.Name
+			if config.Death.Cause ~= "" then
+				deathCause = config.Death.Cause
+			end
+			gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
+		end
 
 		-- Update health
 		localHum.Health = newHealth
@@ -1235,94 +1140,13 @@ spawner.Run = function(entityTable)
 						end
 	
 						-- Damage detection
-                        if not model:GetAttribute("Paused") and not usedCrucifix then
-                            local c = config.Damage
-                            local isHiding = localChar:GetAttribute("Hiding")
-                            local shouldDamage = true
-
-                            if isHiding and c.IgnoreHiding.Enabled then
-                                if c.IgnoreHiding.Type == "All" then
-                                    shouldDamage = true
-                                elseif c.IgnoreHiding.Type == "Partial" then
-                                    shouldDamage = false
-
-                                    local Floor = game:GetService("ReplicatedStorage").GameData.Floor.Value
-                                    local currentRoom = workspace.CurrentRooms[localPlayer:GetAttribute("CurrentRoom")]
-
-                                    if currentRoom and c.IgnoreHiding.HidingOptions then
-                                        local hidingOptions = c.IgnoreHiding.HidingOptions
-                                        local floorOptions;
-
-                                        if Floor == "Garden" then
-                                            floorOptions = hidingOptions.Outdoors
-                                        else
-                                            floorOptions = hidingOptions[Floor]
-                                        end
-
-                                        if floorOptions then
-                                            local hidingSpots = {
-                                                Hotel = {
-                                                    {Name = "Wardrobe", Check = floorOptions.Wardrobes},
-                                                    {Name = "Bed", Check = floorOptions.Beds},
-                                                    {Name = "Double_Bed", Check = floorOptions.Beds},
-                                                    {Name = "Toolshed", Check = floorOptions.Toolshed}
-                                                },
-                                                Mines = {
-                                                    {Name = "Locker_Large", Check = floorOptions.LargeLockers},
-                                                    {Name = "CircularVent", Check = floorOptions.CircularVents},
-                                                    {Name = "Dumpster", Check = floorOptions.Dumpsters},
-                                                    {Name = "Toolshed", Check = floorOptions.Toolshed}
-                                                },
-                                                Backdoor = {
-                                                    {Name = "Backdoor_Wardrobe", Check = floorOptions.Wardrobes}
-                                                },
-                                                Rooms = {
-                                                    {Name = "Rooms_Locker", Check = floorOptions.Lockers},
-                                                    {Name = "Rooms_Locker_Fridge", Check = floorOptions.Fridges}
-                                                },
-                                                Outdoors = {
-                                                    {Name = "Toolshed", Check = floorOptions.Toolshed}
-                                                }
-                                            }
-
-                                            local spots = hidingSpots[Floor]
-                                            if not spots and Floor == "Garden" then
-                                                spots = hidingSpots.Outdoors
-                                            end
-                    
-                                            if spots then
-                                                for _, spot in pairs(spots) do
-                                                    if spot.Check then
-                                                        for _, d in currentRoom:GetDescendants() do
-                                                            if d.Name == spot.Name then
-                                                                local hiddenPlayer = d:FindFirstChild("HiddenPlayer")
-                                                                if hiddenPlayer.Value == localPlayer.Name then
-                                                                    shouldDamage = true
-                                                                else
-                                                                    hiddenPlayer.Changed:Connect(function(v)
-                                                                        if v == localPlayer.Name then
-                                                                            shouldDamage = true
-                                                                        end
-                                                                    end)
-                                                                end
-                                                            end
-                                                        end
-                                                        if shouldDamage then break end
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            else
-                                shouldDamage = not isHiding
-                            end
-
-                            if c.Enabled and c.Range > 0 and localHum.Health > 0 and shouldDamage and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
-                                model:SetAttribute("Damage", false)
-                                DamagePlayer(entityTable)
-                            end
-                        end
+						if not model:GetAttribute("Paused") and not usedCrucifix then
+							local c = config.Damage
+							if c.Enabled and c.Range > 0 and localHum.Health > 0 and not localChar:GetAttribute("Hiding") and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
+								model:SetAttribute("Damage", false)
+								DamagePlayer(entityTable)
+							end
+						end
 	
 						-- Camera shaking
 						do
