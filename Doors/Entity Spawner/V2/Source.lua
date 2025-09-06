@@ -784,6 +784,7 @@ function DamagePlayer(entityTable)
             if deathConfig.Cause ~= "" then
                 deathCause = deathConfig.Cause
             end
+            deathCause = deathCause or config.Entity.Name
             gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
         end
 
