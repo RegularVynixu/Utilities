@@ -26,9 +26,4 @@
     - ~~This options has been deprecated.~~
 ---
 - **Added ColorCorrection effect**
-    - Create "ColorCorrectionEffect" visual effect when the entity is spawned.---
-- **~~Added~~ Removed Following**
-    - ~~This option has been deprecated.~~
----
-- **Added ColorCorrection effect**
     - Create "ColorCorrectionEffect" visual effect when the entity is spawned.
