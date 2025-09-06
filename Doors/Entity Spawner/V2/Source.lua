@@ -207,9 +207,39 @@ local defaultConfig = {
 		Break = true
 	},
 	Death = {
-		Type = "Guiding", -- "Curious"
-		Hints = {"Death", "Hints", "Go", "Here"},
-        Cause = ""
+	    IsolationFloors = false,
+	    Unified = {
+		    Type = "Guiding", -- "Curious"
+		    Hints = {"Death", "Hints", "Go", "Here"}, -- Required!
+            Cause = ""
+        },
+        Floors = {
+            Hotel = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Mines = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Backdoor = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Rooms = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Outdoors = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        }
 	}
 }
 local ambientStorage = {}
@@ -684,49 +714,78 @@ function DamagePlayer(entityTable)
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
 
 		if newHealth == 0 then
+		    localPlayer:SetAttribute("Alive", false)
+		    
 		    -- Jumpscare
 		    if config.Jumpscare.Enabled then
 				CreateJumpscare(config.Jumpscare)
 			end
 		    
-		    -- Achievement
+		    -- Unlock achievement
 		    UnlockAchievement(deathAchievement)
 		    
 			-- Death hints
-			if #config.Death.Hints > 0 then
-				-- Get death type
-				local colour;
-				for name, values in deathTypes do
-					if table.find(values, config.Death.Type:lower()) then
-						colour = name
-					end
-				end
-				if not colour then
-					for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
-						if c.Name:lower() == config.Death.Type:lower() then
-							colour = c.Name
-						end
-					end
-				end
-				if not colour then
-					colour = "Blue"
-				end
-				
-				-- Set death hints and type (thanks oogy)
-				if firesignal then
-					firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
-				else
-					warn("firesignal not supported, ignore death hints.")
-				end
-			end
+            if #config.Death.Unified.Hints > 0 then
+                local deathConfig;
+                if config.Death.IsolationFloors then
+                    local Floor = gameData.Floor.Value
+                    if Floor == "Garden" then
+                        deathConfig = config.Death.Floors.Outdoors
+                    else
+                        deathConfig = config.Death.Floors[Floor] or config.Death.Unified
+                    end
+                else
+                    deathConfig = config.Death.Unified
+                end
+    
+                -- Get death type
+                local colour;
+                for name, values in deathTypes do
+                    if table.find(values, deathConfig.Type:lower()) then
+                        colour = name
+                    end
+                end
+                if not colour then
+                    for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
+                        if c.Name:lower() == deathConfig.Type:lower() then
+                            colour = c.Name
+                        end
+                    end
+                end
+                if not colour then
+                    colour = "Blue"
+                end
+    
+                -- Set death hints and type (thanks oogy)
+                if firesignal then
+                    firesignal(remotesFolder.DeathHint.OnClientEvent, deathConfig.Hints, colour)
+                else
+                    warn("firesignal not supported, ignore death hints.")
+                end
+            end
 
-			-- Set death cause
-			local deathCause = config.Entity.Name
-			if config.Death.Cause ~= "" then
-				deathCause = config.Death.Cause
-			end
-			gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
-		end
+            -- Set death cause
+            local deathCause = config.Entity.Name
+            if config.Death.Cause ~= "" then
+                deathCause = config.Death.Cause
+            end
+            local deathConfig;
+            if config.Death.IsolationFloors then
+                local Floor = gameData.Floor.Value
+                if Floor == "Garden" then
+                    deathConfig = config.Death.Floors.Outdoors
+                else
+                    deathConfig = config.Death.Floors[Floor] or config.Death.Unified
+                end
+            else
+                deathConfig = config.Death.Unified
+            end
+
+            if deathConfig.Cause ~= "" then
+                deathCause = deathConfig.Cause
+            end
+            gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
+        end
 
 		-- Update health
 		localHum.Health = newHealth
@@ -1236,12 +1295,15 @@ spawner.Run = function(entityTable)
                                                         for _, d in currentRoom:GetDescendants() do
                                                             if d.Name == spot.Name then
                                                                 local hiddenPlayer = d:FindFirstChild("HiddenPlayer")
-                                                                hiddenPlayer.Changed:Connect(function(v)
-                                                                    if v == localPlayer.Name then
-                                                                        shouldDamage = true
-                                                                        break
-                                                                    end
-                                                                end)
+                                                                if hiddenPlayer.Value == localPlayer.Name then
+                                                                    shouldDamage = true
+                                                                else
+                                                                    hiddenPlayer.Changed:Connect(function(v)
+                                                                        if v == localPlayer.Name then
+                                                                            shouldDamage = true
+                                                                        end
+                                                                    end)
+                                                                end
                                                             end
                                                         end
                                                         if shouldDamage then break end
