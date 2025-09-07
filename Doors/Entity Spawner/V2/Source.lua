@@ -93,7 +93,7 @@ local defaultConfig = {
 		Range = 40,
 		Amount = 125,
 		IgnoreHiding = {
-		    Enabled = true
+		    Enabled = false
 		}
 	},
 	Rebounding = {
