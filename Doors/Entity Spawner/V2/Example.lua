@@ -102,9 +102,39 @@ local entity = spawner.Create({
 		Break = true
 	},
 	Death = {
+	    IsolationFloors = false,
 		Type = "Guiding", -- "Curious"
 		Hints = {"Death", "Hints", "Go", "Here"},
-		Cause = ""
+        Cause = "",
+        Floors = {
+            Hotel = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Mines = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        },
+        Subfloors = {
+            Backdoor = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Rooms = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Outdoors = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        }
 	}
 })
 

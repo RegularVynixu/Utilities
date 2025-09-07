@@ -30,10 +30,49 @@
 - **Update Ignore Hiding Places**
     - Have the entity ignore some of the hiding places and damage the player directly.
         > You can select hiding places to ignore.
----
-- **Death Hints Isolation Floors**
-    - When turned on, you can customize the death hints of each floors.
 ### Released
+- **Added Death Hints Isolation Floors**
+    - When turned on, you can customize the death hints of each floors.
+    > Main Floors: The Hotel, The Mines
+    > Subfloors: The Backdoor, The Rooms, The Outdoors
+    ```luau
+    Death = {
+        IsolationFloors = false, -- If true, you can customize different death hints on each floors, otherwise default death hints will be used.
+        Type = "Guiding", -- "Curious"
+        Hints = {"Death", "Hints", "Go", "Here"},
+        Cause = "",
+        Floors = {
+            Hotel = {
+                Type = "Guiding", -- "Curious"
+                Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Mines = {
+                Type = "Guiding", -- "Curious"
+                Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        },
+        Subfloors = {
+            Backdoor = {
+                Type = "Curious", -- "Guiding"
+                Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Rooms = {
+                Type = "Curious", -- "Guiding"
+                Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Outdoors = {
+                Type = "Curious", -- "Guiding"
+                Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        }
+	}
+    ```
+---
 - **Added Ignore Hiding Places**
     - Have the entity ignore some of the hiding places and damage the player directly.
     ```luau
@@ -42,7 +81,7 @@
         IgnoreHiding = { -- All hide places are disabled for entities such as Deer God
             Enabled = true
         }
-	},
+	}
     ```
 ---
 - **Added Crucified Callback**
@@ -66,7 +105,7 @@
     Crucifixion = {
         Type = "Curious", -- "Guiding"
         -- Others...
-	},
+	}
     ```
 ---
 - **Added Achievements**
@@ -100,7 +139,7 @@
             Reason = "Death Reason",
             Image = "rbxassetid://YOUR_ASSET_ID"
         }
-	},
+	}
     ```
 ---
 - **Added Jumpscare**
@@ -115,7 +154,7 @@
         BackgroundColor2 = Color3.new(0, 0, 0), -- Flashing color
         Sound = "rbxassetid://YOUR_ASSET_ID",
         SoundVolume = 5
-	},
+	}
     ```
 ---
 - **Added ColorCorrection effect**
@@ -135,7 +174,7 @@
             FadeIn = 1, -- The fadeIn time of the effect
             FadeOut = 2 -- The fadeOut time of the effect
         }
-	},
+	}
     ```
 ### Removed
 - ~~**Following Player**~~

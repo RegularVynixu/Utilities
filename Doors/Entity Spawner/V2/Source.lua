@@ -680,100 +680,93 @@ function DamagePlayer(entityTable)
 		local config = entityTable.Config
 		local deathAchievement = config.Achievements.Death
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
-        local shouldDamage = true
 
-		if localChar:GetAttribute("Hiding") and not config.Damage.IgnoreHiding.Enabled then
-			shouldDamage = false
-		end
-
-        if shouldDamage then
-		    if newHealth == 0 then
-		        localPlayer:SetAttribute("Alive", false)
+	    if newHealth == 0 then
+	        localPlayer:SetAttribute("Alive", false)
 		        
-		        -- Jumpscare
-		        if config.Jumpscare.Enabled then
-				    CreateJumpscare(config.Jumpscare)
-			    end
+		    -- Jumpscare
+		    if config.Jumpscare.Enabled then
+				CreateJumpscare(config.Jumpscare)
+			end
 		    
-		        -- Achievement
-		        UnlockAchievement(deathAchievement)
-		    
-			    -- Death hints
-			    local deathHints = config.Death.Hints
-			    local deathType = config.Death.Type
-			    local deathCause = config.Death.Cause
+		    -- Achievement
+		    UnlockAchievement(deathAchievement)
 
-			    if config.Death.IsolationFloors then
-			        local currentFloor = gameData.Floor.Value
-			        local floorConfig = config.Death.Floors[currentFloor]
-			        local subfloorConfig = config.Death.Subfloors[currentFloor]
+			-- Death hints
+			local deathHints = config.Death.Hints
+			local deathType = config.Death.Type
+			local deathCause = config.Death.Cause
 
-			        if floorConfig and #floorConfig.Hints > 0 then
-			            deathHints = floorConfig.Hints
-			            deathType = floorConfig.Type
-			            if floorConfig.Cause ~= "" then
-			                deathCause = floorConfig.Cause
-			            end
-			        elseif subfloorConfig and #subfloorConfig.Hints > 0 then
-			            deathHints = subfloorConfig.Hints
-			            deathType = subfloorConfig.Type
-			            if subfloorConfig.Cause ~= "" then
-			                deathCause = subfloorConfig.Cause
-			            end
-			        elseif currentFloor == "Garden" then
-			            local outdoorsConfig = config.Death.Subfloors.Outdoors
-			            if outdoorsConfig and #outdoorsConfig.Hints > 0 then
-			                deathHints = outdoorsConfig.Hints
-			                deathType = outdoorsConfig.Type
-			                if outdoorsConfig.Cause ~= "" then
-			                    deathCause = outdoorsConfig.Cause
-			                end
-			            end
-			        else
-			            if currentFloor ~= "Hotel" and currentFloor ~= "Mines" and currentFloor ~= "Backdoor" and currentFloor ~= "Rooms" and currentFloor ~= "Garden" then
-			                warn("Error Floor: "..currentFloor.." does not exist and has been switched to the default death hints.")
+			if config.Death.IsolationFloors then
+			    local currentFloor = gameData.Floor.Value
+			    local floorConfig = config.Death.Floors[currentFloor]
+			    local subfloorConfig = config.Death.Subfloors[currentFloor]
+
+			    if floorConfig and #floorConfig.Hints > 0 then
+			        deathHints = floorConfig.Hints
+			        deathType = floorConfig.Type
+		            if floorConfig.Cause ~= "" then
+			            deathCause = floorConfig.Cause
+			        end
+			    elseif subfloorConfig and #subfloorConfig.Hints > 0 then
+			        deathHints = subfloorConfig.Hints
+			        deathType = subfloorConfig.Type
+			        if subfloorConfig.Cause ~= "" then
+			            deathCause = subfloorConfig.Cause
+			        end
+			    elseif currentFloor == "Garden" then
+			        local outdoorsConfig = config.Death.Subfloors.Outdoors
+			        if outdoorsConfig and #outdoorsConfig.Hints > 0 then
+			            deathHints = outdoorsConfig.Hints
+			            deathType = outdoorsConfig.Type
+			            if outdoorsConfig.Cause ~= "" then
+			                deathCause = outdoorsConfig.Cause
 			            end
 			        end
+			    else
+			        if currentFloor ~= "Hotel" or currentFloor ~= "Mines" or currentFloor ~= "Backdoor" or currentFloor ~= "Rooms" or currentFloor ~= "Garden" then
+			            warn("Error Floor: "..currentFloor.." does not exist and has been switched to the default death hints.")
+			        end
 			    end
-			    
-			    if #deathHints > 0 then
-				    -- Get death type
-				    local colour;
-				    for name, values in deathTypes do
-					    if table.find(values, deathType:lower()) then
-						    colour = name
-					    end
-				    end
-				    if not colour then
-					    for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
-						    if c.Name:lower() == deathType:lower() then
-							    colour = c.Name
-						    end
-					    end
-				    end
-				    if not colour then
-					    colour = "Blue"
-				    end
+			end
+			
+			if #deathHints > 0 then
+				-- Get death type
+				local colour;
+				for name, values in deathTypes do
+					if table.find(values, deathType:lower()) then
+						colour = name
+					end
+				end
+				if not colour then
+					for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
+						if c.Name:lower() == deathType:lower() then
+							colour = c.Name
+						end
+					end
+				end
+				if not colour then
+					colour = "Blue"
+				end
 				
-				    -- Set death hints and type (thanks oogy)
-				    if firesignal then
-					    firesignal(remotesFolder.DeathHint.OnClientEvent, deathHints, colour)
-				    else
-					    warn("firesignal not supported, ignore death hints.")
-				    end
-			    end
+				-- Set death hints and type (thanks oogy)
+				if firesignal then
+					firesignal(remotesFolder.DeathHint.OnClientEvent, deathHints, colour)
+				else
+					warn("firesignal not supported, ignore death hints.")
+				end
+			end
 
-			    -- Set death cause
-			    if deathCause == "" then
-			        deathCause = config.Entity.Name
-			    end
-			    gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
-		    end
+			-- Set death cause
+			if deathCause == "" then
+			    deathCause = config.Entity.Name
+			end
+			gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
+		end
 
-		    -- Update health
-		    localHum.Health = newHealth
-		    task.spawn(entityTable.RunCallback, entityTable, "OnDamagePlayer", newHealth) -- OnDamagePlayer
-	    end
+		-- Update health
+		localHum.Health = newHealth
+		task.spawn(entityTable.RunCallback, entityTable, "OnDamagePlayer", newHealth) -- OnDamagePlayer
 	end
 end
 
@@ -1221,15 +1214,15 @@ spawner.Run = function(entityTable)
 						if not model:GetAttribute("Paused") and not usedCrucifix then
 	                        local c = config.Damage
 	                        if c.Enabled and c.Range > 0 and localHum.Health > 0 and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
-		                        local shouldDamage = true
-		                        if localChar:GetAttribute("Hiding") and not c.IgnoreHiding.Enabled then
-			                        shouldDamage = false
-		                        end
-		
-		                        if shouldDamage then
-			                        model:SetAttribute("Damage", false)
+		                        if localChar:GetAttribute("Hiding") then
+		                            if c.IgnoreHiding.Enabled then
+			                            model:SetAttribute("Damage", false)
+			                            DamagePlayer(entityTable)
+			                        end
+		                        else
+		                            model:SetAttribute("Damage", false)
 			                        DamagePlayer(entityTable)
-		                        end
+			                    end
 	                        end
                         end
 	

@@ -102,9 +102,39 @@ local entity = spawner.Create({
 		Break = true
 	},
 	Death = {
-		Type = "Curious",
-		Hints = {"Oh... Hello.", "I didn't expect to see you here.", "Let's see what you died to.", "Oh, one of my favorites.", "She said we should call that one Blitz.", "Well... I'll see you later, right? You'll come back?", "Haha... of course you will."},
-		Cause = ""
+	    IsolationFloors = true,
+		Type = "Guiding", -- "Curious"
+		Hints = {"Death", "Hints", "Go", "Here"},
+        Cause = "",
+        Floors = {
+            Hotel = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"You died to Blitz.", "It looks like Rush, but it may rebounds.", "Please pay attention to the flicker lights and hide as soon as possible.", "Good luck!"},
+                Cause = ""
+            },
+            Mines = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"You died to Blitz.", "It looks like Rush, but it may rebounds.", "Please pay attention to the flicker lights and hide as soon as possible.", "Good luck!"},
+                Cause = ""
+            }
+        },
+        Subfloors = {
+            Backdoor = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Oh... Hello.", "I didn't expect to see you here.", "Let's see what you died to.", "Oh, one of my favorites.", "She said we should call that one Blitz.", "Well... I'll see you later, right? You'll come back?", "Haha... of course you will."},
+                Cause = ""
+            },
+            Rooms = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Oh... Hello.", "I didn't expect to see you here.", "Let's see what you died to.", "Oh, one of my favorites.", "She said we should call that one Blitz.", "Well... I'll see you later, right? You'll come back?", "Haha... of course you will."},
+                Cause = ""
+            },
+            Outdoors = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Oh... Hello.", "I didn't expect to see you here.", "Let's see what you died to.", "Oh, one of my favorites.", "She said we should call that one Blitz.", "Well... I'll see you later, right? You'll come back?", "Haha... of course you will."},
+                Cause = ""
+            }
+        }
 	}
 })
 
