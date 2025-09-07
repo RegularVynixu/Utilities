@@ -1,4 +1,9 @@
 ## Contents
+- **[Fixed](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#fixed)**
+    - Main
+    - Path Error Fixed
+    - Crucifixion Bug Fixed
+---
 - **[Assets](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#assets)**
     - Entity Spawner Source
     - Entity Spawner Example
@@ -6,25 +11,20 @@
     - Entity Repentance
     - Crucifix
 ---
-- **[Fixed](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#fixed)**
-    - Main
-    - Path Error Fixed
-    - Crucifixion Bug Fixed
----
 - **[Modified](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#modified)**
     - [Coming Soon](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#coming-soon)
     - [Released](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#released)
     - [Removed](https://github.com/Focuslol666/Utilities/tree/patch-1/Doors/Entity%20Spawner/V2#removed)
+## Fixed
+- **Vynixu's Entity Spawner V2** was unusable because of **The Great Outdoors Update**, and I fixed it.
+    - **Path Error Fixed**: `ClientModules` folder name changed to `ModulesClient`.
+    - **Crucifixion Bug Fixed**: Entity are also removed when `Resist` is enabled.
 ## Assets
 - **[Entity Spawner Source](https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/V2/Source.lua)**
 - **[Entity Spawner Example](https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/V2/Example.lua)**
 - **[Blitz Spawner Example](https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/V2/Example_Blitz.lua)**
 - **[Entity Repentance](https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/Assets/Repentance.rbxm)**
 - **[Crucifix](https://github.com/Focuslol666/Utilities/blob/patch-1/Doors/Entity%20Spawner/Crucifix.lua)**
-## Fixed
-- **Vynixu's Entity Spawner V2** was unusable because of **The Great Outdoors Update**, and I fixed it.
-    - **Path Error Fixed**: `ClientModules` folder name changed to `ModulesClient`.
-    - **Crucifixion Bug Fixed**: Entity are also removed when `Resist` is enabled.
 ## Modified
 ### Coming Soon
 - **Update Ignore Hiding Places**
