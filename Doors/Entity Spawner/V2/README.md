@@ -25,6 +25,21 @@
 	},
     ```
 ---
+- **Added Crucified Callback**
+    - This callback is triggered when the entity is crucified.
+    - You can use `entity:SetCallback()` to customize the callback function.
+    ```luau
+    entity:SetCallback("OnCrucified", function(stateResist)
+        print("Entity was crucified")
+        task.wait(3)
+        if stateResist == true then
+            print("Entity is resisting the crucifixion")
+        else
+            print("The entity has been breaking by the crucifixion")
+        end
+    end)
+    ```
+---
 - **Added Curious Light Crucifixion**
     - The effect of "Curious Light" appears when the entity is crucifixion.
     ```luau
