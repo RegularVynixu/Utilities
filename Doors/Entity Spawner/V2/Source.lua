@@ -175,9 +175,39 @@ local defaultConfig = {
 		Break = true
 	},
 	Death = {
+	    IsolationFloors = false,
 		Type = "Guiding", -- "Curious"
 		Hints = {"Death", "Hints", "Go", "Here"},
-        Cause = ""
+        Cause = "",
+        Floors = {
+            Hotel = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Mines = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        },
+        Subfloors = {
+            Backdoor = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Rooms = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Outdoors = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        }
 	}
 }
 local ambientStorage = {}
@@ -669,17 +699,54 @@ function DamagePlayer(entityTable)
 		        UnlockAchievement(deathAchievement)
 		    
 			    -- Death hints
-			    if #config.Death.Hints > 0 then
+			    local deathHints = config.Death.Hints
+			    local deathType = config.Death.Type
+			    local deathCause = config.Death.Cause
+
+			    if config.Death.IsolationFloors then
+			        local currentFloor = gameData.Floor.Value
+			        local floorConfig = config.Death.Floors[currentFloor]
+			        local subfloorConfig = config.Death.Subfloors[currentFloor]
+
+			        if floorConfig and #floorConfig.Hints > 0 then
+			            deathHints = floorConfig.Hints
+			            deathType = floorConfig.Type
+			            if floorConfig.Cause ~= "" then
+			                deathCause = floorConfig.Cause
+			            end
+			        elseif subfloorConfig and #subfloorConfig.Hints > 0 then
+			            deathHints = subfloorConfig.Hints
+			            deathType = subfloorConfig.Type
+			            if subfloorConfig.Cause ~= "" then
+			                deathCause = subfloorConfig.Cause
+			            end
+			        elseif currentFloor == "Garden" then
+			            local outdoorsConfig = config.Death.Subfloors.Outdoors
+			            if outdoorsConfig and #outdoorsConfig.Hints > 0 then
+			                deathHints = outdoorsConfig.Hints
+			                deathType = outdoorsConfig.Type
+			                if outdoorsConfig.Cause ~= "" then
+			                    deathCause = outdoorsConfig.Cause
+			                end
+			            end
+			        else
+			            if currentFloor ~= "Hotel" and currentFloor ~= "Mines" and currentFloor ~= "Backdoor" and currentFloor ~= "Rooms" and currentFloor ~= "Garden" then
+			                warn("Error Floor: "..currentFloor.." does not exist and has been switched to the default death hints.")
+			            end
+			        end
+			    end
+			    
+			    if #deathHints > 0 then
 				    -- Get death type
 				    local colour;
 				    for name, values in deathTypes do
-					    if table.find(values, config.Death.Type:lower()) then
+					    if table.find(values, deathType:lower()) then
 						    colour = name
 					    end
 				    end
 				    if not colour then
 					    for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
-						    if c.Name:lower() == config.Death.Type:lower() then
+						    if c.Name:lower() == deathType:lower() then
 							    colour = c.Name
 						    end
 					    end
@@ -690,16 +757,15 @@ function DamagePlayer(entityTable)
 				
 				    -- Set death hints and type (thanks oogy)
 				    if firesignal then
-					    firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
+					    firesignal(remotesFolder.DeathHint.OnClientEvent, deathHints, colour)
 				    else
 					    warn("firesignal not supported, ignore death hints.")
 				    end
 			    end
 
 			    -- Set death cause
-			    local deathCause = config.Entity.Name
-			    if config.Death.Cause ~= "" then
-				    deathCause = config.Death.Cause
+			    if deathCause == "" then
+			        deathCause = config.Entity.Name
 			    end
 			    gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
 		    end
