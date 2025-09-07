@@ -4,12 +4,16 @@
     - **Crucifixion Bug Fixed**: Entity are also removed when Resist is enabled.
 ## Modified
 ### Coming Soon
-- **Death Hints Isolation Floors**
-    - When turned on, you can customize the death hints of each floor.
----
-- **Ignore Hiding Places**
+- **Update Ignore Hiding Places**
     - Have the entity ignore some of the hiding places and damage the player directly.
+        > You can select hiding places to ignore.
+---
+- **Death Hints Isolation Floors**
+    - When turned on, you can customize the death hints of each floors.
 ### Released
+- **Added Ignore Hiding Places**
+    - Have the entity ignore some of the hiding places and damage the player directly.
+---
 - **Added Curious Light Crucifixion**
     - The effect of Curious Light appears when the entity is crucifixion.
 ---

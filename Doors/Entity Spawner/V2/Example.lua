@@ -22,7 +22,7 @@ local entity = spawner.Create({
 		    Color = Color3.fromRGB(255, 0, 0), -- Color3.new
 		    CameraShake = {10, 5, 2, 5}, -- Magnitude, Roughness, FadeIn, FadeOut
 		    Sound = {
-		        SoundId = "rbxassetid://0", -- URL?raw=true",
+		        SoundId = "rbxassetid://0",
 		        Volume = 1
 		    },
 		    Duration = 5,
@@ -53,7 +53,10 @@ local entity = spawner.Create({
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 125
+		Amount = 125,
+		IgnoreHiding = {
+		    Enabled = true
+		}
 	},
 	Jumpscare = {
 	    Enabled = false,
@@ -62,7 +65,7 @@ local entity = spawner.Create({
 	    FaceSize = UDim2.new(0, 150, 0, 150),
 	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
 	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
-	    Sound = "rbxassetid://10483790459", -- "URL?raw=true",
+	    Sound = "rbxassetid://10483790459",
 	    SoundVolume = 5
 	},
 	Achievements = {

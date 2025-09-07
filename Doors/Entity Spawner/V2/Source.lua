@@ -7,7 +7,7 @@
         \/  \__, |_| |_|_/_/\_\\__,_| |___/ |______|_| |_|\__|_|\__|\__, | |_____/| .__/ \__,_| \_/\_/ |_| |_|\___|_|        \/   |____|
              __/ |                                                   __/ |        | |                                                   
             |___/                                                   |___/         |_|
-Fixed & Modified by FOCUSED_LIGHT (Unofficial)
+    Fixed & Modified by FOCUSED_LIGHT (Unofficial)
 ]]--
 
 if VynixuEntitySpawnerV2 then return VynixuEntitySpawnerV2 end
@@ -91,7 +91,10 @@ local defaultConfig = {
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 125
+		Amount = 125,
+		IgnoreHiding = {
+		    Enabled = true
+		}
 	},
 	Rebounding = {
 		Enabled = true,
@@ -647,55 +650,64 @@ function DamagePlayer(entityTable)
 		local config = entityTable.Config
 		local deathAchievement = config.Achievements.Death
 		local newHealth = math.clamp(localHum.Health - config.Damage.Amount, 0, localHum.MaxHealth)
+        local shouldDamage = true
 
-		if newHealth == 0 then
-		    -- Jumpscare
-		    if config.Jumpscare.Enabled then
-				CreateJumpscare(config.Jumpscare)
-			end
-		    
-		    -- Achievement
-		    UnlockAchievement(deathAchievement)
-		    
-			-- Death hints
-			if #config.Death.Hints > 0 then
-				-- Get death type
-				local colour;
-				for name, values in deathTypes do
-					if table.find(values, config.Death.Type:lower()) then
-						colour = name
-					end
-				end
-				if not colour then
-					for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
-						if c.Name:lower() == config.Death.Type:lower() then
-							colour = c.Name
-						end
-					end
-				end
-				if not colour then
-					colour = "Blue"
-				end
-				
-				-- Set death hints and type (thanks oogy)
-				if firesignal then
-					firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
-				else
-					warn("firesignal not supported, ignore death hints.")
-				end
-			end
-
-			-- Set death cause
-			local deathCause = config.Entity.Name
-			if config.Death.Cause ~= "" then
-				deathCause = config.Death.Cause
-			end
-			gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
+		if localChar:GetAttribute("Hiding") and not config.Damage.IgnoreHiding.Enabled then
+			shouldDamage = false
 		end
 
-		-- Update health
-		localHum.Health = newHealth
-		task.spawn(entityTable.RunCallback, entityTable, "OnDamagePlayer", newHealth) -- OnDamagePlayer
+        if shouldDamage then
+		    if newHealth == 0 then
+		        localPlayer:SetAttribute("Alive", false)
+		        
+		        -- Jumpscare
+		        if config.Jumpscare.Enabled then
+				    CreateJumpscare(config.Jumpscare)
+			    end
+		    
+		        -- Achievement
+		        UnlockAchievement(deathAchievement)
+		    
+			    -- Death hints
+			    if #config.Death.Hints > 0 then
+				    -- Get death type
+				    local colour;
+				    for name, values in deathTypes do
+					    if table.find(values, config.Death.Type:lower()) then
+						    colour = name
+					    end
+				    end
+				    if not colour then
+					    for _, c in playerGui.MainUI.Initiator.Main_Game.Health.Music:GetChildren() do
+						    if c.Name:lower() == config.Death.Type:lower() then
+							    colour = c.Name
+						    end
+					    end
+				    end
+				    if not colour then
+					    colour = "Blue"
+				    end
+				
+				    -- Set death hints and type (thanks oogy)
+				    if firesignal then
+					    firesignal(remotesFolder.DeathHint.OnClientEvent, config.Death.Hints, colour)
+				    else
+					    warn("firesignal not supported, ignore death hints.")
+				    end
+			    end
+
+			    -- Set death cause
+			    local deathCause = config.Entity.Name
+			    if config.Death.Cause ~= "" then
+				    deathCause = config.Death.Cause
+			    end
+			    gameStats["Player_".. localPlayer.Name].Total.DeathCause.Value = deathCause
+		    end
+
+		    -- Update health
+		    localHum.Health = newHealth
+		    task.spawn(entityTable.RunCallback, entityTable, "OnDamagePlayer", newHealth) -- OnDamagePlayer
+	    end
 	end
 end
 
@@ -1141,12 +1153,19 @@ spawner.Run = function(entityTable)
 	
 						-- Damage detection
 						if not model:GetAttribute("Paused") and not usedCrucifix then
-							local c = config.Damage
-							if c.Enabled and c.Range > 0 and localHum.Health > 0 and not localChar:GetAttribute("Hiding") and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
-								model:SetAttribute("Damage", false)
-								DamagePlayer(entityTable)
-							end
-						end
+	                        local c = config.Damage
+	                        if c.Enabled and c.Range > 0 and localHum.Health > 0 and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
+		                        local shouldDamage = true
+		                        if localChar:GetAttribute("Hiding") and not c.IgnoreHiding.Enabled then
+			                        shouldDamage = false
+		                        end
+		
+		                        if shouldDamage then
+			                        model:SetAttribute("Damage", false)
+			                        DamagePlayer(entityTable)
+		                        end
+	                        end
+                        end
 	
 						-- Camera shaking
 						do
