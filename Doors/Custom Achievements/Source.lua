@@ -36,29 +36,29 @@ return function(info)
     local old = stuff.GetInfo
     stuff.GetInfo = newcclosure(function() return info end)
     if info.Prize.Enabled then
-        if info.Prize.Revives > 0 then
+        if info.Prize.Revives == 0 then
+            prize.Revives.Visible = false
+            prize.RevivesIcon.Visible = true
+        else
             prize.Revives.Text = tostring(info.Prize.Revives)
             prize.Revives.Visible = true
             prize.RevivesIcon.Visible = true
-        else
-            prize.Revives.Visible = false
-            prize.RevivesIcon.Visible = false
         end
-        if info.Prize.Knobs > 0 then
+        if info.Prize.Knobs == 0 then
+            prize.Knobs.Visible = false
+            prize.KnobsIcon.Visible = true
+        else
             prize.Knobs.Text = tostring(info.Prize.Knobs)
             prize.Knobs.Visible = true
             prize.KnobsIcon.Visible = true
-        else
-            prize.Knobs.Visible = false
-            prize.KnobsIcon.Visible = false
         end
-        if info.Prize.Stardust > 0 then
+        if info.Prize.Stardust == 0 then
+            prize.Stardust.Visible = false
+            prize.StardustIcon.Visible = true
+        else
             prize.Stardust.Text = tostring(info.Prize.Stardust)
             prize.Stardust.Visible = true
             prize.StardustIcon.Visible = true
-        else
-            prize.Stardust.Visible = false
-            prize.StardustIcon.Visible = false
         end
     end
     moduleScripts.AchievementUnlock(nil, stuff.Name)
