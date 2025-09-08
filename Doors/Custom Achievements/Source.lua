@@ -37,6 +37,7 @@ return function(info)
     stuff.GetInfo = newcclosure(function() return info end)
     if info.Prize.Enabled then
         if info.Prize.Revives == 0 then
+            prize.Revives.Text = " "
             prize.Revives.Visible = false
             prize.RevivesIcon.Visible = true
         else
@@ -45,6 +46,7 @@ return function(info)
             prize.RevivesIcon.Visible = true
         end
         if info.Prize.Knobs == 0 then
+            prize.Knobs.Text = " "
             prize.Knobs.Visible = false
             prize.KnobsIcon.Visible = true
         else
@@ -53,6 +55,7 @@ return function(info)
             prize.KnobsIcon.Visible = true
         end
         if info.Prize.Stardust == 0 then
+            prize.Stardust.Text = " "
             prize.Stardust.Visible = false
             prize.StardustIcon.Visible = true
         else
