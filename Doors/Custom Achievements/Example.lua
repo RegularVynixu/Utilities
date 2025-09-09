@@ -8,9 +8,17 @@ achievementGiver({
     Reason = "Reason",
     Image = "rbxassetid://12309073114",
     Prize = {
-        Enabled = true,
-        Revives = 1,
-        Knobs = 100,
-        Stardust = 20
+        Revives = {
+            Enabled = true,
+            Amount = 1
+        },
+        Knobs = {
+            Enabled = true,
+            Amount = 100
+        },
+        Stardust = {
+            Enabled = false,
+            Amount = 20
+        }
     }
 })
