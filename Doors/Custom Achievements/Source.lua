@@ -16,18 +16,10 @@ local defaultAchievement = {
     Reason = "Reason",
     Image = "rbxassetid://12309073114",
     Prize = {
-        Revives = {
-            Enabled = true,
-            Amount = 1
-        },
-        Knobs = {
-            Enabled = true,
-            Amount = 100
-        },
-        Stardust = {
-            Enabled = false,
-            Amount = 20
-        }
+        Enabled = true,
+        Revives = 1,
+        Knobs = 100,
+        Stardust = 20
     }
 }
 
@@ -43,21 +35,36 @@ return function(info)
     local stuff = moduleScripts.Achievements.SpecialQATester
     local old = stuff.GetInfo
     stuff.GetInfo = newcclosure(function() return info end)
-    if info.Prize.Revives.Enabled then
-        prize.Revives.Text = tostring(info.Prize.Revives.Amount)
-        prize.Revives.Visible = true
-        prize.RevivesIcon.Visible = true
-    end
-    if info.Prize.Knobs.Enabled then
-        prize.Knobs.Text = tostring(info.Prize.Knobs.Amount)
-        prize.Knobs.Visible = true
-        prize.KnobsIcon.Visible = true
+    
+    if info.Prize.Enabled then
+        if info.Prize.Revives == 0 then
+            prize.Revives.Visible = false
+            prize.RevivesIcon.Visible = false
+        else
+            prize.Revives.Text = tostring(info.Prize.Revives)
+            prize.Revives.Visible = true
+            prize.RevivesIcon.Visible = true
         end
-    if info.Prize.Stardust.Enabled then
-        prize.Stardust.Text = tostring(info.Prize.Stardust.Amount)
-        prize.Stardust.Visible = true
-        prize.StardustIcon.Visible = true
+        
+        if info.Prize.Knobs == 0 then
+            prize.Knobs.Visible = false
+            prize.KnobsIcon.Visible = false
+        else
+            prize.Knobs.Text = tostring(info.Prize.Knobs)
+            prize.Knobs.Visible = true
+            prize.KnobsIcon.Visible = true
+        end
+        
+        if info.Prize.Stardust == 0 then
+            prize.Stardust.Visible = false
+            prize.StardustIcon.Visible = false
+        else
+            prize.Stardust.Text = tostring(info.Prize.Stardust)
+            prize.Stardust.Visible = true
+            prize.StardustIcon.Visible = true
+        end
     end
+    
     moduleScripts.AchievementUnlock(nil, stuff.Name)
     stuff.GetInfo = old
 end
