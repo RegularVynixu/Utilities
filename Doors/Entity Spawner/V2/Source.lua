@@ -155,7 +155,21 @@ local defaultConfig = {
 	        Title = "Survive Title",
 	        Desc = "Survive Description",
 	        Reason = "Survive Reason",
-	        Image = "rbxassetid://12309073114"
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = true,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = true,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
 	    },
 	    Crucifix = {
 	        Enabled = true,
@@ -163,7 +177,21 @@ local defaultConfig = {
 	        Title = "Crucifix Title",
 	        Desc = "Crucifix Description",
 	        Reason = "Crucifix Reason",
-	        Image = "rbxassetid://12309073114"
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = true,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = true,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = true,
+                    Amount = 20
+                }
+            }
 	    },
 	    Death = {
 	        Enabled = false,
@@ -171,7 +199,21 @@ local defaultConfig = {
 	        Title = "Death Title",
 	        Desc = "Death Description",
 	        Reason = "Death Reason",
-	        Image = "rbxassetid://12309073114"
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = false,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = false,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
 	    }
 	},
 	Crucifixion = {
@@ -367,30 +409,33 @@ function UnlockAchievement(achievement)
     if not achievement.Enabled then return end
     
     local title = achievement.Title
+    local achievementInfo = {
+        Title = title,
+        Desc = achievement.Desc,
+        Reason = achievement.Reason,
+        Image = achievement.Image
+    }
+    
+    local prize = achievement.Prize
+    if prize then
+        local prizeTable = {}
+        for prizeType, prizeData in pairs(prize) do
+            if prizeData.Visible then
+                prizeTable[prizeType] = prizeData.Amount
+            end
+        end
+        
+        if next(prizeTable) ~= nil then
+            achievementInfo.Prize = prizeTable
+        end
+    end
+    
     if not achievement.Once then
-        achievementGiver({
-            Title = title,
-            Desc = achievement.Desc,
-            Reason = achievement.Reason,
-            Image = achievement.Image
-        })
+        achievementGiver(achievementInfo)
     elseif not _G.achievementUnlock[title] then
-        achievementGiver({
-            Title = title,
-            Desc = achievement.Desc,
-            Reason = achievement.Reason,
-            Image = achievement.Image
-        })
+        achievementGiver(achievementInfo)
         _G.achievementUnlock[title] = true
     end
-end
-
-function PlayerHasItemEquipped(name)
-	local tool = localChar:FindFirstChildOfClass("Tool")
-	if tool and tool.Name == name then
-		return true, tool
-	end
-	return false
 end
 
 function CrucifixEntity(entityTable, tool)

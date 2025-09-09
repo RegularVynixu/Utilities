@@ -31,6 +31,80 @@
     - Have the entity ignore some of the hiding places and damage the player directly.
         > You can select hiding places to ignore.
 ### Released
+- **Updated Achievements**
+    - You can give custom Prize to achievements.
+    ```luau
+    -- New Config
+    Achievements = {
+        Survive = {
+            Enabled = true, -- Whether achievements will be displayed
+            Once = false, -- Achievements will only be displayed once in this game
+            Title = "Survive Title",
+            Desc = "Survive Description",
+            Reason = "Survive Reason",
+            Image = "rbxassetid://YOUR_ASSET_ID",
+            Prize = {
+                Revives = {
+                    Visible = true,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = true,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
+        },
+        Crucifix = {
+            Enabled = true, -- Whether achievements will be displayed
+            Once = false, -- Achievements will only be displayed once in this game
+            Title = "Crucifix Title",
+            Desc = "Crucifix Description",
+            Reason = "Crucifix Reason",
+            Image = "rbxassetid://YOUR_ASSET_ID",
+            Prize = {
+                Revives = {
+                    Visible = true,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = true,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = true,
+                    Amount = 20
+                }
+            }
+        },
+        Death = {
+            Enabled = true, -- Whether achievements will be displayed
+            Once = false, -- Achievements will only be displayed once in this game
+            Title = "Death Title",
+            Desc = "Death Description",
+            Reason = "Death Reason",
+            Image = "rbxassetid://YOUR_ASSET_ID",
+            Prize = {
+                Revives = {
+                    Visible = false,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = false,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
+        }
+	}
+    ```
+---
 - **Added Death Hints Isolation Floors**
     - When turned on, you can customize the death hints of each floors.
     > Main Floors: The Hotel, The Mines

@@ -75,7 +75,21 @@ local entity = spawner.Create({
 	        Title = "Survive Title",
 	        Desc = "Survive Description",
 	        Reason = "Survive Reason",
-	        Image = "rbxassetid://12309073114"
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = true,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = true,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
 	    },
 	    Crucifix = {
 	        Enabled = true,
@@ -83,7 +97,21 @@ local entity = spawner.Create({
 	        Title = "Crucifix Title",
 	        Desc = "Crucifix Description",
 	        Reason = "Crucifix Reason",
-	        Image = "rbxassetid://12309073114"
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = true,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = true,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = true,
+                    Amount = 20
+                }
+            }
 	    },
 	    Death = {
 	        Enabled = false,
@@ -91,7 +119,21 @@ local entity = spawner.Create({
 	        Title = "Death Title",
 	        Desc = "Death Description",
 	        Reason = "Death Reason",
-	        Image = "rbxassetid://12309073114"
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = false,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = false,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
 	    }
 	},
 	Crucifixion = {
