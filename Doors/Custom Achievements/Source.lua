@@ -14,7 +14,12 @@ local defaultAchievement = {
     Title = "Title",
     Desc = "Description",
     Reason = "Reason",
-    Image = "rbxassetid://12309073114"
+    Image = "rbxassetid://12309073114",
+    Prize = {
+        Revives = 1,
+        Knobs = 100,
+        Stardust = 20
+    }
 }
 
 -- Main
