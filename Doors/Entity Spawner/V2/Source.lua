@@ -417,13 +417,13 @@ function UnlockAchievement(achievement)
     }
     
     if prize.Revives.Visible then
-        table.insert(achievementInfo.Prize, 1, { Revives = prize.Revives.Amount })
+        achievementInfo.Prize.Revives = prize.Revives.Amount
     end
     if prize.Knobs.Visible then
-        table.insert(achievementInfo.Prize, 2, { Knobs = prize.Knobs.Amount })
+        achievementInfo.Prize.Knobs = prize.Knobs.Amount
     end
     if prize.Stardust.Visible then
-        table.insert(achievementInfo.Prize, 3, { Stardust = prize.Stardust.Amount })
+        achievementInfo.Prize.Stardust = prize.Stardust.Amount
     end
     
     if not achievement.Once then
