@@ -147,17 +147,6 @@
 	}
     ```
 ---
-- **Added Ignore Hiding Places**
-    - Have the entity ignore some of the hiding places and damage the player directly.
-    ```luau
-    Damage = {
-        -- Others...
-        IgnoreHiding = { -- All hide places are disabled for entities such as Deer God
-            Enabled = true
-        }
-	}
-    ```
----
 - **Added Crucified Callback**
     - This callback is triggered when the entity is crucified.
     - You can use `entity:SetCallback()` to customize the callback function.
@@ -251,5 +240,8 @@
 	}
     ```
 ### Removed
+- ~~**Ignore Hiding Places**~~
+    - ~~Have the entity ignore some of the hiding places and damage the player directly.~~
+---
 - ~~**Following Player**~~
     - ~~The entity will following the player's movements (similar to `A-120`)~~

@@ -98,10 +98,7 @@ local defaultConfig = {
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 125,
-		IgnoreHiding = {
-		    Enabled = false
-		}
+		Amount = 125
 	},
 	Rebounding = {
 		Enabled = true,
@@ -406,28 +403,27 @@ function PlayerInLineOfSight(model, config)
 end
 
 function UnlockAchievement(achievement)
-    if not achievement.Enabled then return end
+    if not achievement or not achievement.Enabled then return end
     
     local title = achievement.Title
+    local prize = achievement.Prize
+    
     local achievementInfo = {
         Title = title,
         Desc = achievement.Desc,
         Reason = achievement.Reason,
-        Image = achievement.Image
+        Image = achievement.Image,
+        Prize = {}
     }
     
-    local prize = achievement.Prize
-    if prize then
-        local prizeTable = {}
-        for prizeType, prizeData in pairs(prize) do
-            if prizeData.Visible then
-                prizeTable[prizeType] = prizeData.Amount
-            end
-        end
-        
-        if next(prizeTable) ~= nil then
-            achievementInfo.Prize = prizeTable
-        end
+    if prize.Revives.Visible then
+        table.insert(achievementInfo.Prize, 1, { Revives = prize.Revives.Amount })
+    end
+    if prize.Knobs.Visible then
+        table.insert(achievementInfo.Prize, 2, { Knobs = prize.Knobs.Amount })
+    end
+    if prize.Stardust.Visible then
+        table.insert(achievementInfo.Prize, 3, { Stardust = prize.Stardust.Amount })
     end
     
     if not achievement.Once then
@@ -1264,19 +1260,12 @@ spawner.Run = function(entityTable)
 	
 						-- Damage detection
 						if not model:GetAttribute("Paused") and not usedCrucifix then
-	                        local c = config.Damage
-	                        if c.Enabled and c.Range > 0 and localHum.Health > 0 and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
-		                        if localChar:GetAttribute("Hiding") then
-		                            if c.IgnoreHiding.Enabled then
-			                            model:SetAttribute("Damage", false)
-			                            DamagePlayer(entityTable)
-			                        end
-		                        else
-		                            model:SetAttribute("Damage", false)
-			                        DamagePlayer(entityTable)
-			                    end
-	                        end
-                        end
+							local c = config.Damage
+							if c.Enabled and c.Range > 0 and localHum.Health > 0 and not localChar:GetAttribute("Hiding") and model:GetAttribute("Damage") and not model:GetAttribute("BeingBanished") and (charPivot.Position - pivot.Position).Magnitude <= c.Range and inSight then
+								model:SetAttribute("Damage", false)
+								DamagePlayer(entityTable)
+							end
+						end
 	
 						-- Camera shaking
 						do
