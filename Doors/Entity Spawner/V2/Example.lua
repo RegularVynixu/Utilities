@@ -53,10 +53,7 @@ local entity = spawner.Create({
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 125,
-		IgnoreHiding = {
-		    Enabled = false
-		}
+		Amount = 125
 	},
 	Jumpscare = {
 	    Enabled = false,
