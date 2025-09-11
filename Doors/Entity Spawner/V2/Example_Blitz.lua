@@ -186,7 +186,7 @@ local attachment = main:WaitForChild("Attachment")
 local AttachmentSwitch = main:WaitForChild("AttachmentSwitch")
 
 local ogState = attachment:WaitForChild("ParticleEmitter").Enabled
-    local ogSwitchState = AttachmentSwitch:WaitForChild("ParticleEmitter").Enabled
+local ogSwitchState = AttachmentSwitch:WaitForChild("ParticleEmitter").Enabled
 
 entity:SetCallback("OnRebounding", function(startOfRebound)
 	-- Variables for the entity
@@ -227,7 +227,7 @@ entity:SetCallback("OnCrucified", function(stateResist)
 	    end
     end
 
-    if stateResist then
+    if stateResist == true then
         Particle(attachment, true)
         Particle(AttachmentSwitch, true)
 	    task.wait(9.625)
