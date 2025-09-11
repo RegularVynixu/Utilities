@@ -218,13 +218,7 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 	end
 end)
 
-entity:SetCallback("OnCrucified", function()
-	local hasTool, tool = PlayerHasItemEquipped("Crucifix")
-	if hasTool and tool and not entityModel:GetAttribute("BeingBanished") then
-		entityModel:SetAttribute("Paused", true)
-		CrucifixEntity(entity, tool)
-	end
-
+entity:SetCallback("OnCrucified", function(stateResist)
     local function Particle(attach, bool)
         for _, c in attach:GetChildren() do
             if not c.Enabled then
@@ -233,7 +227,7 @@ entity:SetCallback("OnCrucified", function()
 	    end
     end
 
-    if entity.Crucifixion.Resist then
+    if stateResist then
         Particle(attachment, true)
         Particle(AttachmentSwitch, true)
 	    task.wait(9.625)
