@@ -1,33 +1,21 @@
--- Services
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+--[[
+    This loadstring for DOORS Custom Achievements is now deprecated.
+    Please use the new loadstring below to remain up to date:
 
--- Variables
-local localPlayer = Players.LocalPlayer
-local playerGui = localPlayer:WaitForChild("PlayerGui")
+    https://raw.githubusercontent.com/RegularVynixu/DOORS-Custom-Achievements/main/init.luau
+]]--
 
-local moduleScripts = {
-    AchievementUnlock = require(playerGui:FindFirstChild("AchievementUnlock", true)),
-    Achievements = require(ReplicatedStorage.Achievements)
-}
-local defaultAchievement = {
-    Title = "Title",
-    Desc = "Description",
-    Reason = "Reason",
-    Image = "rbxassetid://12309073114"
-}
+local CustomAchievements = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Custom-Achievements/main/init.luau"))()
 
--- Main
-return function(info)
-    info = (type(info) == "table") and info or {}
-    for i, v in defaultAchievement do
-        if info[i] == nil then
-            info[i] = v
-        end
-    end
-    local stuff = moduleScripts.Achievements.SpecialQATester
-    local old = stuff.GetInfo
-    stuff.GetInfo = newcclosure(function() return info end)
-    moduleScripts.AchievementUnlock(nil, stuff.Name)
-    stuff.GetInfo = old
+return function(info: any)
+    CustomAchievements:Grant({
+        Identifier = "TestAchievement",
+        Title = info.Title,
+        Desc = info.Desc,
+        Reason = info.Reason,
+        Image = info.Image
+    }, {
+        CheckOwned = false,
+        Remember = false
+    })
 end
