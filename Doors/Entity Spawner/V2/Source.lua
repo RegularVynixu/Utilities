@@ -2,7 +2,7 @@
     This loadstring for DOORS Entity Spawner V2 is now deprecated.
     Please use the new loadstring below to remain up to date:
 
-    https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau
+    https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner/main/init.luau
 ]]--
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
